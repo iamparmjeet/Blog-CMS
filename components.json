@@ -1,25 +1,24 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "base-mira",
-  "rsc": true,
+  "rsc": false,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.js",
+    "config": "",
     "css": "src/styles.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
+    "components": "#/components",
+    "utils": "#/lib/utils",
+    "ui": "#/components/ui",
+    "lib": "#/lib",
+    "hooks": "#/hooks"
   },
-  "iconLibrary": "hugeicons",
+  "iconLibrary": "tabler",
   "rtl": false,
   "menuColor": "default",
-  "menuAccent": "subtle",
-  "registries": {}
+  "menuAccent": "subtle"
 }

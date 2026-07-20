@@ -3,7 +3,7 @@
   "mode": "file-router",
   "typescript": true,
   "packageManager": "bun",
-  "includeExamples": true,
+  "includeExamples": false,
   "tailwind": true,
   "addOnOptions": {
     "drizzle": {
@@ -11,7 +11,7 @@
     }
   },
   "envVarValues": {},
-  "git": false,
+  "git": true,
   "install": true,
   "routerOnly": false,
   "version": 1,
@@ -19,15 +19,12 @@
   "chosenAddOns": [
     "biome",
     "cloudflare",
-    "ai",
     "compiler",
     "drizzle",
     "form",
     "shadcn",
     "t3env",
     "better-auth",
-    "posthog",
-    "store",
     "tanstack-query"
   ]
 }
