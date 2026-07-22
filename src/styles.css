@@ -367,7 +367,7 @@
 
 	body {
 		height: 100%;
-		overflow: hidden;
+		/*overflow: hidden;*/
 		@apply bg-background text-foreground;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
