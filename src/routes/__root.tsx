@@ -42,12 +42,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" className="dark">
 			<head>
 				<HeadContent />
 			</head>
-			<body className="font-sans antialiased wrap-anywhere selection:bg-[rgba(79,184,178,0.24)]">
-				{children}
+			<body className="font-sans antialiased wrap-anywhere ">
+				<main className="min-h-screen bg-background text-foreground">
+					{children}
+				</main>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",
