@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeaders } from "@tanstack/react-start/server";
 import { requireSession } from "#/lib/auth/auth.server";
+import { readDashboardData } from "./dashboard.server";
 
 export const getDashboardData = createServerFn({ method: "GET" }).handler(
 	async () => {
@@ -18,9 +19,8 @@ export const getDashboardData = createServerFn({ method: "GET" }).handler(
 		validated session—not from browser input.
 		*/
 
-		return {
-			viewerId: session.user.id,
-			welcomeMessage: `Welcome back, ${session.user.name}`,
-		};
+		return readDashboardData({
+			userId: session.user.id,
+		});
 	},
 );

@@ -1,7 +1,9 @@
 import { sql } from "drizzle-orm";
 import {
+	check,
 	foreignKey,
 	integer,
+	primaryKey,
 	sqliteTable,
 	text,
 } from "drizzle-orm/sqlite-core";
@@ -33,6 +35,7 @@ export const settings = sqliteTable(
 			.default("google/gemini-2.5-flash"),
 		seoMeta: integer("seo_meta", { mode: "boolean" }).notNull().default(true),
 		rssFeed: integer("rss_feed", { mode: "boolean" }).notNull().default(true),
+		timeZone: text("time_zone").notNull().default("Asia/Kolkata"),
 		readingTime: integer("reading_time", { mode: "boolean" })
 			.notNull()
 			.default(false),
@@ -71,6 +74,7 @@ export const posts = sqliteTable(
 		status: text().notNull().default("draft"),
 		body: text(),
 		wordCount: integer({ mode: "number" }).notNull().default(0),
+		revision: integer({ mode: "number" }).notNull().default(0),
 		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.notNull()
@@ -112,5 +116,30 @@ export const media = sqliteTable(
 	},
 	(table) => [
 		foreignKey({ columns: [table.userId], foreignColumns: [user.id] }),
+	],
+);
+
+export const writingActivity = sqliteTable(
+	"writing_activity",
+	{
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		// ISO calendar date in the user's configured IANA timezone.
+		activityDate: text("activity_date").notNull(),
+		wordsAdded: integer("words_added", { mode: "number" }).notNull().default(0),
+		updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+			.notNull()
+			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		primaryKey({
+			columns: [table.userId, table.activityDate],
+		}),
+		check(
+			"writing_activity_words_added_non_negative",
+			sql`${table.wordsAdded} >= 0`,
+		),
 	],
 );
