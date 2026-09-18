@@ -31,7 +31,7 @@ If any recommendation is rejected, update this table and the affected tickets be
 
 ### Phase 0 — Stabilize the foundation (ROADMAP M0)
 
-- **T0.1 Repair dashboard status contract.** Blocked by: none. Decide the `normalizePostStatus` fallback (`unknown` vs `draft`), extend `DashboardPostStatus`, fix the failing test, align `buildDashboardData` return with `DashboardData` (include `activity`). Verify: `bun run test`.
+- **T0.1 Repair dashboard status contract.** Blocked by: none. Treat `archived` as a supported status from the start; normalize out-of-contract values to `unknown` (never `draft`); extend `DashboardPostStatus`; fix the failing test; align `buildDashboardData` return with `DashboardData` (include `activity`). Verify: `bun run test`.
 - **T0.2 Remove obsolete writing-activity modules.** Blocked by: T0.1. Delete or migrate `dashboard.activity.ts` and `activity-grid.tsx` (they import `#/features/writing-activity/*`, which does not exist, and reference removed columns `date`/`wordsDeleted`/`saveCount`). Verify: `bunx tsc --noEmit`.
 - **T0.3 Restore static checks.** Blocked by: T0.2. Fix stale `#/lib/auth-client` import, unused imports, Biome config version drift (`biome.json` schema 2.2.4 vs CLI 2.4.5 — run `biome migrate`), remaining diagnostics. Verify: `bun run check` clean.
 - **T0.4 Define repeat-owner auth.** Blocked by: none (parallel with T0.1). Login loader distinguishes *owner returning* from *second user claiming*; server hook keeps rejecting second users; cover first-claim / owner-return / second-user-rejected with integration tests.
@@ -46,7 +46,7 @@ If any recommendation is rejected, update this table and the affected tickets be
 ### Phase 2 — Post management (ROADMAP M2)
 
 - **T2.1 Posts list + create-draft.** Blocked by: T0.4, T1.2. Replace `/posts` placeholder with owner-scoped list (exclude soft-deleted) + create-draft flow. Verify: owner CRUD smoke tests.
-- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, status check constraint (`draft|published|scheduled`). Migration + backfill-safe defaults.
+- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, status check constraint (`draft|published|scheduled|archived`). Migration + backfill-safe defaults.
 - **T2.3 Rich editor (D3).** Blocked by: T2.2. TipTap editor at `/posts/$postId`, autosave via `savePostBody`, server-side word count from canonical body, positive-only activity recording. Cover `countWords`/`updatePostBody` with unit + integration tests.
 - **T2.4 Metadata + preview.** Blocked by: T2.3. Title/slug/SEO fields with validation (D4), live preview overlay, duplicate-slug rejection.
 - **T2.5 Lifecycle actions.** Blocked by: T2.4. Publish/unpublish, soft-delete/restore, purge (irreversible confirm), bulk ops. Verify: lifecycle integration tests incl. dashboard + feed exclusion of soft-deleted.
