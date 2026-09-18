@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run check-types
+
+      - name: Biome lint
+        run: bunx biome check .
+
+      - name: Tests (Vitest)
+        run: bun run test
+
+      - name: Build
+        run: bun run build

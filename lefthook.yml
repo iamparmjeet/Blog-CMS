@@ -1,0 +1,30 @@
+# lefthook.yml
+pre-commit:
+  parallel: true
+  jobs:
+    - name: biome
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: bun biome check --write --no-errors-on-unmatched
+        --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+
+pre-push:
+  parallel: true # WHY: typecheck and lint are independent — run both simultaneously
+  jobs:
+    # fast checks for every branch push
+    # - name: typecheck-affected
+    # run: bun run check-types -- --affected
+    - name: typecheck
+      run: bun run check-types
+    - name: biome-changed
+      run: bunx biome check --changed --no-errors-on-unmatched
+    #full production build only when pushing main
+    - name: production-build
+      run: bun run build
+      only:
+        - ref: main
