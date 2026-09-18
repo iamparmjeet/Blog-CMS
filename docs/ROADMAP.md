@@ -23,7 +23,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Retire or migrate obsolete activity modules so imports and schema usage match the active writing-activity model.
   - Acceptance: `bunx tsc --noEmit` has no writing-activity errors and the heatmap is covered by deterministic unit tests.
 
-- [ ] **M0.3: Restore code-quality checks.**
+- [x] **M0.3: Restore code-quality checks.**
   - Depends on: M0.2.
   - Align Biome configuration with its installed version and resolve existing source diagnostics without weakening rules.
   - Acceptance: `bun run check` passes.

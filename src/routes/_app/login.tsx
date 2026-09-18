@@ -14,11 +14,7 @@ function LoginPage() {
 
 	if (hasUser) return <HasUserComponent />;
 
-	return (
-		<>
-			<SocialLoginComponent />;
-		</>
-	);
+	return <SocialLoginComponent />;
 }
 
 function HasUserComponent() {
@@ -34,6 +30,7 @@ function HasUserComponent() {
 					}}
 				>
 					<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+						<title>User Component</title>
 						<path
 							d="M4 6h8M4 10h12M4 14h9"
 							stroke="#fff"
@@ -44,16 +41,16 @@ function HasUserComponent() {
 				</div>
 
 				<div className="rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6 text-center">
-					<div className="text-sm font-semibold text-[#d4d4d4]">
+					<div className="font-semibold text-[#d4d4d4] text-sm">
 						Instance already claimed
 					</div>
-					<p className="mt-2 text-[13px] leading-relaxed text-[#525252]">
+					<p className="mt-2 text-[#525252] text-[13px] leading-relaxed">
 						This content.os instance has been set up by its owner. Registration
 						and new logins are disabled.
 					</p>
 				</div>
 
-				<div className="text-[11px] text-[#333]">
+				<div className="text-[#333] text-[11px]">
 					content.os v0.1 — self-hosted
 				</div>
 			</div>
@@ -83,6 +80,7 @@ function SocialLoginComponent() {
 						}}
 					>
 						<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+							<title>Brand</title>
 							<path
 								d="M4 6h8M4 10h12M4 14h9"
 								stroke="#fff"
@@ -92,10 +90,10 @@ function SocialLoginComponent() {
 						</svg>
 					</div>
 					<div className="text-center">
-						<div className="text-[17px] font-semibold tracking-[-0.02em] text-[#e5e5e5]">
+						<div className="font-semibold text-[#e5e5e5] text-[17px] tracking-[-0.02em]">
 							content<span className="font-normal text-[#525252]">.os</span>
 						</div>
-						<div className="mt-1 text-[13px] text-[#525252]">
+						<div className="mt-1 text-[#525252] text-[13px]">
 							Your writing stack. Nothing else.
 						</div>
 					</div>
@@ -104,10 +102,10 @@ function SocialLoginComponent() {
 				{/* Card */}
 				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
 					<div className="mb-1.5">
-						<div className="mb-1 text-sm font-semibold text-[#d4d4d4]">
+						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
 							Claim this instance
 						</div>
-						<div className="text-xs text-[#525252]">
+						<div className="text-[#525252] text-xs">
 							Sign in once to become the owner. No one else can join after.
 						</div>
 					</div>
@@ -116,7 +114,7 @@ function SocialLoginComponent() {
 						size="lg"
 						type="button"
 						onClick={() => handleSocial("github")}
-						className="flex items-center justify-center gap-2   border-[#222] bg-[#141414] text-[13px] font-medium text-[#d4d4d4] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+						className="flex items-center justify-center gap-2 border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
 					>
 						<IconBrandGithub size={16} />
 						Continue with GitHub
@@ -125,18 +123,18 @@ function SocialLoginComponent() {
 						size="lg"
 						type="button"
 						onClick={() => handleSocial("google")}
-						className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] text-[13px] font-medium text-[#d4d4d4] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+						className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
 					>
 						<IconBrandGoogle size={16} />
 						Continue with Google
 					</Button>
 
-					<div className="mt-1 text-center text-[11px] text-[#404040]">
+					<div className="mt-1 text-center text-[#404040] text-[11px]">
 						Single-user · Self-hosted · No subscription
 					</div>
 				</div>
 
-				<div className="mt-5 text-center text-[11px] text-[#333]">
+				<div className="mt-5 text-center text-[#333] text-[11px]">
 					content.os v0.1 — built in public
 				</div>
 			</div>

@@ -46,7 +46,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="font-sans antialiased wrap-anywhere ">
+			<body className="wrap-anywhere font-sans antialiased">
 				<main className="min-h-screen bg-background">{children}</main>
 				<TanStackDevtools
 					config={{

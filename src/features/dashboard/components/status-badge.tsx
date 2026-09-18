@@ -19,7 +19,7 @@ export function StatusBadge({ status }: { status: DashboardPostStatus }) {
 
 	return (
 		<span
-			className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${classes[status]}`}
+			className={`shrink-0 rounded-full border px-2.5 py-1 font-medium text-xs ${classes[status]}`}
 		>
 			{labels[status]}
 		</span>

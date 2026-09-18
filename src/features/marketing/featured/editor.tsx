@@ -12,17 +12,17 @@ export function Editor() {
 	return (
 		<main className="flex h-full flex-col bg-black">
 			{/* title */}
-			<div className="flex h-10 items-center justify-between border-b border-white/5 px-6">
+			<div className="flex h-10 items-center justify-between border-white/5 border-b px-6">
 				<span className="text-xs text-zinc-600">
 					← Posts / Why I Ditched Notion for a Custom CMS
 				</span>
-				<span className="text-xs font-medium text-emerald-500">✓ Saved</span>
+				<span className="font-medium text-emerald-500 text-xs">✓ Saved</span>
 			</div>
 
 			{/* Content */}
 			<div className="flex-1 overflow-hidden">
 				<div className="mx-auto max-w-2xl px-10 py-10">
-					<h1 className="text-xl font-semibold tracking-[-0.02em] text-white leading-snug">
+					<h1 className="font-semibold text-white text-xl leading-snug tracking-[-0.02em]">
 						Why I Ditched Notion
 						<br />
 						for a Custom CMS
@@ -52,14 +52,14 @@ export function Editor() {
 					</div>
 
 					{/* Content Body */}
-					<div className="space-y-4 text-[13px] leading-relaxed text-zinc-400">
+					<div className="space-y-4 text-[13px] text-zinc-400 leading-relaxed">
 						<p>
 							After three years of using Notion, I finally built something that
 							actually matches how I think. This is not a hot take — it is about
 							removing friction between having an idea and publishing it.
 						</p>
 
-						<blockquote className="border-l-2 border-violet-500/40 pl-4 italic text-zinc-300">
+						<blockquote className="border-violet-500/40 border-l-2 pl-4 text-zinc-300 italic">
 							&ldquo;It started with the sluggishness.&rdquo;
 						</blockquote>
 
@@ -68,7 +68,7 @@ export function Editor() {
 							system when all I wanted to do was write.
 						</p>
 
-						<h2 className="text-sm font-semibold text-zinc-200 pt-2">
+						<h2 className="pt-2 font-semibold text-sm text-zinc-200">
 							So I built something
 						</h2>
 
