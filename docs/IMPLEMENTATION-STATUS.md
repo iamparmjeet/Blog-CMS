@@ -31,8 +31,10 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle. A successful bundle does not prove the production database can run on Workers. |
 | `bun run test` | Fails | One dashboard unit test expects unsupported statuses to remain distinguishable rather than become drafts. |
-| `bunx tsc --noEmit` | Fails | Stale activity modules reference moved paths and removed schema fields; dashboard data types are inconsistent; one auth-client import is stale. |
-| `bun run check` | Fails | Biome reports configuration-version drift, formatting/import issues, and a non-null database URL assertion. |
+| `bun run check-types` | Fails | 13 errors in 5 files: stale `writing-activity` imports (`dashboard.activity.ts`, `activity-grid.tsx`), `DashboardData.activity` missing from `buildDashboardData`, stale `#/lib/auth-client` import, unused `React` in `scroll-area.tsx`. Owned by T0.1–T0.3. |
+| `bun run check` | Fails | Schema drift fixed (Biome 2.4.5); remaining source formatting/import diagnostics. |
+| pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `production-build` ✔, `typecheck` blocks pushes while red (known T0 baseline). |
+| CI (main-only) | Added | `push→main` + `pull_request→main`; expected red until T0.1–T0.3 land. |
 
 ## Immediate Repair Scope
 
@@ -44,6 +46,13 @@ Before new product features, restore a clean baseline:
 - Fix the stale auth-client import and unused type imports.
 - Align Biome configuration with the installed CLI and resolve the reported checks.
 - Decide whether the owner can re-authenticate, then make the login screen and server enforcement match that rule.
+
+## Tooling (added 2026-09-18)
+
+- `AGENTS.md` (131 words, WDS-style) + `CLAUDE.md` symlink; links `@CONTEXT.md`, `@COMMITS.md`, roadmap/plan/status, delivery conventions.
+- `COMMITS.md` + commitlint + lefthook (`pre-commit` biome, `commit-msg` lint, `pre-push` typecheck/lint/build). Scripts: `check-types`, `check` (`biome check .`), `check:fix`.
+- `.github/workflows/ci.yml` (main-only triggers), `.release-it.json` (`npm.publish:false`), `opencode.jsonc` (playwright), `.opencode/commands/verify.md`.
+- Hygiene commits: `de89bb0`/`6bd8d01` chore(tooling), `21fbd40` docs(agent). `dev.db` untracked, `.cursorrules` removed.
 
 ## Documentation Caveat
 
