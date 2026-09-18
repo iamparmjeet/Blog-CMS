@@ -142,6 +142,20 @@ describe("buildDashboardData", () => {
 		expect(result.stats.totalWords).toBe(0);
 		expect(result.recentPosts[0]?.wordCount).toBe(0);
 	});
+	it("keeps archived posts out of draft counts and continuePost", () => {
+		const result = buildDashboardData(
+			[
+				createPost({ id: 1, status: "archived" }),
+				createPost({ id: 2, status: "draft" }),
+			],
+			null,
+		);
+
+		expect(result.stats.totalPosts).toBe(2);
+		expect(result.stats.draftPosts).toBe(1);
+		expect(result.continuePost?.id).toBe(2);
+		expect(result.recentPosts.map((post) => post.status)).toContain("archived");
+	});
 });
 
 describe("normalizePostStatus", () => {
@@ -149,10 +163,12 @@ describe("normalizePostStatus", () => {
 		expect(normalizePostStatus("draft")).toBe("draft");
 		expect(normalizePostStatus("published")).toBe("published");
 		expect(normalizePostStatus("scheduled")).toBe("scheduled");
+		expect(normalizePostStatus("archived")).toBe("archived");
 	});
 
 	it("does not misrepresent an unsupported status as a draft", () => {
-		expect(normalizePostStatus("archived")).toBe("unknown");
+		expect(normalizePostStatus("deleted")).toBe("unknown");
+		expect(normalizePostStatus("")).toBe("unknown");
 	});
 });
 
