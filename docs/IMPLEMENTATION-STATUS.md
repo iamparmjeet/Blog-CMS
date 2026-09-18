@@ -14,7 +14,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The login flow currently blocks all sign-ins after an owner exists. |
 | Ownership model | Partial | The first-user claim guard exists in the auth hook. Repeat-owner access needs a clear, working rule. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity. No enforced post-status or per-user slug constraints are present. |
-| Dashboard | Partial | UI, post summaries, and writing-activity reads exist. The feature currently fails type checking and one unit test. |
+| Dashboard | Partial | UI, post summaries, and writing-activity reads exist. T0.1–T0.3 are complete on stacked branches with all gates green at the stack top; `main` stays red until the stack merges bottom-up. |
 | Post editing | Foundation only | A server function can save a body and record added words; the posts route is a placeholder and no editor UI exists. |
 | Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
@@ -30,9 +30,9 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle. A successful bundle does not prove the production database can run on Workers. |
-| `bun run test` | Fails | One dashboard unit test expects unsupported statuses to remain distinguishable rather than become drafts. |
-| `bun run check-types` | Fails | 13 errors in 5 files: stale `writing-activity` imports (`dashboard.activity.ts`, `activity-grid.tsx`), `DashboardData.activity` missing from `buildDashboardData`, stale `#/lib/auth-client` import, unused `React` in `scroll-area.tsx`. Owned by T0.1–T0.3. |
-| `bun run check` | Fails | Schema drift fixed (Biome 2.4.5); remaining source formatting/import diagnostics. |
+| `bun run test` | Fails on `main` | Red on `main` (dashboard status-contract failure). Green 12/12 at the top of the T0 stack — T0.1 fixed the contract. Goes green on `main` when the stack merges. |
+| `bun run check-types` | Fails on `main` | 13-error baseline owned by T0.1–T0.3. Clean (0 errors) at the stack top: T0.1 fixed the contract return, T0.2 deleted the dead modules (13→2), T0.3 fixed the auth-client import and unused React (2→0). |
+| `bun run check` | Fails on `main` | Biome 2.4.5 drift + source diagnostics on `main`. Clean at the stack top after T0.3 (config migrated, autofix applied, 7 justified suppressions with reasons). |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `production-build` ✔, `typecheck` blocks pushes while red (known T0 baseline). |
 | CI (main-only) | Added | `push→main` + `pull_request→main`; expected red until T0.1–T0.3 land. |
 
