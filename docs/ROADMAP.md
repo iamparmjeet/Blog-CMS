@@ -13,12 +13,12 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Make the existing app reliable enough to extend.
 
-- [ ] **M0.1: Repair the dashboard contract.**
+- [x] **M0.1: Repair the dashboard contract.**
   - Depends on: none.
   - Resolve the unsupported-status behavior, align dashboard data types, and make dashboard tests pass.
   - Acceptance: `bun run test` passes and the dashboard distinguishes supported statuses from invalid data according to an explicit contract.
 
-- [ ] **M0.2: Consolidate writing-activity code.**
+- [x] **M0.2: Consolidate writing-activity code.**
   - Depends on: M0.1.
   - Retire or migrate obsolete activity modules so imports and schema usage match the active writing-activity model.
   - Acceptance: `bunx tsc --noEmit` has no writing-activity errors and the heatmap is covered by deterministic unit tests.
