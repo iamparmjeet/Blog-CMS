@@ -1,6 +1,11 @@
 import type { WritingActivityHeatmap } from "../writing-activity/writing.types";
 
-export type DashboardPostStatus = "draft" | "published" | "scheduled";
+export type DashboardPostStatus =
+	| "draft"
+	| "published"
+	| "scheduled"
+	| "archived"
+	| "unknown";
 
 export interface DashboardPostSummary {
 	id: number;
@@ -17,10 +22,13 @@ export interface DashboardStats {
 	draftPosts: number;
 }
 
-export interface DashboardData {
+export interface DashboardSummary {
 	accentColor: string;
 	stats: DashboardStats;
 	continuePost: DashboardPostSummary | null;
 	recentPosts: DashboardPostSummary[];
+}
+
+export interface DashboardData extends DashboardSummary {
 	activity: WritingActivityHeatmap;
 }

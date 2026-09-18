@@ -20,7 +20,7 @@ db · auth · posts · editor · media · feed · settings · dashboard · ai ·
 ## Examples
 
 feat(posts): add draft list with soft-delete filter
-fix(dashboard): keep unknown status distinguishable from draft
+fix(dashboard): treat archived as a supported post status
 refactor(db): extract per-request client factory
 chore(deps): add commitlint and lefthook commit-msg hook
 

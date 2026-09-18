@@ -13,7 +13,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Make the existing app reliable enough to extend.
 
-- [ ] **M0.1: Repair the dashboard contract.**
+- [x] **M0.1: Repair the dashboard contract.**
   - Depends on: none.
   - Resolve the unsupported-status behavior, align dashboard data types, and make dashboard tests pass.
   - Acceptance: `bun run test` passes and the dashboard distinguishes supported statuses from invalid data according to an explicit contract.
