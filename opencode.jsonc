@@ -1,0 +1,16 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	// Project-local: inherits global ~/.config/opencode/opencode.json.
+	// basic-memory stays global (constrained to --project main). Only add Blog-CMS needs here.
+	"mcp": {
+		"playwright": {
+			"type": "local",
+			"command": [
+				"npx",
+				"-y",
+				"@playwright/mcp"
+			],
+			"enabled": true
+		}
+	}
+}
