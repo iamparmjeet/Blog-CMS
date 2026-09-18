@@ -23,14 +23,14 @@ const steps = [
 
 export function HowItWorksSection() {
 	return (
-		<section id="how" className="border-y border-white/5 bg-[#060606] py-24">
+		<section id="how" className="border-white/5 border-y bg-[#060606] py-24">
 			<div className="mx-auto max-w-275 px-6">
 				<AnimateOnScroll>
 					<div className="mx-auto mb-16 flex max-w-2xl flex-col items-center gap-4 text-center">
-						<span className="text-xs font-semibold uppercase tracking-[0.06em] text-violet-500">
+						<span className="font-semibold text-violet-500 text-xs uppercase tracking-[0.06em]">
 							How it works
 						</span>
-						<h2 className="text-3xl font-semibold tracking-[-0.03em] text-zinc-100 sm:text-4xl">
+						<h2 className="font-semibold text-3xl text-zinc-100 tracking-[-0.03em] sm:text-4xl">
 							Simple by design.
 						</h2>
 					</div>
@@ -40,13 +40,13 @@ export function HowItWorksSection() {
 					{steps.map((step, i) => (
 						<AnimateOnScroll key={step.title} delay={i * 100}>
 							<div className="flex flex-col gap-3.5">
-								<span className="font-mono text-[11px] font-medium tracking-[0.04em] text-violet-500">
+								<span className="font-medium font-mono text-[11px] text-violet-500 tracking-[0.04em]">
 									{step.number} ——
 								</span>
-								<h3 className="text-base font-semibold tracking-[-0.01em] text-zinc-200">
+								<h3 className="font-semibold text-base text-zinc-200 tracking-[-0.01em]">
 									{step.title}
 								</h3>
-								<p className="text-[13px] leading-relaxed text-zinc-600">
+								<p className="text-[13px] text-zinc-600 leading-relaxed">
 									{step.description}
 								</p>
 							</div>

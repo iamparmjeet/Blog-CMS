@@ -9,9 +9,9 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
 	return (
-		<aside className="flex h-full flex-col border-r border-white/5 bg-zinc-950">
+		<aside className="flex h-full flex-col border-white/5 border-r bg-zinc-950">
 			{/* Logo */}
-			<div className="flex items-center gap-2.5 border-b border-white/5 px-4 py-3.5">
+			<div className="flex items-center gap-2.5 border-white/5 border-b px-4 py-3.5">
 				<Logo size="sm" />
 			</div>
 
@@ -20,7 +20,7 @@ export function Sidebar() {
 				{NAV_ITEMS.map(({ icon: Icon, label, active, count }) => (
 					<div
 						key={label}
-						className={`flex justify-between items-center gap-2 rounded-md px-3 py-2 text-xs ${active ? "bg-white/5 text-zinc-200" : "text-zinc-500"}`}
+						className={`flex items-center justify-between gap-2 rounded-md px-3 py-2 text-xs ${active ? "bg-white/5 text-zinc-200" : "text-zinc-500"}`}
 					>
 						<div className="flex items-center gap-2">
 							<Icon className="size-4" />
@@ -34,12 +34,12 @@ export function Sidebar() {
 			</nav>
 
 			{/* Active Post Info */}
-			<div className="border-t border-white/5 p-3">
-				<p className="mb-2 text-[10px] font-medium text-zinc-300 leading-snug">
+			<div className="border-white/5 border-t p-3">
+				<p className="mb-2 font-medium text-[10px] text-zinc-300 leading-snug">
 					This post
 				</p>
 				<div className="rounded-md border border-white/5 bg-white/3 p-3">
-					<p className="text-[10px] font-medium text-zinc-300 leading-snug">
+					<p className="font-medium text-[10px] text-zinc-300 leading-snug">
 						Why I ditched Notion for a Custom CMS
 					</p>
 					<p className="mt-1 font-mono text-[10px] text-zinc-600">
@@ -52,8 +52,8 @@ export function Sidebar() {
 				</div>
 
 				{/* Settings */}
-				<div className="mt-auto flex items-center gap-2 border-t border-white/5 px-3 py-3">
-					<div className="flex h-6 w-6 items-center justify-center rounded-full bg-linear-to-br from-violet-600 to-indigo-600 text-[9px] font-semibold text-white">
+				<div className="mt-auto flex items-center gap-2 border-white/5 border-t px-3 py-3">
+					<div className="flex h-6 w-6 items-center justify-center rounded-full bg-linear-to-br from-violet-600 to-indigo-600 font-semibold text-[9px] text-white">
 						AM
 					</div>
 					<span className="text-xs text-zinc-500">Alex Morgan</span>

@@ -31,16 +31,16 @@ export function ContinueWritingCard({
 				<h2 id="continue-writing-heading" className="font-semibold">
 					Continue writing
 				</h2>
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					Your most recently updated draft
 				</p>
 			</div>
 
 			{post ? (
 				<div className="mt-6">
-					<h3 className="line-clamp-2 text-lg font-medium">{post.title}</h3>
+					<h3 className="line-clamp-2 font-medium text-lg">{post.title}</h3>
 
-					<div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+					<div className="mt-3 flex flex-wrap items-center gap-3 text-muted-foreground text-sm">
 						<span>{formatNumber(post.wordCount)} words</span>
 						<span aria-hidden="true">·</span>
 						<time dateTime={post.updatedAt}>
@@ -50,7 +50,7 @@ export function ContinueWritingCard({
 
 					<Link
 						to="/posts"
-						className="mt-6 inline-flex items-center gap-2 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						className="mt-6 inline-flex items-center gap-2 font-medium text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						style={{ color: accentColor }}
 					>
 						Open posts
@@ -58,15 +58,15 @@ export function ContinueWritingCard({
 					</Link>
 				</div>
 			) : (
-				<div className="mt-6 rounded-lg border border-dashed border-border p-5">
+				<div className="mt-6 rounded-lg border border-border border-dashed p-5">
 					<p className="font-medium">No draft to continue</p>
-					<p className="mt-1 text-sm text-muted-foreground">
+					<p className="mt-1 text-muted-foreground text-sm">
 						Your next draft will appear here.
 					</p>
 
 					<Link
 						to="/posts"
-						className="mt-4 inline-flex items-center gap-2 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						className="mt-4 inline-flex items-center gap-2 font-medium text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						style={{ color: accentColor }}
 					>
 						View posts

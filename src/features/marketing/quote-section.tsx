@@ -2,13 +2,13 @@ import { AnimateOnScroll } from "#/components/motion/animate-on-scroll";
 
 export function QuoteSection() {
 	return (
-		<section className="border-y border-white/5 py-20">
+		<section className="border-white/5 border-y py-20">
 			<div className="mx-auto max-w-180 px-6 text-center">
 				<AnimateOnScroll>
-					<div className="text-5xl leading-none text-white/10 font-serif mb-2">
+					<div className="mb-2 font-serif text-5xl text-white/10 leading-none">
 						&ldquo;
 					</div>
-					<p className="mx-auto mb-5 max-w-170 text-xl font-medium tracking-[-0.02em] leading-relaxed text-zinc-300 sm:text-2xl">
+					<p className="mx-auto mb-5 max-w-170 font-medium text-xl text-zinc-300 leading-relaxed tracking-[-0.02em] sm:text-2xl">
 						I spent three years optimizing Notion instead of writing. After
 						building content.os, I write every single day.
 					</p>

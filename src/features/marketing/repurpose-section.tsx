@@ -45,13 +45,13 @@ export function RepurposeSection() {
 			<div className="mx-auto max-w-275 px-6">
 				<AnimateOnScroll>
 					<div className="mx-auto mb-16 flex max-w-2xl flex-col items-center gap-4 text-center">
-						<span className="text-xs font-semibold uppercase tracking-[0.06em] text-violet-500">
+						<span className="font-semibold text-violet-500 text-xs uppercase tracking-[0.06em]">
 							Repurpose
 						</span>
-						<h2 className="text-3xl font-semibold tracking-[-0.03em] text-zinc-100 sm:text-4xl">
+						<h2 className="font-semibold text-3xl text-zinc-100 tracking-[-0.03em] sm:text-4xl">
 							One post. Three platforms.
 						</h2>
-						<p className="max-w-135 text-[15px] leading-relaxed text-zinc-500">
+						<p className="max-w-135 text-[15px] text-zinc-500 leading-relaxed">
 							The repurpose panel lives alongside your editor. Pick a platform,
 							click Generate, and get platform-native content — streamed to you
 							in real time.
@@ -63,17 +63,17 @@ export function RepurposeSection() {
 					{platforms.map((p, i) => (
 						<AnimateOnScroll key={p.name} delay={i * 100}>
 							<div className="overflow-hidden rounded-xl border border-white/5 bg-[#0d0d0d]">
-								<div className="flex items-center gap-2 border-b border-white/5 px-4 py-3.5">
+								<div className="flex items-center gap-2 border-white/5 border-b px-4 py-3.5">
 									<span className={`h-1.5 w-1.5 rounded-full ${p.dotColor}`} />
-									<span className="text-xs font-semibold text-zinc-300">
+									<span className="font-semibold text-xs text-zinc-300">
 										{p.name}
 									</span>
 								</div>
 								<div className="p-4">
-									<strong className="mb-1.5 block text-xs font-medium text-zinc-500">
+									<strong className="mb-1.5 block font-medium text-xs text-zinc-500">
 										{p.heading}
 									</strong>
-									<p className="whitespace-pre-line text-xs leading-relaxed text-zinc-600">
+									<p className="whitespace-pre-line text-xs text-zinc-600 leading-relaxed">
 										{p.body}
 									</p>
 									{p.hashtags && (

@@ -36,7 +36,7 @@ export function DashBoardPage({ user, data }: DashBoardPageProps) {
 			className="min-h-screen bg-background text-foreground"
 			style={dashboardStyle}
 		>
-			<div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 flex flex-col gap-4">
+			<div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
 				{/*  Header */}
 				<DashboardHeader firstName={firstName} data={data} />
 

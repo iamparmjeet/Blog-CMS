@@ -7,7 +7,7 @@ export function FinalCTASection() {
 		<section className="py-24 text-center">
 			<div className="mx-auto max-w-275 px-6">
 				<AnimateOnScroll>
-					<h2 className="mb-4 text-4xl font-semibold tracking-[-0.04em] text-zinc-100 sm:text-6xl">
+					<h2 className="mb-4 font-semibold text-4xl text-zinc-100 tracking-[-0.04em] sm:text-6xl">
 						Ready to write?
 					</h2>
 					<p className="mb-9 text-[15px] text-zinc-600">

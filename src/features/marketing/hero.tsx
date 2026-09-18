@@ -33,7 +33,7 @@ export function Hero() {
 				<div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(124,58,237,0.08),transparent_70%)]" />
 
 				{/* Grid overlay */}
-				<div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(circle_at_50%_0%,black_30%,transparent_70%)]" />
+				<div className="mask-[radial-gradient(circle_at_50%_0%,black_30%,transparent_70%)] absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-size-[56px_56px]" />
 
 				<div className="container mx-auto max-w-6xl px-6 py-12">
 					<div className="mx-auto flex max-w-280 flex-col items-center text-center">
@@ -41,7 +41,7 @@ export function Hero() {
 						<motion.div {...itemProps}>
 							<Badge
 								variant="outline"
-								className="border-white/10 bg-white/4 px-4 py-3 text-xs text-white/80"
+								className="border-white/10 bg-white/4 px-4 py-3 text-white/80 text-xs"
 							>
 								✨ Open Source • Self Hosted • No Subscription
 							</Badge>
@@ -50,7 +50,7 @@ export function Hero() {
 						{/* Heading*/}
 						<motion.h1
 							{...itemProps}
-							className="mt-10 text-balance text-5xl font-bold tracking-[-0.04em] sm:text-7xl"
+							className="mt-10 text-balance font-bold text-5xl tracking-[-0.04em] sm:text-7xl"
 						>
 							Write Once. <br />{" "}
 							<span className="bg-linear-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
@@ -61,7 +61,7 @@ export function Hero() {
 						{/* Subtitle*/}
 						<motion.p
 							{...itemProps}
-							className="mt-8 max-w-lg text-base leading-7 text-zinc-400"
+							className="mt-8 max-w-lg text-base text-zinc-400 leading-7"
 						>
 							A distraction-free CMS with{" "}
 							<span className="font-medium text-zinc-300">
@@ -93,7 +93,7 @@ export function Hero() {
 						{/*Button*/}
 						<motion.div
 							{...itemProps}
-							className="mt-8 flex flex-col gap-3 sm:flex-row group"
+							className="group mt-8 flex flex-col gap-3 sm:flex-row"
 						>
 							<Button variant="purple" size="lg">
 								<Link to="/login" className="flex items-center gap-2">

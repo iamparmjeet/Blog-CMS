@@ -30,7 +30,7 @@ export function RecentPosts({ posts }: RecentPostsProps) {
 							<div className="min-w-0">
 								<p className="truncate font-medium">{post.title}</p>
 
-								<p className="mt-1 text-sm text-muted-foreground">
+								<p className="mt-1 text-muted-foreground text-sm">
 									{formatNumber(post.wordCount)} words
 									{" · "}
 									<time dateTime={post.updatedAt}>
@@ -44,20 +44,20 @@ export function RecentPosts({ posts }: RecentPostsProps) {
 					))}
 				</ul>
 			) : (
-				<div className="mt-5 rounded-lg border border-dashed border-border p-8 text-center">
+				<div className="mt-5 rounded-lg border border-border border-dashed p-8 text-center">
 					<IconFileText
 						aria-hidden="true"
 						className="mx-auto size-8 text-muted-foreground"
 					/>
 					<p className="mt-3 font-medium">No posts yet</p>
-					<p className="mt-1 text-sm text-muted-foreground">
+					<p className="mt-1 text-muted-foreground text-sm">
 						Your recently updated posts will appear here.
 					</p>
 				</div>
 			)}
 			<Link
 				to="/posts"
-				className="mt-3.5 text-xs text-[#333] border-0 bg-transparent cursor-default flex items-center gap-1 hover:text-[#737373] transition-colors"
+				className="mt-3.5 flex cursor-default items-center gap-1 border-0 bg-transparent text-[#333] text-xs transition-colors hover:text-[#737373]"
 			>
 				View all posts <IconChevronRight size={11} />
 			</Link>
