@@ -39,10 +39,10 @@ export function Heatmap({ data }: WritingActivityHeatmapProps) {
 			<HeatmapHeader totalWordsAdded={data.totalWordsAdded} />
 
 			{/* Cells */}
-			<div className="overflow-x-auto flex gap-2 pb-2">
+			<div className="flex gap-2 overflow-x-auto pb-2">
 				<div className="flex w-max grid-cols-[12px_auto] gap-2">
 					<div
-						className="grid grid-rows-7 gap-1 text-[9px] leading-3 text-text-muted"
+						className="grid grid-rows-7 gap-1 text-[9px] text-text-muted leading-3"
 						aria-hidden="true"
 					>
 						<span />
@@ -54,6 +54,7 @@ export function Heatmap({ data }: WritingActivityHeatmapProps) {
 						<span />
 					</div>
 				</div>
+				{/* biome-ignore lint/a11y/useSemanticElements: calendar heatmap, not tabular data; explicit grid role with row/col counts is deliberate. */}
 				<div
 					role="grid"
 					aria-label="Writing activity for the last 12 weeks"
@@ -99,12 +100,12 @@ function HeatmapHeader({ totalWordsAdded }: { totalWordsAdded: number }) {
 	return (
 		<header className="mb-5 flex items-start justify-between gap-4">
 			<div>
-				<p className="mt-1 text-xs text-text-muted">
+				<p className="mt-1 text-text-muted text-xs">
 					Words added during the last 12 weeks
 				</p>
 			</div>
 
-			<p className="text-xs text-text-secondary">
+			<p className="text-text-secondary text-xs">
 				{numberFormatter.format(totalWordsAdded)} words
 			</p>
 		</header>
