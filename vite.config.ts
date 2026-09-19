@@ -6,16 +6,18 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-export default defineConfig(({ command }) => ({
-	resolve: { tsconfigPaths: true },
-	plugins: [
-		devtools(),
-		// Cloudflare worker runtime only for production builds.
-		// In dev, SSR runs in Node.js so native modules like better-sqlite3 work.
-		command === "build" && cloudflare({ viteEnvironment: { name: "ssr" } }),
-		tailwindcss(),
-		tanstackStart(),
-		viteReact(),
-		babel({ presets: [reactCompilerPreset()] }),
-	],
-}));
+export default defineConfig(({ mode }) => {
+	const isTest = mode === "test" || process.env.VITEST === "true";
+
+	return {
+		resolve: { tsconfigPaths: true },
+		plugins: [
+			devtools(),
+			!isTest && cloudflare({ viteEnvironment: { name: "ssr" } }),
+			tailwindcss(),
+			tanstackStart(),
+			viteReact(),
+			babel({ presets: [reactCompilerPreset()] }),
+		],
+	};
+});

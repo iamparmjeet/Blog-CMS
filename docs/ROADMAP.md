@@ -42,7 +42,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Select the Workers-compatible database binding and write an ADR covering local development, migrations, secrets, and rollback.
   - Acceptance: the decision is documented and the Worker configuration declares every required binding.
 
-- [ ] **M1.2: Migrate persistence to the production-compatible driver.**
+- [x] **M1.2: Migrate persistence to the production-compatible driver.**
   - Depends on: M1.1.
   - Make authentication, posts, settings, media metadata, and writing activity use the selected database in local and Worker environments.
   - Acceptance: migrations apply from an empty database and a Worker preview can read/write each core model.
