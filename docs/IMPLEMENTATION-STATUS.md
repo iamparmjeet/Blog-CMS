@@ -39,11 +39,12 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete and M1.1/T1.2 landed on `main`. T1.3 is implemented on branch `feat/t1.3-migration-hygiene`:
+The T0 baseline repair is complete; M1.1/T1.2/T1.3 are merged on `main`, and M2.1 (posts list + create-draft) is in review as PR #7:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
-- Remaining before product features: T1.4 deploy verification (provision D1/R2, replace the placeholder database ID, preview smoke).
+- `/posts` lists the owner's non-deleted posts and creates untitled drafts; the rich editor arrives with M2.2.
+- Remaining before deployment: T1.4 deploy verification (provision D1/R2, replace the placeholder database ID, preview smoke).
 
 ## Tooling (added 2026-09-18)
 
