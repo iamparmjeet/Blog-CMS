@@ -46,7 +46,7 @@ If any recommendation is rejected, update this table and the affected tickets be
 ### Phase 2 — Post management (ROADMAP M2)
 
 - **T2.1 Posts list + create-draft.** Blocked by: T0.4, T1.2. Replace `/posts` placeholder with owner-scoped list (exclude soft-deleted) + create-draft flow. Verify: owner CRUD smoke tests.
-- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, status check constraint (`draft|published|scheduled|archived`). Migration + backfill-safe defaults.
+- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, and status check constraint (`draft|published|scheduled|archived`). Backfill or resolve invalid stored statuses before applying the constraint, then remove the temporary `unknown` fallback from domain and dashboard status unions so invalid reads fail as data-integrity errors. Migration + backfill-safe defaults.
 - **T2.3 Rich editor (D3).** Blocked by: T2.2. TipTap editor at `/posts/$postId`, autosave via `savePostBody`, server-side word count from canonical body, positive-only activity recording. Cover `countWords`/`updatePostBody` with unit + integration tests.
 - **T2.4 Metadata + preview.** Blocked by: T2.3. Title/slug/SEO fields with validation (D4), live preview overlay, duplicate-slug rejection.
 - **T2.5 Lifecycle actions.** Blocked by: T2.4. Publish/unpublish, soft-delete/restore, purge (irreversible confirm), bulk ops. Verify: lifecycle integration tests incl. dashboard + feed exclusion of soft-deleted.

@@ -32,4 +32,8 @@
 - Whether the owner may sign in again after claiming the instance. The present login page blocks all sign-ins once any owner exists, which conflicts with a practical single-owner model.
 - The production database target. Cloudflare Workers require a Workers-compatible database binding; the current local SQLite driver is not deployable there.
 - The canonical post-body representation and derived word-count rules for rich editor content.
-- Whether out-of-contract post `status` values keep a dedicated `unknown` fallback or are treated as impossible once T2.2 constrains the column. Review requested from terra/sol.
+
+## Status Integrity
+
+- `unknown` is a temporary read-time fallback while the current database permits arbitrary status strings. It prevents invalid stored data from being misrepresented as `draft`.
+- T2.2 must backfill or otherwise resolve every invalid stored status before adding the status constraint. Once constrained, remove `unknown` from the domain and dashboard status unions; an invalid status read is a data-integrity error.
