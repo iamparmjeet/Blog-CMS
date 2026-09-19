@@ -8,10 +8,11 @@ function createThrowawayDb() {
 	const sqlite = new Database(":memory:");
 	sqlite.exec(`
     CREATE TABLE user (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL UNIQUE,
-      email_verified INTEGER DEFAULT 0 NOT NULL,
+		id TEXT PRIMARY KEY,
+		name TEXT NOT NULL,
+		email TEXT NOT NULL UNIQUE,
+		owner_claim INTEGER NOT NULL DEFAULT 1 UNIQUE,
+		email_verified INTEGER DEFAULT 0 NOT NULL,
       image TEXT,
       created_at INTEGER,
       updated_at INTEGER
@@ -70,5 +71,14 @@ describe("owner claim guard (throwaway DB)", () => {
 		expect(() =>
 			assertOwnerClaimAllowed(existingEmail, "intruder@example.com"),
 		).toThrow("This instance has already been claimed.");
+	});
+
+	it("enforces a single owner when two users are created", () => {
+		const insertUser = (id: string, email: string) =>
+			db.insert(user).values({ id, name: "Owner", email }).run();
+
+		insertUser("owner-1", "owner@example.com");
+
+		expect(() => insertUser("intruder-1", "intruder@example.com")).toThrow();
 	});
 });
