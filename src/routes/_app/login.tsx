@@ -49,16 +49,18 @@ function OwnerReturnComponent({
 				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
 					<div className="mb-1.5">
 						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
-							{instanceClaimed ? "Instance already claimed" : "Welcome back"}
+							{instanceClaimed
+								? "This account isn't the owner"
+								: "Welcome back"}
 						</div>
 						<div className="text-[#525252] text-xs">
 							{instanceClaimed
-								? "Only the owner account can manage this instance."
+								? "Sign in with the owner account to continue."
 								: "Sign in with your owner account to manage this instance."}
 						</div>
 					</div>
 
-					<SocialButtons />
+					<SocialButtons useDifferentAccount={instanceClaimed} />
 
 					<div className="mt-1 text-center text-[#404040] text-[11px]">
 						Single-user · Self-hosted · No subscription
@@ -138,7 +140,7 @@ function BrandHeader() {
 	);
 }
 
-function SocialButtons() {
+function SocialButtons({ useDifferentAccount = false }) {
 	const handleSocial = (provider: "github" | "google") => {
 		authClient.signIn.social({
 			provider,
@@ -155,7 +157,7 @@ function SocialButtons() {
 				className="flex items-center justify-center gap-2 border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
 			>
 				<IconBrandGithub size={16} />
-				Continue with GitHub
+				{useDifferentAccount ? "Use GitHub instead" : "Continue with GitHub"}
 			</Button>
 			<Button
 				size="lg"
@@ -164,7 +166,7 @@ function SocialButtons() {
 				className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
 			>
 				<IconBrandGoogle size={16} />
-				Continue with Google
+				{useDifferentAccount ? "Use Google instead" : "Continue with Google"}
 			</Button>
 		</>
 	);
