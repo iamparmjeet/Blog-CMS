@@ -11,8 +11,8 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Area | Status | Current state |
 | --- | --- | --- |
 | Marketing site | Implemented | Static landing page sections are present. |
-| Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign back in (welcome-back login); only a second distinct user is rejected by the server hook. |
-| Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests. |
+| Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign back in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint. |
+| Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity. No enforced post-status or per-user slug constraints are present. |
 | Dashboard | Partial | UI, post summaries, and writing-activity reads exist. T0.1–T0.3 landed on `main`: archived/unknown status contract, dead activity modules removed, static checks green. |
 | Post editing | Foundation only | A server function can save a body and record added words; the posts route is a placeholder and no editor UI exists. |
@@ -30,7 +30,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle. A successful bundle does not prove the production database can run on Workers. |
-| `bun run test` | Passes | 22/22, including the dashboard status-contract and owner-claim (first-claim/return/rejection) cases. |
+| `bun run test` | Passes | 23/23, including the dashboard status-contract and owner-claim (first-claim/return/rejection) cases. |
 | `bun run check-types` | Passes | 0 errors (13→2→0 across T0.2 and T0.3). |
 | `bun run check` | Passes | Biome 2.4.5 clean on 86 files; config migrated, 5 suppressions with written reasons. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
