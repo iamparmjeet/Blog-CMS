@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db";
+import { getDb } from "#/db";
 import { user } from "#/db/auth-schema";
 import { getRequestSession } from "./auth.server";
 
 export const checkUserExists = createServerFn({ method: "GET" }).handler(
 	async () => {
 		try {
+			const db = getDb();
 			const [session, existingUser] = await Promise.all([
 				getRequestSession(),
 				db

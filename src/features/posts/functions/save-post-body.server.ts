@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "#/db";
+import { getDb } from "#/db";
 import { posts, settings, writingActivity } from "#/db/schema";
 import {
 	getDateKeyInTimeZone,
@@ -19,89 +19,93 @@ interface UpdatePostBodyInput extends SavePostBodyInput {
 	now?: Date;
 }
 
-export function updatePostBody({
+export async function updatePostBody({
 	userId,
 	postId,
 	body,
 	now = new Date(),
 }: UpdatePostBodyInput) {
-	return db.transaction((tx) => {
-		const existingPost = tx
-			.select({
-				id: posts.id,
-				wordCount: posts.wordCount,
-			})
-			.from(posts)
-			.where(
-				and(
-					eq(posts.id, postId),
-					eq(posts.userId, userId),
-					isNull(posts.deletedAt),
-				),
-			)
-			.get();
+	const db = getDb();
 
-		if (!existingPost) {
-			throw new Error("Post not found");
-		}
+	const existingPost = await db
+		.select({
+			id: posts.id,
+			wordCount: posts.wordCount,
+		})
+		.from(posts)
+		.where(
+			and(
+				eq(posts.id, postId),
+				eq(posts.userId, userId),
+				isNull(posts.deletedAt),
+			),
+		)
+		.get();
 
-		const preference = tx
-			.select({
-				timeZone: settings.timeZone,
-			})
-			.from(settings)
-			.where(eq(settings.userId, userId))
-			.get();
+	if (!existingPost) {
+		throw new Error("Post not found");
+	}
 
-		const timeZone = resolveTimeZone(preference?.timeZone);
-		const activityDate = getDateKeyInTimeZone(now, timeZone);
-		const wordCount = countWords(body);
+	const preference = await db
+		.select({
+			timeZone: settings.timeZone,
+		})
+		.from(settings)
+		.where(eq(settings.userId, userId))
+		.get();
 
-		// Deleting words must not remove previously earned activity.
-		const wordsAdded = Math.max(0, wordCount - existingPost.wordCount);
+	const timeZone = resolveTimeZone(preference?.timeZone);
+	const activityDate = getDateKeyInTimeZone(now, timeZone);
+	const wordCount = countWords(body);
 
-		tx.update(posts)
-			.set({
-				body,
-				wordCount,
+	// Deleting words must not remove previously earned activity.
+	const wordsAdded = Math.max(0, wordCount - existingPost.wordCount);
+
+	const updatePost = db
+		.update(posts)
+		.set({
+			body,
+			wordCount,
+			updatedAt: now,
+		})
+		.where(
+			and(
+				eq(posts.id, postId),
+				eq(posts.userId, userId),
+				isNull(posts.deletedAt),
+			),
+		);
+
+	if (wordsAdded > 0) {
+		const recordActivity = db
+			.insert(writingActivity)
+			.values({
+				userId,
+				activityDate,
+				wordsAdded,
 				updatedAt: now,
 			})
-			.where(
-				and(
-					eq(posts.id, postId),
-					eq(posts.userId, userId),
-					isNull(posts.deletedAt),
-				),
-			)
-			.run();
-
-		if (wordsAdded > 0) {
-			tx.insert(writingActivity)
-				.values({
-					userId,
-					activityDate,
-					wordsAdded,
+			.onConflictDoUpdate({
+				target: [writingActivity.userId, writingActivity.activityDate],
+				set: {
+					wordsAdded: sql`
+						${writingActivity.wordsAdded} + ${wordsAdded}
+					`,
 					updatedAt: now,
-				})
-				.onConflictDoUpdate({
-					target: [writingActivity.userId, writingActivity.activityDate],
-					set: {
-						wordsAdded: sql`
-							${writingActivity.wordsAdded} + ${wordsAdded}
-						`,
-						updatedAt: now,
-					},
-				})
-				.run();
-		}
+				},
+			});
 
-		return {
-			postId,
-			wordCount,
-			wordsAdded,
-			activityDate,
-		};
-	});
+		await db.batch([updatePost, recordActivity]);
+	} else {
+		await db.batch([updatePost]);
+	}
+
+	return {
+		postId,
+		wordCount,
+		wordsAdded,
+		activityDate,
+	};
 }
 
 export function countWords(body: string): number {
