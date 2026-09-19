@@ -29,7 +29,7 @@
 
 ## Open Decisions
 
-- Whether the owner may sign in again after claiming the instance. The present login page blocks all sign-ins once any owner exists, which conflicts with a practical single-owner model.
+- Settled (D2, T0.4): the owner may always sign in again; only a second distinct user is rejected. The login page distinguishes first claim from owner return, and the server hook enforces single ownership.
 - The production database target. Cloudflare Workers require a Workers-compatible database binding; the current local SQLite driver is not deployable there.
 - The canonical post-body representation and derived word-count rules for rich editor content.
 

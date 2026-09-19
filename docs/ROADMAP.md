@@ -28,7 +28,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Align Biome configuration with its installed version and resolve existing source diagnostics without weakening rules.
   - Acceptance: `bun run check` passes.
 
-- [ ] **M0.4: Define repeat-owner authentication.**
+- [x] **M0.4: Define repeat-owner authentication.**
   - Depends on: none.
   - Decide and document how the claimed owner signs in again while preventing a second owner from claiming the instance.
   - Acceptance: first claim, repeat owner sign-in, and second-user rejection are covered by integration tests.
