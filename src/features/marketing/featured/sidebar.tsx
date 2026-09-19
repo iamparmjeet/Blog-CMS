@@ -1,5 +1,6 @@
 import { IconFileText, IconHome, IconSettings } from "@tabler/icons-react";
 import { Logo } from "#/components/shared/logo";
+import { cn } from "#/lib/utils";
 
 const NAV_ITEMS = [
 	{ icon: IconHome, label: "Home" },
@@ -7,9 +8,14 @@ const NAV_ITEMS = [
 	{ icon: IconSettings, label: "Settings" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
 	return (
-		<aside className="flex h-full flex-col border-white/5 border-r bg-zinc-950">
+		<aside
+			className={cn(
+				"flex h-full flex-col border-white/5 border-r bg-zinc-950",
+				className,
+			)}
+		>
 			{/* Logo */}
 			<div className="flex items-center gap-2.5 border-white/5 border-b px-4 py-3.5">
 				<Logo size="sm" />
@@ -43,7 +49,7 @@ export function Sidebar() {
 						Why I ditched Notion for a Custom CMS
 					</p>
 					<p className="mt-1 font-mono text-[10px] text-zinc-600">
-						/why-i-diteched-notion
+						/why-i-ditched-notion
 					</p>
 					<div className="mt-3 flex items-center justify-between">
 						<span className="text-[11px] text-zinc-500">Draft</span>
