@@ -16,7 +16,7 @@
 
 | # | Question | Recommendation | Needed by |
 |---|----------|----------------|-----------|
-| D1 | Production database target | **Cloudflare D1** via `drizzle-orm/d1`; local dev against local D1 (wrangler) so dev/prod share one driver. ADR required. | Phase 1 |
+| D1 | Production database target | **Settled (T1.1): Cloudflare D1** via `drizzle-orm/d1`; local dev against local D1 (wrangler) so dev/prod share one driver. See `docs/decisions/0001-cloudflare-d1.md`. | Phase 1 |
 | D2 | Repeat owner sign-in | Owner may always sign in; only a *second distinct user* is rejected. Fix login loader + keep the `databaseHooks` guard. | Phase 0 |
 | D3 | Canonical post-body representation | **TipTap JSON** stored in `posts.body`; word count derived from text nodes server-side. One rule, used by editor, preview, feed, and activity. | Phase 2 |
 | D4 | Slug rules | `^[a-z0-9]+(?:-[a-z0-9]+)*$`, unique per `userId` (DB unique index), immutable once published unless owner explicitly regenerates. | Phase 2 |
@@ -46,7 +46,7 @@ If any recommendation is rejected, update this table and the affected tickets be
 ### Phase 2 — Post management (ROADMAP M2)
 
 - **T2.1 Posts list + create-draft.** Blocked by: T0.4, T1.2. Replace `/posts` placeholder with owner-scoped list (exclude soft-deleted) + create-draft flow. Verify: owner CRUD smoke tests.
-- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, status check constraint (`draft|published|scheduled|archived`). Migration + backfill-safe defaults.
+- **T2.2 Schema for publishing.** Blocked by: T2.1. Add `description`, `publishedAt`, `scheduledAt`, per-user unique slug index, and status check constraint (`draft|published|scheduled|archived`). Backfill or resolve invalid stored statuses before applying the constraint, then remove the temporary `unknown` fallback from domain and dashboard status unions so invalid reads fail as data-integrity errors. Migration + backfill-safe defaults.
 - **T2.3 Rich editor (D3).** Blocked by: T2.2. TipTap editor at `/posts/$postId`, autosave via `savePostBody`, server-side word count from canonical body, positive-only activity recording. Cover `countWords`/`updatePostBody` with unit + integration tests.
 - **T2.4 Metadata + preview.** Blocked by: T2.3. Title/slug/SEO fields with validation (D4), live preview overlay, duplicate-slug rejection.
 - **T2.5 Lifecycle actions.** Blocked by: T2.4. Publish/unpublish, soft-delete/restore, purge (irreversible confirm), bulk ops. Verify: lifecycle integration tests incl. dashboard + feed exclusion of soft-deleted.

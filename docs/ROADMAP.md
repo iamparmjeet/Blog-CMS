@@ -28,7 +28,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Align Biome configuration with its installed version and resolve existing source diagnostics without weakening rules.
   - Acceptance: `bun run check` passes.
 
-- [ ] **M0.4: Define repeat-owner authentication.**
+- [x] **M0.4: Define repeat-owner authentication.**
   - Depends on: none.
   - Decide and document how the claimed owner signs in again while preventing a second owner from claiming the instance.
   - Acceptance: first claim, repeat owner sign-in, and second-user rejection are covered by integration tests.
@@ -37,7 +37,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Use one supported persistence model in development and Cloudflare production.
 
-- [ ] **M1.1: Decide the production database architecture.**
+- [x] **M1.1: Decide the production database architecture.**
   - Depends on: M0.3.
   - Select the Workers-compatible database binding and write an ADR covering local development, migrations, secrets, and rollback.
   - Acceptance: the decision is documented and the Worker configuration declares every required binding.

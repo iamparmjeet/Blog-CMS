@@ -5,6 +5,9 @@ export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
+	// A unique constant makes the single-owner invariant atomic across concurrent
+	// Better Auth user creation requests.
+	ownerClaim: integer("owner_claim").notNull().default(1).unique(),
 	emailVerified: integer("email_verified", { mode: "boolean" })
 		.default(false)
 		.notNull(),
