@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Assessed:** 2026-09-18
+**Assessed:** 2026-09-19
 
 This baseline is based on the current tracked source, README commitments, and local verification. It is not a product specification; `docs/ROADMAP.md` is the implementation plan.
 
@@ -10,7 +10,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 | Area | Status | Current state |
 | --- | --- | --- |
-| Marketing site | Implemented | Static landing page sections are present. |
+| Marketing site | Implemented | Landing sections: hero, repurpose, how-it-works, open-source callout, final CTA. Dark brand shell; decorative product mock is `aria-hidden`/`inert`, the page is responsive, and motion respects reduced motion. |
 | Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The login flow currently blocks all sign-ins after an owner exists. |
 | Ownership model | Partial | The first-user claim guard exists in the auth hook. Repeat-owner access needs a clear, working rule. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity. No enforced post-status or per-user slug constraints are present. |
@@ -32,7 +32,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | `bun run build` | Passes | Generates a client and Worker bundle. A successful bundle does not prove the production database can run on Workers. |
 | `bun run test` | Passes | 12/12, including the dashboard archived/unknown contract cases. |
 | `bun run check-types` | Passes | 0 errors (13→2→0 across T0.2 and T0.3). |
-| `bun run check` | Passes | Biome 2.4.5 clean on 83 files; config migrated, 7 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 83 files; config migrated, 5 inline suppressions with written reasons. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
 
@@ -41,6 +41,20 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 The T0 baseline repair is complete (T0.1–T0.3 merged, all four gates green on `main`). Remaining before new product features:
 
 - Decide whether the owner can re-authenticate, then make the login screen and server enforcement match that rule (T0.4).
+
+## Marketing Page Pass (2026-09-19)
+
+The landing page was reviewed against the design and React guidelines and corrected:
+
+- Replaced the fabricated "Alex Morgan" testimonial with an honest open-source callout (`src/features/marketing/open-source-section.tsx`): MIT/self-host meta, real repository link, and a self-host terminal snippet. `quote-section.tsx` was removed.
+- Rebuilt the final CTA as a bordered panel with an accent glow instead of a bare centered block.
+- Removed invalid nested interactive markup (`<button>` wrapping links) by styling router and native links with `buttonVariants`; CTA labels are unified to one intent each.
+- Fixed landing defects: `text-zince-500` typo, duplicate React keys in the repurpose mock, the dead `/why-i-diteched-notion` slug, placeholder GitHub links, and a raw `<a href="/dashboard">` full reload.
+- Header scroll state now uses Motion `useScroll`/`useMotionValueEvent` instead of a `window` scroll listener.
+- The decorative dashboard mock is responsive and no longer focusable or announced (`aria-hidden` + `inert`); its dead `useState` was removed.
+- Reduced motion is respected for the platform rotation, mock float, and typing caret.
+
+Not addressed in this pass: full accessibility audit, light-mode support, and deferred section-layout/eyebrow diversification.
 
 ## Tooling (added 2026-09-18)
 
