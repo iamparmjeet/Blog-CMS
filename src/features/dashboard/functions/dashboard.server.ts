@@ -1,5 +1,5 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
-import { db } from "#/db";
+import { getDb } from "#/db";
 import { posts, settings } from "#/db/schema";
 import { readWritingActivity } from "../writing-activity/writing.server";
 import type { DashboardData } from "./dashboard.types";
@@ -12,6 +12,7 @@ interface ReadDashboardDataInput {
 export async function readDashboardData({
 	userId,
 }: ReadDashboardDataInput): Promise<DashboardData> {
+	const db = getDb();
 	// 1):Select only id, title, status, wordCount and updatedAt.
 
 	const [postRows, settingsRows] = await Promise.all([
@@ -42,7 +43,7 @@ export async function readDashboardData({
 		settingsRows[0]?.accentColor,
 	);
 
-	const activity = readWritingActivity({
+	const activity = await readWritingActivity({
 		userId,
 	});
 

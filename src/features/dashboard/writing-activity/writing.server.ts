@@ -1,5 +1,5 @@
 import { and, asc, eq, gte, lte } from "drizzle-orm";
-import { db } from "#/db";
+import { getDb } from "#/db";
 import { settings, writingActivity } from "#/db/schema";
 import type { WritingActivityHeatmap } from "./writing.types";
 import {
@@ -14,11 +14,13 @@ interface ReadWritingActivityInput {
 	now?: Date;
 }
 
-export function readWritingActivity({
+export async function readWritingActivity({
 	userId,
 	now = new Date(),
-}: ReadWritingActivityInput): WritingActivityHeatmap {
-	const preference = db
+}: ReadWritingActivityInput): Promise<WritingActivityHeatmap> {
+	const db = getDb();
+
+	const preference = await db
 		.select({
 			timeZone: settings.timeZone,
 		})
@@ -30,7 +32,7 @@ export function readWritingActivity({
 	const today = getDateKeyInTimeZone(now, timeZone);
 	const startDate = getHeatmapStartDate(today);
 
-	const rows = db
+	const rows = await db
 		.select({
 			activityDate: writingActivity.activityDate,
 			wordsAdded: writingActivity.wordsAdded,
