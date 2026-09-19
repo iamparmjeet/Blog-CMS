@@ -9,16 +9,6 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { user } from "./auth-schema";
 
-export const todos = sqliteTable("todos", {
-	id: integer({ mode: "number" }).primaryKey({
-		autoIncrement: true,
-	}),
-	title: text().notNull(),
-	createdAt: integer("created_at", { mode: "timestamp" }).default(
-		sql`(unixepoch())`,
-	),
-});
-
 export const settings = sqliteTable(
 	"settings",
 	{
