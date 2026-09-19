@@ -1,4 +1,7 @@
 import { APIError } from "better-auth/api";
+
+export const OWNER_CLAIMED_MESSAGE = "This instance has already been claimed.";
+
 /**
  * D2: the instance owner may always sign in; only a *second distinct user*
  * is rejected. Identity is keyed on the verified OAuth email
@@ -35,7 +38,7 @@ export function assertOwnerClaimAllowed(
 		decideOwnerClaim(existingOwnerEmail, incomingEmail) === "reject-second-user"
 	) {
 		throw new APIError("BAD_REQUEST", {
-			message: "This instance has already been claimed.",
+			message: OWNER_CLAIMED_MESSAGE,
 		});
 	}
 }

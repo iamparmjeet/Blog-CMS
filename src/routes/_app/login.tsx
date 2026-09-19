@@ -5,6 +5,14 @@ import { authClient } from "#/lib/auth/auth-client";
 import { checkUserExists } from "#/lib/auth/check-user";
 
 export const Route = createFileRoute("/_app/login")({
+	validateSearch: (search: Record<string, unknown>) => ({
+		...(search.error === "instance-claimed"
+			? { error: "instance-claimed" as const }
+			: {}),
+		...(typeof search.redirect === "string"
+			? { redirect: search.redirect }
+			: {}),
+	}),
 	loader: async () => {
 		const data = await checkUserExists();
 
@@ -19,13 +27,21 @@ export const Route = createFileRoute("/_app/login")({
 
 function LoginPage() {
 	const { hasUser } = Route.useLoaderData();
+	const { error } = Route.useSearch();
 
-	if (hasUser) return <OwnerReturnComponent />;
+	if (hasUser)
+		return (
+			<OwnerReturnComponent instanceClaimed={error === "instance-claimed"} />
+		);
 
 	return <FirstClaimComponent />;
 }
 
-function OwnerReturnComponent() {
+function OwnerReturnComponent({
+	instanceClaimed,
+}: {
+	instanceClaimed: boolean;
+}) {
 	return (
 		<div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
 			<div className="flex w-85 flex-col">
@@ -33,10 +49,12 @@ function OwnerReturnComponent() {
 				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
 					<div className="mb-1.5">
 						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
-							Welcome back
+							{instanceClaimed ? "Instance already claimed" : "Welcome back"}
 						</div>
 						<div className="text-[#525252] text-xs">
-							Sign in with your owner account to manage this instance.
+							{instanceClaimed
+								? "Only the owner account can manage this instance."
+								: "Sign in with your owner account to manage this instance."}
 						</div>
 					</div>
 
