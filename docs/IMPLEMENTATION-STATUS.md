@@ -39,10 +39,11 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete and M1.1 landed on `main`. T1.2 is implemented on branch `feat/t1.2-d1-client`:
+The T0 baseline repair is complete and M1.1/T1.2 landed on `main`. T1.3 is implemented on branch `feat/t1.3-migration-hygiene`:
 
-- Persistence and better-auth now use a per-request `drizzle-orm/d1` client; local development runs on workerd with local D1, and a local smoke signed in and read the dashboard.
-- Remaining before product features: T1.3 migration hygiene (regenerate the Drizzle journal, drop the `todos` scaffold, apply from an empty database, document `db:*`), then T1.4 deploy verification.
+- The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
+- `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
+- Remaining before product features: T1.4 deploy verification (provision D1/R2, replace the placeholder database ID, preview smoke).
 
 ## Tooling (added 2026-09-18)
 
@@ -54,4 +55,4 @@ The T0 baseline repair is complete and M1.1 landed on `main`. T1.2 is implemente
 
 ## Documentation Caveat
 
-The README describes a much more complete product than the source implements. Its migration warning is also out of date: the current Drizzle journal contains `0000_curly_black_tarantula` and `0001_mute_micromax`, not the referenced missing `0004` entry.
+The README describes a much more complete product than the source implements. The migration warning it carried is resolved: T1.3 regenerated a single clean baseline, so the missing `0004` journal entry no longer applies.

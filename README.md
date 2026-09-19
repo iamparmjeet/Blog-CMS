@@ -56,7 +56,6 @@ A single-user, self-hosted blog content management system built on **TanStack St
 
    | Variable | Required | Purpose |
    |----------|----------|---------|
-   | `DATABASE_URL` | ✅ | SQLite file path, e.g. `dev.db` |
    | `BETTER_AUTH_SECRET` | ✅ | Session signing secret (any long random string) |
    | `BETTER_AUTH_URL` | ✅ | Auth base URL, e.g. `http://localhost:3000` |
    | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | ✅ | GitHub OAuth app |
@@ -71,14 +70,14 @@ A single-user, self-hosted blog content management system built on **TanStack St
 3. **Set up the database**
 
    ```bash
-   pnpm db:generate   # create migrations from schema
-   pnpm db:migrate    # apply to local SQLite
+   bun run db:generate   # create migrations from schema
+   bun run db:migrate    # apply to the local D1 database (Wrangler)
    ```
 
 4. **Run the dev server**
 
    ```bash
-   pnpm dev
+   bun run dev
    ```
 
    Open http://localhost:3000. The first OAuth sign-in claims the instance as the owner.
@@ -87,13 +86,15 @@ A single-user, self-hosted blog content management system built on **TanStack St
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start dev server (port 3000) |
-| `pnpm build` | Production build (Cloudflare worker) |
-| `pnpm preview` | Preview the build |
-| `pnpm test` | Run Vitest |
-| `pnpm check` / `pnpm lint` / `pnpm format` | Biome |
-| `pnpm db:generate` / `db:migrate` / `db:push` / `db:pull` / `db:studio` | Drizzle workflows |
-| `pnpm deploy` | `bun run build && wrangler deploy` |
+| `bun run dev` | Start dev server (port 3000) |
+| `bun run build` | Production build (Cloudflare worker) |
+| `bun run preview` | Preview the build |
+| `bun run test` | Run Vitest |
+| `bun run check` / `bun run lint` / `bun run format` | Biome |
+| `bun run db:generate` | Generate Drizzle SQL from the schema |
+| `bun run db:migrate` | Apply migrations to the local D1 database |
+| `bun run db:migrate:remote` | Apply migrations to remote D1 (after provisioning) |
+| `bun run deploy` | `bun run build && wrangler deploy` |
 
 ## Usage
 
@@ -114,15 +115,14 @@ src/
   components/content-os/   The TipTap editor + supporting UI
   lib/                auth, session, r2, ai, env
   styles/             Tailwind / global CSS
-drizzle/              Migrations
+  db/drizzle/         Regenerated baseline migrations
 ```
 
 ## Known Gaps & TODO
 
 These are tracked and not yet implemented:
 
-- **Deployment DB** — dev uses `better-sqlite3` (native module). Cloudflare Workers can't run native SQLite, so production needs a D1 binding (or a Node runtime) before `wrangler deploy` will work at runtime.
-- **Migrations** — the Drizzle journal references a `0004` migration with no snapshot file; regenerate before running `db:migrate`.
+- **Deployment DB** — local development and the Worker runtime use Cloudflare D1 through the `DB` binding. The committed database ID is a placeholder until provisioning (T1.4).
 - **Comments** — no comments table or UI yet.
 - **Scheduling** — `PostStatus` includes `"scheduled"` but no scheduler exists.
 
