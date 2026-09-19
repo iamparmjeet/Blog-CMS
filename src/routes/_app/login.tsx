@@ -1,56 +1,53 @@
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import { authClient } from "#/lib/auth/auth-client";
 import { checkUserExists } from "#/lib/auth/check-user";
 
 export const Route = createFileRoute("/_app/login")({
-	loader: () => checkUserExists(),
+	loader: async () => {
+		const data = await checkUserExists();
+
+		// Owner already signed in  - login has nothing left to do
+		if (data.user) {
+			throw redirect({ to: "/dashboard", replace: true });
+		}
+		return data;
+	},
 	component: LoginPage,
 });
 
 function LoginPage() {
 	const { hasUser } = Route.useLoaderData();
 
-	if (hasUser) return <HasUserComponent />;
+	if (hasUser) return <OwnerReturnComponent />;
 
-	return <SocialLoginComponent />;
+	return <FirstClaimComponent />;
 }
 
-function HasUserComponent() {
+function OwnerReturnComponent() {
 	return (
 		<div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-			<div className="flex w-85 flex-col items-center gap-6">
-				<div
-					className="flex h-10 w-10 items-center justify-center rounded-[10px]"
-					style={{
-						background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-						boxShadow:
-							"0 0 0 1px rgba(124,58,237,0.3), 0 8px 24px rgba(124,58,237,0.2)",
-					}}
-				>
-					<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-						<title>User Component</title>
-						<path
-							d="M4 6h8M4 10h12M4 14h9"
-							stroke="#fff"
-							strokeWidth="1.75"
-							strokeLinecap="round"
-						/>
-					</svg>
-				</div>
-
-				<div className="rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6 text-center">
-					<div className="font-semibold text-[#d4d4d4] text-sm">
-						Instance already claimed
+			<div className="flex w-85 flex-col">
+				<BrandHeader />
+				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
+					<div className="mb-1.5">
+						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
+							Welcome back
+						</div>
+						<div className="text-[#525252] text-xs">
+							Sign in with your owner account to manage this instance.
+						</div>
 					</div>
-					<p className="mt-2 text-[#525252] text-[13px] leading-relaxed">
-						This content.os instance has been set up by its owner. Registration
-						and new logins are disabled.
-					</p>
+
+					<SocialButtons />
+
+					<div className="mt-1 text-center text-[#404040] text-[11px]">
+						Single-user · Self-hosted · No subscription
+					</div>
 				</div>
 
-				<div className="text-[#333] text-[11px]">
+				<div className="mt-5 text-center text-[#333] text-[11px]">
 					content.os v0.1 — self-hosted
 				</div>
 			</div>
@@ -58,46 +55,11 @@ function HasUserComponent() {
 	);
 }
 
-function SocialLoginComponent() {
-	const handleSocial = (provider: "github" | "google") => {
-		authClient.signIn.social({
-			provider,
-			callbackURL: "/dashboard",
-		});
-	};
-
+function FirstClaimComponent() {
 	return (
 		<div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
 			<div className="flex w-85 flex-col">
-				{/* Brand */}
-				<div className="mb-10 flex flex-col items-center gap-3">
-					<div
-						className="flex h-10 w-10 items-center justify-center rounded-[10px]"
-						style={{
-							background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-							boxShadow:
-								"0 0 0 1px rgba(124,58,237,0.3), 0 8px 24px rgba(124,58,237,0.2)",
-						}}
-					>
-						<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-							<title>Brand</title>
-							<path
-								d="M4 6h8M4 10h12M4 14h9"
-								stroke="#fff"
-								strokeWidth="1.75"
-								strokeLinecap="round"
-							/>
-						</svg>
-					</div>
-					<div className="text-center">
-						<div className="font-semibold text-[#e5e5e5] text-[17px] tracking-[-0.02em]">
-							content<span className="font-normal text-[#525252]">.os</span>
-						</div>
-						<div className="mt-1 text-[#525252] text-[13px]">
-							Your writing stack. Nothing else.
-						</div>
-					</div>
-				</div>
+				<BrandHeader />
 
 				{/* Card */}
 				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
@@ -110,24 +72,7 @@ function SocialLoginComponent() {
 						</div>
 					</div>
 
-					<Button
-						size="lg"
-						type="button"
-						onClick={() => handleSocial("github")}
-						className="flex items-center justify-center gap-2 border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
-					>
-						<IconBrandGithub size={16} />
-						Continue with GitHub
-					</Button>
-					<Button
-						size="lg"
-						type="button"
-						onClick={() => handleSocial("google")}
-						className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
-					>
-						<IconBrandGoogle size={16} />
-						Continue with Google
-					</Button>
+					<SocialButtons />
 
 					<div className="mt-1 text-center text-[#404040] text-[11px]">
 						Single-user · Self-hosted · No subscription
@@ -139,5 +84,70 @@ function SocialLoginComponent() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function BrandHeader() {
+	return (
+		<div className="mb-10 flex flex-col items-center gap-3">
+			<div
+				className="flex h-10 w-10 items-center justify-center rounded-[10px]"
+				style={{
+					background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+					boxShadow:
+						"0 0 0 1px rgba(124,58,237,0.3), 0 8px 24px rgba(124,58,237,0.2)",
+				}}
+			>
+				<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+					<title>Brand</title>
+					<path
+						d="M4 6h8M4 10h12M4 14h9"
+						stroke="#fff"
+						strokeWidth="1.75"
+						strokeLinecap="round"
+					/>
+				</svg>
+			</div>
+			<div className="text-center">
+				<div className="font-semibold text-[#e5e5e5] text-[17px] tracking-[-0.02em]">
+					content<span className="font-normal text-[#525252]">.os</span>
+				</div>
+				<div className="mt-1 text-[#525252] text-[13px]">
+					Your writing stack. Nothing else.
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function SocialButtons() {
+	const handleSocial = (provider: "github" | "google") => {
+		authClient.signIn.social({
+			provider,
+			callbackURL: "/dashboard",
+		});
+	};
+
+	return (
+		<>
+			<Button
+				size="lg"
+				type="button"
+				onClick={() => handleSocial("github")}
+				className="flex items-center justify-center gap-2 border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+			>
+				<IconBrandGithub size={16} />
+				Continue with GitHub
+			</Button>
+			<Button
+				size="lg"
+				type="button"
+				onClick={() => handleSocial("google")}
+				className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+			>
+				<IconBrandGoogle size={16} />
+				Continue with Google
+			</Button>
+		</>
 	);
 }

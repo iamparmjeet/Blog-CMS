@@ -6,6 +6,7 @@ import { db } from "#/db";
 import * as authSchema from "#/db/auth-schema";
 import { user } from "#/db/auth-schema";
 import { env } from "#/env";
+import { assertOwnerClaimAllowed } from "./owner";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -29,17 +30,22 @@ export const auth = betterAuth({
 	databaseHooks: {
 		user: {
 			create: {
-				before: async () => {
-					const [existingUser] = await db
-						.select({ id: user.id })
+				before: async (incomingUser) => {
+					const [existingOwner] = await db
+						.select({ email: user.email })
 						.from(user)
 						.limit(1);
 
-					if (existingUser) {
-						throw new APIError("BAD_REQUEST", {
-							message: "This instance has already been claimed.",
-						});
+					// OAuth provisioning always carries an email
+					if (!incomingUser.email) {
+						if (existingOwner) {
+							throw new APIError("BAD_REQUEST", {
+								message: "This instance has already been claimed.",
+							});
+						}
+						return;
 					}
+					assertOwnerClaimAllowed(existingOwner?.email, incomingUser.email);
 				},
 			},
 		},
