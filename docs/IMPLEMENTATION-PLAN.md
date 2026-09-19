@@ -16,7 +16,7 @@
 
 | # | Question | Recommendation | Needed by |
 |---|----------|----------------|-----------|
-| D1 | Production database target | **Cloudflare D1** via `drizzle-orm/d1`; local dev against local D1 (wrangler) so dev/prod share one driver. ADR required. | Phase 1 |
+| D1 | Production database target | **Settled (T1.1): Cloudflare D1** via `drizzle-orm/d1`; local dev against local D1 (wrangler) so dev/prod share one driver. See `docs/decisions/0001-cloudflare-d1.md`. | Phase 1 |
 | D2 | Repeat owner sign-in | Owner may always sign in; only a *second distinct user* is rejected. Fix login loader + keep the `databaseHooks` guard. | Phase 0 |
 | D3 | Canonical post-body representation | **TipTap JSON** stored in `posts.body`; word count derived from text nodes server-side. One rule, used by editor, preview, feed, and activity. | Phase 2 |
 | D4 | Slug rules | `^[a-z0-9]+(?:-[a-z0-9]+)*$`, unique per `userId` (DB unique index), immutable once published unless owner explicitly regenerates. | Phase 2 |

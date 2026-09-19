@@ -23,7 +23,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Not implemented | `scheduled` is represented in the dashboard but has no publish-at data or scheduler. |
-| Deployment | Blocked | The configured Worker would use `better-sqlite3`, which cannot run in a Cloudflare Worker. No D1 binding is configured. |
+| Deployment | Blocked | D1 (`DB`) and R2 (`MEDIA`) bindings are declared, but the configured Worker still uses `better-sqlite3`, which cannot run in a Cloudflare Worker. T1.2 must migrate the application and auth client to D1. |
 
 ## Verified Baseline
 

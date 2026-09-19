@@ -37,7 +37,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Use one supported persistence model in development and Cloudflare production.
 
-- [ ] **M1.1: Decide the production database architecture.**
+- [x] **M1.1: Decide the production database architecture.**
   - Depends on: M0.3.
   - Select the Workers-compatible database binding and write an ADR covering local development, migrations, secrets, and rollback.
   - Acceptance: the decision is documented and the Worker configuration declares every required binding.
