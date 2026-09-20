@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
+import type {
+	ActivityCell,
+	WritingActivityHeatmap,
+} from "../writing-activity/writing.types";
 import {
 	buildDashboardData,
 	type DashboardPostRow,
 	DEFAULT_ACCENT_COLOR,
+	getGreeting,
 	normalizeAccentColor,
+	summarizeActivity,
 } from "./dashboard.utils";
 
 function createPost(
@@ -175,5 +181,71 @@ describe("normalizeAccentColor", () => {
 		expect(normalizeAccentColor("url(javascript:alert(1))")).toBe(
 			DEFAULT_ACCENT_COLOR,
 		);
+	});
+});
+
+function createActivityCell(
+	date: string,
+	wordsAdded: number,
+	isFuture = false,
+): ActivityCell {
+	return {
+		date,
+		isFuture,
+		level: 0,
+		wordsAdded,
+	};
+}
+
+function createActivity(days: number[]): WritingActivityHeatmap {
+	const cells = days.map((wordsAdded, index) =>
+		createActivityCell(
+			new Date(Date.UTC(2026, 8, 7 + index)).toISOString().slice(0, 10),
+			wordsAdded,
+		),
+	);
+
+	return {
+		activeDays: cells.filter((cell) => cell.wordsAdded > 0).length,
+		cells,
+		endDate: cells.at(-1)?.date ?? "2026-09-07",
+		startDate: cells[0]?.date ?? "2026-09-07",
+		timeZone: "UTC",
+		today: cells.at(-1)?.date ?? "2026-09-07",
+		totalWordsAdded: days.reduce((sum, value) => sum + value, 0),
+	};
+}
+
+describe("getGreeting", () => {
+	it("maps the hour of day to a greeting", () => {
+		expect(getGreeting(new Date(2026, 8, 20, 8))).toBe("Good morning");
+		expect(getGreeting(new Date(2026, 8, 20, 14))).toBe("Good afternoon");
+		expect(getGreeting(new Date(2026, 8, 20, 20))).toBe("Good evening");
+	});
+});
+
+describe("summarizeActivity", () => {
+	it("summarizes the last seven days, average, best day, and streak", () => {
+		const result = summarizeActivity(
+			createActivity([100, 0, 250, 300, 0, 120, 80, 40, 60, 500]),
+		);
+
+		expect(result.thisWeek).toBe(1100);
+		expect(result.bestDay).toBe(500);
+		expect(result.bestWeek).toBe(1100);
+		expect(result.currentStreak).toBe(5);
+		expect(result.dailyAverage).toBe(181);
+	});
+
+	it("returns zeroed metrics when no words were written", () => {
+		const result = summarizeActivity(createActivity([0, 0, 0, 0]));
+
+		expect(result).toEqual({
+			bestDay: 0,
+			bestWeek: 0,
+			currentStreak: 0,
+			dailyAverage: 0,
+			thisWeek: 0,
+		});
 	});
 });
