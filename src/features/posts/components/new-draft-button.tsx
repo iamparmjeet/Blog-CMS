@@ -14,8 +14,11 @@ export function NewDraftButton() {
 
 		startTransition(async () => {
 			try {
-				await createDraft({ data: {} });
-				await router.invalidate();
+				const draft = await createDraft({ data: {} });
+				await router.navigate({
+					to: "/posts/$postId",
+					params: { postId: String(draft.id) },
+				});
 			} catch {
 				setError("Could not create a draft. Please try again.");
 			}

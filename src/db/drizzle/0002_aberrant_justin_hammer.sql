@@ -1,0 +1,1 @@
+ALTER TABLE `posts` ADD `seo_title` text DEFAULT '' NOT NULL;

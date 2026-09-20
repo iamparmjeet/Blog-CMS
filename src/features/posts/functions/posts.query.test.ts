@@ -4,7 +4,11 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "#/db";
 import { posts } from "#/db/schema";
-import { insertPostDraft, selectPostRowsByOwner } from "./posts.query";
+import {
+	insertPostDraft,
+	selectPostEditorRowByOwner,
+	selectPostRowsByOwner,
+} from "./posts.query";
 
 const OWNER = "owner-1";
 const OTHER_OWNER = "someone-else";
@@ -18,6 +22,7 @@ function createThrowawayDb(): Db {
 			user_id text NOT NULL,
 			title text NOT NULL,
 			slug text NOT NULL,
+			seo_title text DEFAULT '' NOT NULL,
 			status text DEFAULT 'draft' NOT NULL,
 			body text,
 			description text DEFAULT '' NOT NULL,
@@ -76,6 +81,60 @@ describe("selectPostRowsByOwner", () => {
 		const rows = await selectPostRowsByOwner(db, OWNER);
 
 		expect(rows.map((row) => row.slug)).toEqual(["newer", "older"]);
+	});
+});
+
+describe("selectPostEditorRowByOwner", () => {
+	let db: Db;
+
+	beforeEach(() => {
+		db = createThrowawayDb();
+	});
+
+	it("returns the owner's visible editor data and hides other posts", async () => {
+		const [ownerPost] = await db
+			.insert(posts)
+			.values({
+				userId: OWNER,
+				title: "Editor post",
+				slug: "editor-post",
+				body: '{"type":"doc","content":[]}',
+				wordCount: 0,
+			})
+			.returning({ id: posts.id });
+		const [foreignPost] = await db
+			.insert(posts)
+			.values({
+				userId: OTHER_OWNER,
+				title: "Foreign post",
+				slug: "foreign-post",
+			})
+			.returning({ id: posts.id });
+
+		if (!ownerPost || !foreignPost) {
+			throw new Error("Could not seed editor posts");
+		}
+
+		const editorPost = await selectPostEditorRowByOwner(
+			db,
+			OWNER,
+			ownerPost.id,
+		);
+		const foreignEditorPost = await selectPostEditorRowByOwner(
+			db,
+			OWNER,
+			foreignPost.id,
+		);
+
+		expect(editorPost).toMatchObject({
+			id: ownerPost.id,
+			title: "Editor post",
+			slug: "editor-post",
+			seoTitle: "",
+			description: "",
+			body: '{"type":"doc","content":[]}',
+		});
+		expect(foreignEditorPost).toBeUndefined();
 	});
 });
 

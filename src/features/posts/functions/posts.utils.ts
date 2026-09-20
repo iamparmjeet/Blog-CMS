@@ -1,17 +1,16 @@
-import type { PostListItem, PostStatus } from "./posts.types";
+import { parseStoredPostBody } from "./post-body";
+import type {
+	PostEditorData,
+	PostEditorRow,
+	PostListItem,
+	PostRow,
+	PostStatus,
+} from "./posts.types";
 
 export const UNTITLED_POST_TITLE = "Untitled";
 export const MAX_POST_TITLE_LENGTH = 200;
 export const MAX_POST_SLUG_LENGTH = 80;
 
-export interface PostRow {
-	id: number;
-	title: string;
-	slug: string;
-	status: string;
-	wordCount: number;
-	updatedAt: Date;
-}
 export function parsePostStatus(status: string): PostStatus {
 	switch (status) {
 		case "draft":
@@ -67,6 +66,19 @@ export function toPostListItem(row: PostRow): PostListItem {
 		title: normalizePostTitle(row.title),
 		slug: row.slug,
 		status: parsePostStatus(row.status),
+		wordCount: Math.max(0, row.wordCount),
+		updatedAt: serializePostDate(row.updatedAt),
+	};
+}
+
+export function toPostEditorData(row: PostEditorRow): PostEditorData {
+	return {
+		id: row.id,
+		title: normalizePostTitle(row.title),
+		slug: row.slug,
+		seoTitle: row.seoTitle,
+		description: row.description,
+		body: parseStoredPostBody(row.body),
 		wordCount: Math.max(0, row.wordCount),
 		updatedAt: serializePostDate(row.updatedAt),
 	};

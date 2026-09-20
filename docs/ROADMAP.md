@@ -66,12 +66,12 @@ This roadmap turns the current README commitments into independently verifiable 
 	- Add post description and lifecycle timestamps, enforce per-owner slug uniqueness and valid statuses, and resolve invalid legacy statuses before applying the constraint.
 	- Acceptance: a fresh local D1 applies the migration; invalid statuses are archived before the constraint applies; owner slug collisions are rejected.
 
-- [ ] **M2.3: Implement the rich post editor.**
+- [x] **M2.3: Implement the rich post editor.**
 	- Depends on: M2.2.
 	- Add the chosen rich-text editor, autosave, word counting, and editing recovery behavior.
 	- Acceptance: content survives reloads, word count is correct for the canonical body representation, and writing activity records only positive additions.
 
-- [ ] **M2.4: Add post metadata and live preview.**
+- [x] **M2.4: Add post metadata and live preview.**
 	- Depends on: M2.3.
 	- Support title, stable slug, SEO title/description, validation, and a live public-preview representation.
 	- Acceptance: invalid or duplicate slugs are rejected; valid metadata renders in preview and is persisted.

@@ -62,6 +62,7 @@ export const posts = sqliteTable(
 			.references(() => user.id, { onDelete: "cascade" }),
 		title: text().notNull(),
 		slug: text().notNull(),
+		seoTitle: text("seo_title").notNull().default(""),
 		status: text().notNull().default("draft"),
 		body: text(),
 		description: text().notNull().default(""),
