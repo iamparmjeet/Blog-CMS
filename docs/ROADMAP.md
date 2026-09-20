@@ -82,6 +82,11 @@ This roadmap turns the current README commitments into independently verifiable 
   - Add publish/unpublish, soft delete, restore, purge, and bulk actions with clear irreversible-action confirmation.
   - Acceptance: each lifecycle transition is owner-authorized, reflected in the dashboard, and covered by integration tests.
 
+- [x] **M2.6: Build the owner app shell and page UI kit.**
+	- Depends on: M2.5.
+	- Add persistent owner navigation, a command palette, and the shared ContentOS UI kit, then rebuild every protected page layout on it.
+	- Acceptance: every protected route renders inside the shell with keyboard-accessible navigation and a responsive mobile drawer; page data wiring lands with its owning milestone (M3.2 media, M4.1 settings, M4.3 analytics).
+
 ## Milestone 3: Media And Public Delivery
 
 **Goal:** Deliver publishable content and managed assets safely.

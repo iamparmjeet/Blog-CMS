@@ -50,6 +50,7 @@ export async function selectPostEditorRowByOwner(
 			id: posts.id,
 			title: posts.title,
 			slug: posts.slug,
+			status: posts.status,
 			seoTitle: posts.seoTitle,
 			description: posts.description,
 			body: posts.body,

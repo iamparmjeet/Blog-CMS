@@ -1,10 +1,5 @@
-import {
-	IconArrowLeft,
-	IconEye,
-	IconPencil,
-	IconSearch,
-} from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
+import { IconArrowLeft, IconEye, IconTrash } from "@tabler/icons-react";
+import { Link, useRouter } from "@tanstack/react-router";
 import Placeholder from "@tiptap/extension-placeholder";
 import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -16,14 +11,18 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { useSetSidebarPost } from "#/components/content-os/sidebar-context";
+import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import { cn } from "#/lib/utils";
 import {
 	countWords,
 	parseIncomingPostBody,
 	serializePostBody,
 } from "../functions/post-body";
+import { applyPostLifecycle } from "../functions/post-lifecycle.function";
 import {
 	getPostMetadataValidationError,
 	type PostMetadata,
@@ -35,7 +34,7 @@ import { savePostMetadata } from "../functions/save-post-metadata.function";
 const AUTOSAVE_DELAY_MS = 700;
 
 type SaveStatus = "saved" | "saving" | "local" | "error";
-type EditorView = "write" | "seo" | "preview";
+type EditorView = "write" | "seo";
 
 interface PostEditorPageProps {
 	post: PostEditorData;
@@ -63,6 +62,29 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	const [previewBody, setPreviewBody] = useState(latestBodyRef.current);
 	const deferredPreviewBody = useDeferredValue(previewBody);
 	const [wordCount, setWordCount] = useState(post.wordCount);
+	const router = useRouter();
+	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+	const [isPublished, setIsPublished] = useState(post.status === "published");
+	const [isPublishing, setIsPublishing] = useState(false);
+	const [publishError, setPublishError] = useState<string | null>(null);
+	const setSidebarPost = useSetSidebarPost();
+
+	const handleSidebarPublishChange = useEffectEvent((next: boolean) => {
+		void togglePublish(next);
+	});
+
+	useEffect(() => {
+		setSidebarPost({
+			isPublished,
+			onPublishChange: handleSidebarPublishChange,
+			slug: metadata.slug,
+			title: metadata.title,
+			updatedAt: "just now",
+			wordCount,
+		});
+
+		return () => setSidebarPost(null);
+	}, [isPublished, metadata.slug, metadata.title, setSidebarPost, wordCount]);
 
 	const saveLatestBody = useEffectEvent(async () => {
 		if (isSavingRef.current) {
@@ -168,6 +190,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 			}),
 		],
 		content: post.body,
+		immediatelyRender: false,
 		editorProps: {
 			attributes: {
 				class:
@@ -230,6 +253,66 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 		};
 	}, []);
 
+	useEffect(() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			const modifier = event.metaKey || event.ctrlKey;
+
+			if (modifier && event.shiftKey && event.key.toLowerCase() === "v") {
+				event.preventDefault();
+				setIsPreviewOpen((open) => !open);
+			}
+		}
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
+	async function togglePublish(nextPublished: boolean) {
+		if (isPublishing || nextPublished === isPublished) {
+			return;
+		}
+
+		setIsPublishing(true);
+		setPublishError(null);
+
+		try {
+			await applyPostLifecycle({
+				data: {
+					action: nextPublished ? "publish" : "unpublish",
+					postIds: [post.id],
+				},
+			});
+			setIsPublished(nextPublished);
+			await router.invalidate();
+		} catch (error) {
+			setPublishError(
+				error instanceof Error
+					? error.message
+					: "Could not update the post status",
+			);
+		} finally {
+			setIsPublishing(false);
+		}
+	}
+
+	async function moveToTrash() {
+		if (!window.confirm("Move this post to trash?")) {
+			return;
+		}
+
+		try {
+			await applyPostLifecycle({
+				data: { action: "trash", postIds: [post.id] },
+			});
+			await router.navigate({ to: "/posts" });
+		} catch (error) {
+			setPublishError(
+				error instanceof Error ? error.message : "Could not delete the post",
+			);
+		}
+	}
+
 	function updateMetadata<Key extends keyof PostMetadata>(
 		key: Key,
 		value: PostMetadata[Key],
@@ -252,39 +335,92 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	}
 
 	return (
-		<main className="min-h-screen bg-background text-foreground">
-			<div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 sm:px-6 lg:px-8">
-				<header className="flex flex-wrap items-center justify-between gap-3 border-border border-b py-3">
-					<div className="min-w-0 text-sm">
-						<Link
-							to="/posts"
-							className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-						>
-							<IconArrowLeft aria-hidden="true" className="size-4" />
-							Posts
-						</Link>
-					</div>
+		<main className="flex h-full min-h-0 flex-col">
+			<header className="flex h-11 shrink-0 items-center justify-between gap-3 border-border border-b px-4">
+				<div className="flex min-w-0 items-center gap-2 text-xs">
+					<Link
+						className="inline-flex shrink-0 items-center gap-1 text-text-muted transition-colors hover:text-text-secondary"
+						to="/posts"
+					>
+						<IconArrowLeft aria-hidden="true" className="size-3.5" />
+						Posts
+					</Link>
+					<span aria-hidden="true" className="text-text-faint">
+						/
+					</span>
+					<span className="truncate text-text-soft">
+						{metadata.title || "Untitled"}
+					</span>
+				</div>
 
-					<div className="flex items-center gap-2">
-						<EditorSaveStatus
-							bodyStatus={bodySaveStatus}
-							metadataStatus={metadataSaveStatus}
-							metadataError={metadataError}
-							wordCount={wordCount}
-						/>
-						<EditorViewControls view={view} onViewChange={setView} />
-					</div>
-				</header>
+				<div className="flex shrink-0 items-center gap-2">
+					<EditorSaveStatus
+						bodyStatus={bodySaveStatus}
+						metadataError={metadataError}
+						metadataStatus={metadataSaveStatus}
+						wordCount={wordCount}
+					/>
 
+					<SegmentedControl
+						onChange={setView}
+						options={[
+							{ label: "Write", value: "write" },
+							{ label: "SEO", value: "seo" },
+						]}
+						value={view}
+					/>
+
+					<SegmentedControl
+						onChange={(next) => void togglePublish(next === "published")}
+						options={[
+							{ label: "Draft", value: "draft" },
+							{ label: "Published", value: "published" },
+						]}
+						value={isPublished ? "published" : "draft"}
+					/>
+
+					<Button
+						onClick={() => setIsPreviewOpen(true)}
+						size="sm"
+						type="button"
+						variant="outline"
+					>
+						<IconEye aria-hidden="true" />
+						Preview
+					</Button>
+
+					<Button
+						aria-label="Move to trash"
+						onClick={() => void moveToTrash()}
+						size="icon-sm"
+						type="button"
+						variant="ghost"
+					>
+						<IconTrash aria-hidden="true" className="size-3.5" />
+					</Button>
+				</div>
+			</header>
+
+			{publishError ? (
+				<p
+					className="shrink-0 border-border-subtle border-b bg-danger/5 px-4 py-2 text-danger text-xs"
+					role="alert"
+				>
+					{publishError}
+				</p>
+			) : null}
+
+			<div className="min-h-0 flex-1 overflow-y-auto">
 				{view === "write" ? (
-					<section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
+					<section className="mx-auto w-full max-w-[720px] px-6 py-12">
 						<Input
 							aria-label="Post title"
-							className="h-auto border-0 bg-transparent px-0 py-1 font-semibold text-4xl tracking-tight placeholder:text-muted-foreground focus-visible:border-0 focus-visible:ring-0 sm:text-5xl"
-							value={metadata.title}
+							className="h-auto border-0 bg-transparent px-0 py-1 font-semibold text-[30px] tracking-[-0.02em] placeholder:text-text-ghost focus-visible:border-0 focus-visible:ring-0"
 							onChange={(event) => updateMetadata("title", event.target.value)}
+							placeholder="Untitled"
+							value={metadata.title}
 						/>
-						<div className="mt-3 flex items-center gap-2 text-muted-foreground text-sm">
+						<div className="mt-2 flex items-center gap-1 text-text-dim text-xs">
 							<span aria-hidden="true">/</span>
 							<Input
 								aria-describedby="slug-help"
@@ -294,16 +430,16 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 										: undefined
 								}
 								aria-label="Post slug"
-								className="h-auto max-w-md border-0 bg-transparent px-0 py-0 font-mono text-sm focus-visible:border-0 focus-visible:ring-0"
-								value={metadata.slug}
+								className="h-auto max-w-md border-0 bg-transparent px-0 py-0 font-mono text-xs focus-visible:border-0 focus-visible:ring-0"
 								onChange={(event) => updateMetadata("slug", event.target.value)}
+								value={metadata.slug}
 							/>
 						</div>
-						<p id="slug-help" className="sr-only">
+						<p className="sr-only" id="slug-help">
 							The URL stays stable when you change the title.
 						</p>
 
-						<div className="mt-8 border-border border-y">
+						<div className="mt-6 border-border border-y">
 							<EditorToolbar editor={editor} />
 							<div className="min-h-120 py-8">
 								<EditorContent editor={editor} />
@@ -314,78 +450,22 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 
 				{view === "seo" ? (
 					<MetadataPanel
-						metadata={metadata}
 						error={metadataError}
+						metadata={metadata}
 						onChange={updateMetadata}
 					/>
 				) : null}
-
-				{view === "preview" ? (
-					<PostPreview body={deferredPreviewBody} metadata={metadata} />
-				) : null}
 			</div>
+
+			{isPreviewOpen ? (
+				<PostPreviewOverlay
+					body={deferredPreviewBody}
+					isPublished={isPublished}
+					metadata={metadata}
+					onClose={() => setIsPreviewOpen(false)}
+				/>
+			) : null}
 		</main>
-	);
-}
-
-function EditorViewControls({
-	view,
-	onViewChange,
-}: {
-	view: EditorView;
-	onViewChange: (view: EditorView) => void;
-}) {
-	return (
-		<div
-			aria-label="Post editor view"
-			className="flex items-center gap-1"
-			role="tablist"
-		>
-			<EditorViewButton
-				active={view === "write"}
-				icon={<IconPencil aria-hidden="true" />}
-				label="Write"
-				onClick={() => onViewChange("write")}
-			/>
-			<EditorViewButton
-				active={view === "seo"}
-				icon={<IconSearch aria-hidden="true" />}
-				label="SEO"
-				onClick={() => onViewChange("seo")}
-			/>
-			<EditorViewButton
-				active={view === "preview"}
-				icon={<IconEye aria-hidden="true" />}
-				label="Preview"
-				onClick={() => onViewChange("preview")}
-			/>
-		</div>
-	);
-}
-
-function EditorViewButton({
-	active,
-	icon,
-	label,
-	onClick,
-}: {
-	active: boolean;
-	icon: ReactNode;
-	label: string;
-	onClick: () => void;
-}) {
-	return (
-		<Button
-			aria-selected={active}
-			role="tab"
-			size="sm"
-			type="button"
-			variant={active ? "secondary" : "ghost"}
-			onClick={onClick}
-		>
-			{icon}
-			{label}
-		</Button>
 	);
 }
 
@@ -402,54 +482,88 @@ function MetadataPanel({
 	) => void;
 }) {
 	return (
-		<section className="mx-auto w-full max-w-2xl py-10 sm:py-14">
-			<div className="border-border border-b pb-6">
-				<p className="font-medium text-muted-foreground text-sm">
-					Search metadata
-				</p>
-				<h1 className="mt-2 font-semibold text-3xl tracking-tight">SEO</h1>
-				<p className="mt-2 text-muted-foreground text-sm">
-					Set the title and description used by search engines. The post URL
-					stays stable unless you edit its slug.
-				</p>
-			</div>
+		<section className="mx-auto w-full max-w-2xl px-6 py-12">
+			<h1 className="font-semibold text-[18px] text-text-primary tracking-[-0.01em]">
+				SEO &amp; meta
+			</h1>
+			<p className="mt-1.5 text-text-muted text-xs">
+				Controls how this post appears in search results and link previews.
+			</p>
 
-			<div className="mt-8 space-y-6">
-				<MetadataField label="SEO title" htmlFor="seo-title">
+			<div className="mt-8 flex flex-col gap-6">
+				<MetadataField
+					counter={{
+						limit: 60,
+						value: metadata.seoTitle.length,
+						warnAt: 45,
+					}}
+					hint="Defaults to the post title. Keep under 60 characters."
+					htmlFor="seo-title"
+					label="SEO title"
+				>
 					<Input
 						id="seo-title"
 						maxLength={200}
+						onChange={(event) => onChange("seoTitle", event.target.value)}
 						placeholder={metadata.title}
 						value={metadata.seoTitle}
-						onChange={(event) => onChange("seoTitle", event.target.value)}
 					/>
 				</MetadataField>
 
-				<MetadataField label="SEO description" htmlFor="seo-description">
+				<MetadataField
+					counter={{
+						limit: 160,
+						value: metadata.description.length,
+						warnAt: 140,
+					}}
+					hint="Used in search results and link previews. Keep under 160 characters."
+					htmlFor="seo-description"
+					label="Meta description"
+				>
 					<Textarea
 						id="seo-description"
 						maxLength={320}
-						placeholder="Describe this post for search results..."
-						value={metadata.description}
 						onChange={(event) => onChange("description", event.target.value)}
+						placeholder="Describe this post for search results…"
+						value={metadata.description}
 					/>
 				</MetadataField>
 
-				<MetadataField label="Slug" htmlFor="seo-slug">
+				<MetadataField
+					hint="The URL stays stable after the post is published."
+					htmlFor="seo-slug"
+					label="Slug"
+				>
 					<Input
 						aria-invalid={
 							error?.toLowerCase().includes("slug") ? true : undefined
 						}
 						id="seo-slug"
 						maxLength={80}
-						value={metadata.slug}
 						onChange={(event) => onChange("slug", event.target.value)}
+						value={metadata.slug}
 					/>
 				</MetadataField>
 			</div>
 
+			<div className="mt-8 rounded-lg border border-border bg-card p-4">
+				<p className="font-medium text-[10px] text-text-dim uppercase tracking-[0.07em]">
+					Search preview
+				</p>
+				<p className="mt-2.5 text-[#4285f4] text-[15px]">
+					{metadata.seoTitle || metadata.title || "Untitled post"}
+				</p>
+				<p className="mt-0.5 font-mono text-[11px] text-success">
+					your-domain.com › {metadata.slug}
+				</p>
+				<p className="mt-1 text-[#9aa0a6] text-xs leading-relaxed">
+					{metadata.description ||
+						"No meta description set. Add one above to control how this post appears in search results."}
+				</p>
+			</div>
+
 			{error ? (
-				<p role="alert" className="mt-5 text-destructive text-sm">
+				<p className="mt-5 text-danger text-sm" role="alert">
 					{error}
 				</p>
 			) : null}
@@ -459,38 +573,68 @@ function MetadataPanel({
 
 function MetadataField({
 	children,
+	counter,
+	hint,
 	htmlFor,
 	label,
 }: {
 	children: ReactNode;
+	counter?: { limit: number; value: number; warnAt: number };
+	hint?: string;
 	htmlFor: string;
 	label: string;
 }) {
 	return (
-		<div className="space-y-2">
-			<label className="font-medium text-sm" htmlFor={htmlFor}>
-				{label}
-			</label>
+		<div className="flex flex-col gap-1.5">
+			<div className="flex items-center justify-between gap-3">
+				<label
+					className="font-medium text-text-secondary text-xs"
+					htmlFor={htmlFor}
+				>
+					{label}
+				</label>
+				{counter ? (
+					<span
+						className={cn(
+							"font-mono text-[11px] tabular-nums",
+							counter.value > counter.limit
+								? "text-danger"
+								: counter.value > counter.warnAt
+									? "text-warning"
+									: "text-text-muted",
+						)}
+					>
+						{counter.value}/{counter.limit}
+					</span>
+				) : null}
+			</div>
 			{children}
+			{hint ? (
+				<span className="text-[11px] text-text-muted">{hint}</span>
+			) : null}
 		</div>
 	);
 }
 
-function PostPreview({
+function PostPreviewOverlay({
 	body,
+	isPublished,
 	metadata,
+	onClose,
 }: {
 	body: string;
+	isPublished: boolean;
 	metadata: PostMetadata;
+	onClose: () => void;
 }) {
 	const previewEditor = useEditor({
 		extensions: [StarterKit],
 		content: parseIncomingPostBody(body),
 		editable: false,
+		immediatelyRender: false,
 		editorProps: {
 			attributes: {
-				class:
-					"prose prose-zinc max-w-none focus:outline-none dark:prose-invert",
+				class: "max-w-none focus:outline-none",
 			},
 		},
 	});
@@ -505,44 +649,58 @@ function PostPreview({
 		});
 	}, [body, previewEditor]);
 
+	useEffect(() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === "Escape") {
+				onClose();
+			}
+		}
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [onClose]);
+
+	if (!previewEditor) {
+		return null;
+	}
+
 	return (
-		<section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
-			<div className="mb-10 rounded-lg border border-border bg-card p-5">
-				<p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.18em]">
-					Search preview
-				</p>
-				<p className="mt-3 text-primary text-xl">
-					{metadata.seoTitle || metadata.title}
-				</p>
-				<p className="mt-1 font-mono text-muted-foreground text-sm">
-					/{metadata.slug}
-				</p>
+		<div className="fixed inset-0 z-[8000] overflow-y-auto bg-[#fafafa] text-[#1a1a1a]">
+			<div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-[#e5e5e5] border-b bg-[#fafafa]/95 px-5 py-2.5 backdrop-blur">
+				<button
+					className="inline-flex items-center gap-1.5 text-[#525252] text-xs transition-colors hover:text-[#111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+					onClick={onClose}
+					type="button"
+				>
+					<IconArrowLeft aria-hidden="true" className="size-3.5" />
+					Exit preview
+				</button>
+
+				<span className="rounded-full border border-[#e0e0e0] bg-white px-3 py-1 font-mono text-[#525252] text-[11px]">
+					your-domain.com/{metadata.slug}
+				</span>
+
+				<span className="text-[#737373] text-[11px]">
+					{isPublished ? "Published" : "Preview — not published"}
+				</span>
+			</div>
+
+			<article className="mx-auto max-w-[680px] px-6 py-12">
+				<h1 className="font-semibold text-[#111] text-[36px] leading-[1.2] tracking-[-0.02em]">
+					{metadata.title || "Untitled"}
+				</h1>
 				{metadata.description ? (
-					<p className="mt-2 text-muted-foreground text-sm">
+					<p className="mt-4 text-[#525252] text-[18px] leading-relaxed">
 						{metadata.description}
 					</p>
 				) : null}
-			</div>
 
-			<article className="mx-auto max-w-3xl">
-				<header className="border-border border-b pb-8">
-					<p className="font-mono text-muted-foreground text-sm">
-						/{metadata.slug}
-					</p>
-					<h1 className="mt-4 font-semibold text-4xl tracking-tight sm:text-5xl">
-						{metadata.title}
-					</h1>
-					{metadata.description ? (
-						<p className="mt-5 text-lg text-muted-foreground">
-							{metadata.description}
-						</p>
-					) : null}
-				</header>
-				<div className="py-10">
+				<div className="preview-body mt-8 text-[17px] leading-[1.8]">
 					<EditorContent editor={previewEditor} />
 				</div>
 			</article>
-		</section>
+		</div>
 	);
 }
 
@@ -630,9 +788,23 @@ function EditorSaveStatus({
 	wordCount: number;
 }) {
 	const label = getSaveStatusLabel(bodyStatus, metadataStatus, metadataError);
+	const hasError =
+		Boolean(metadataError) ||
+		bodyStatus === "error" ||
+		metadataStatus === "error";
 
 	return (
-		<p aria-live="polite" className="shrink-0 text-muted-foreground text-sm">
+		<p
+			aria-live="polite"
+			className={cn(
+				"shrink-0 text-[11px] tabular-nums",
+				hasError
+					? "text-danger"
+					: label === "Saved"
+						? "text-success"
+						: "text-text-muted",
+			)}
+		>
 			{label} · {wordCount} words
 		</p>
 	);

@@ -1,8 +1,8 @@
-import { IconFileText } from "@tabler/icons-react";
+import { IconChevronRight, IconFileText } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
-import { StatusBadge } from "#/features/dashboard/components/status-badge";
+import { StatusBadge } from "#/components/content-os/ui";
 import { formatDate } from "#/lib/date";
-import { formatNumber } from "#/lib/number";
+import { cn } from "#/lib/utils";
 import type { PostListItem } from "../functions/posts.types";
 
 interface PostListProps {
@@ -14,6 +14,9 @@ interface PostListProps {
 	selectedPostIds: ReadonlySet<number>;
 }
 
+const ROW_GRID =
+	"grid grid-cols-[32px_minmax(0,1fr)_110px_110px_40px] items-center gap-3 px-8";
+
 export function PostList({
 	canOpenPosts,
 	emptyDescription,
@@ -24,7 +27,17 @@ export function PostList({
 }: PostListProps) {
 	if (posts.length === 0) {
 		return (
-			<NoPosts emptyDescription={emptyDescription} emptyTitle={emptyTitle} />
+			<div className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
+				<div className="flex size-12 items-center justify-center rounded-[10px] border border-border bg-card text-text-dim">
+					<IconFileText aria-hidden="true" className="size-5" />
+				</div>
+				<p className="mt-4 font-medium text-sm text-text-primary">
+					{emptyTitle}
+				</p>
+				<p className="mt-1 max-w-[38ch] text-text-muted text-xs leading-relaxed">
+					{emptyDescription}
+				</p>
+			</div>
 		);
 	}
 
@@ -47,51 +60,44 @@ export function PostList({
 	}
 
 	return (
-		<div className="border-border border-t">
-			<div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-4 border-border border-b px-4 py-3 text-muted-foreground text-xs uppercase tracking-[0.14em] sm:px-6">
-				<input
-					aria-label="Select all posts"
-					checked={allPostsSelected}
-					type="checkbox"
-					onChange={(event) => toggleAllPosts(event.target.checked)}
-				/>
-				<span>Title</span>
-				<span>Status</span>
-				<span className="text-right">Updated</span>
-			</div>
-			<ul className="divide-y divide-border">
-				{posts.map((post) => (
-					<ListPost
-						key={post.id}
-						post={post}
-						selected={selectedPostIds.has(post.id)}
-						canOpenPost={canOpenPosts}
-						onSelectedChange={(selected) => togglePost(post.id, selected)}
+		<div className="flex min-h-0 flex-1 flex-col overflow-x-auto">
+			<div className="flex min-h-0 w-full min-w-[680px] flex-1 flex-col">
+				<div
+					className={cn(
+						ROW_GRID,
+						"border-border-subtle border-b py-2 font-medium text-[10px] text-text-dim uppercase tracking-[0.04em]",
+					)}
+				>
+					<input
+						aria-label="Select all posts"
+						checked={allPostsSelected}
+						className="size-3.5 accent-brand"
+						onChange={(event) => toggleAllPosts(event.target.checked)}
+						type="checkbox"
 					/>
-				))}
-			</ul>
+					<span>Title</span>
+					<span>Status</span>
+					<span>Updated</span>
+					<span />
+				</div>
+
+				<ul>
+					{posts.map((post) => (
+						<PostRow
+							canOpenPost={canOpenPosts}
+							key={post.id}
+							onSelectedChange={(selected) => togglePost(post.id, selected)}
+							post={post}
+							selected={selectedPostIds.has(post.id)}
+						/>
+					))}
+				</ul>
+			</div>
 		</div>
 	);
 }
 
-//  ************ Post components *************
-function NoPosts({
-	emptyDescription,
-	emptyTitle,
-}: Pick<PostListProps, "emptyDescription" | "emptyTitle">) {
-	return (
-		<div className="rounded-lg border border-border border-dashed p-10 text-center">
-			<IconFileText
-				aria-hidden="true"
-				className="mx-auto size-8 text-muted-foreground"
-			/>
-			<p className="mt-3 font-medium">{emptyTitle}</p>
-			<p className="mt-1 text-muted-foreground text-sm">{emptyDescription}</p>
-		</div>
-	);
-}
-
-function ListPost({
+function PostRow({
 	canOpenPost,
 	onSelectedChange,
 	post,
@@ -102,47 +108,68 @@ function ListPost({
 	post: PostListItem;
 	selected: boolean;
 }) {
+	const summary = (
+		<>
+			<span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-card text-text-muted">
+				<IconFileText aria-hidden="true" className="size-3.5" />
+			</span>
+			<span className="min-w-0">
+				<span className="block truncate font-medium text-[13px] text-text-body">
+					{post.title}
+				</span>
+				<span className="mt-0.5 block truncate font-mono text-[11px] text-text-muted">
+					/{post.slug}
+				</span>
+			</span>
+		</>
+	);
+
 	return (
-		<li className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6">
+		<li
+			className={cn(
+				ROW_GRID,
+				"border-border-dim border-b py-2.5 transition-colors",
+				selected ? "bg-brand/5" : "hover:bg-white/[0.02]",
+			)}
+		>
 			<input
 				aria-label={`Select ${post.title}`}
 				checked={selected}
-				type="checkbox"
+				className="size-3.5 accent-brand"
 				onChange={(event) => onSelectedChange(event.target.checked)}
+				type="checkbox"
 			/>
+
 			{canOpenPost ? (
 				<Link
-					to="/posts/$postId"
+					className="flex min-w-0 items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 					params={{ postId: String(post.id) }}
-					className="min-w-0"
+					to="/posts/$postId"
 				>
-					<PostSummary post={post} />
+					{summary}
 				</Link>
 			) : (
-				<PostSummary post={post} />
+				<span className="flex min-w-0 items-center gap-3">{summary}</span>
 			)}
 
 			<StatusBadge status={post.status} />
-			<time
-				className="text-right text-muted-foreground text-sm"
-				dateTime={post.updatedAt}
-			>
+
+			<span className="text-[11px] text-text-muted tabular-nums">
 				{formatDate(post.updatedAt)}
-			</time>
+			</span>
+
+			{canOpenPost ? (
+				<Link
+					aria-label={`Open ${post.title}`}
+					className="flex justify-end text-text-faint transition-colors hover:text-text-secondary"
+					params={{ postId: String(post.id) }}
+					to="/posts/$postId"
+				>
+					<IconChevronRight aria-hidden="true" className="size-3.5" />
+				</Link>
+			) : (
+				<span aria-hidden="true" />
+			)}
 		</li>
-	);
-}
-
-function PostSummary({ post }: { post: PostListItem }) {
-	return (
-		<div className="min-w-0">
-			<p className="truncate font-medium">{post.title}</p>
-
-			<p className="mt-1 flex flex-wrap items-center gap-x-1 text-muted-foreground text-xs">
-				<span className="truncate font-mono">/{post.slug}</span>
-				<span aria-hidden="true">·</span>
-				<span>{formatNumber(post.wordCount)} words</span>
-			</p>
-		</div>
 	);
 }

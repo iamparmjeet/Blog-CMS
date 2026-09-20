@@ -13,8 +13,11 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
+import { Route as ProtectedAnalyticsRouteImport } from './routes/_protected/analytics'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
+import { Route as ProtectedMediaRouteImport } from './routes/_protected/media'
 import { Route as ProtectedPostsRouteImport } from './routes/_protected/posts'
+import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ProtectedPostsIndexRouteImport } from './routes/_protected/posts/index'
 import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/posts/$postId'
@@ -37,14 +40,29 @@ const AppLoginRoute = AppLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AppRoute,
 } as any)
+const ProtectedAnalyticsRoute = ProtectedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedMediaRoute = ProtectedMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedPostsRoute = ProtectedPostsRouteImport.update({
   id: '/posts',
   path: '/posts',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
@@ -71,8 +89,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login': typeof AppLoginRoute
+  '/analytics': typeof ProtectedAnalyticsRoute
   '/dashboard': typeof ProtectedDashboardRoute
+  '/media': typeof ProtectedMediaRoute
   '/posts': typeof ProtectedPostsRouteWithChildren
+  '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts/': typeof ProtectedPostsIndexRoute
@@ -80,7 +101,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/login': typeof AppLoginRoute
+  '/analytics': typeof ProtectedAnalyticsRoute
   '/dashboard': typeof ProtectedDashboardRoute
+  '/media': typeof ProtectedMediaRoute
+  '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts': typeof ProtectedPostsIndexRoute
@@ -91,8 +115,11 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_app/login': typeof AppLoginRoute
+  '/_protected/analytics': typeof ProtectedAnalyticsRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
+  '/_protected/media': typeof ProtectedMediaRoute
   '/_protected/posts': typeof ProtectedPostsRouteWithChildren
+  '/_protected/settings': typeof ProtectedSettingsRoute
   '/_public/': typeof PublicIndexRoute
   '/_protected/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -103,22 +130,36 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/analytics'
     | '/dashboard'
+    | '/media'
     | '/posts'
+    | '/settings'
     | '/posts/$postId'
     | '/api/auth/$'
     | '/posts/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/login' | '/dashboard' | '/posts/$postId' | '/api/auth/$' | '/posts'
+    | '/'
+    | '/login'
+    | '/analytics'
+    | '/dashboard'
+    | '/media'
+    | '/settings'
+    | '/posts/$postId'
+    | '/api/auth/$'
+    | '/posts'
   id:
     | '__root__'
     | '/_app'
     | '/_protected'
     | '/_public'
     | '/_app/login'
+    | '/_protected/analytics'
     | '/_protected/dashboard'
+    | '/_protected/media'
     | '/_protected/posts'
+    | '/_protected/settings'
     | '/_public/'
     | '/_protected/posts/$postId'
     | '/api/auth/$'
@@ -162,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLoginRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_protected/analytics': {
+      id: '/_protected/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof ProtectedAnalyticsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/dashboard': {
       id: '/_protected/dashboard'
       path: '/dashboard'
@@ -169,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/media': {
+      id: '/_protected/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof ProtectedMediaRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/posts': {
       id: '/_protected/posts'
       path: '/posts'
       fullPath: '/posts'
       preLoaderRoute: typeof ProtectedPostsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings': {
+      id: '/_protected/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_public/': {
@@ -232,13 +294,19 @@ const ProtectedPostsRouteWithChildren = ProtectedPostsRoute._addFileChildren(
 )
 
 interface ProtectedRouteChildren {
+  ProtectedAnalyticsRoute: typeof ProtectedAnalyticsRoute
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
+  ProtectedMediaRoute: typeof ProtectedMediaRoute
   ProtectedPostsRoute: typeof ProtectedPostsRouteWithChildren
+  ProtectedSettingsRoute: typeof ProtectedSettingsRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedAnalyticsRoute: ProtectedAnalyticsRoute,
   ProtectedDashboardRoute: ProtectedDashboardRoute,
+  ProtectedMediaRoute: ProtectedMediaRoute,
   ProtectedPostsRoute: ProtectedPostsRouteWithChildren,
+  ProtectedSettingsRoute: ProtectedSettingsRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

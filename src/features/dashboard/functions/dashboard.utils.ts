@@ -1,5 +1,6 @@
 import z from "zod";
 import { parsePostStatus } from "#/features/posts/functions/posts.utils";
+import type { WritingActivityHeatmap } from "../writing-activity/writing.types";
 import type { DashboardStats, DashboardSummary } from "./dashboard.types";
 
 export const DEFAULT_ACCENT_COLOR = "#7c3aed";
@@ -68,6 +69,74 @@ export function normalizeAccentColor(
 	const result = AccentColorSchema.safeParse(accentColor);
 
 	return result.success ? result.data : DEFAULT_ACCENT_COLOR;
+}
+
+export function getGreeting(date: Date): string {
+	const hours = date.getHours();
+
+	if (hours < 12) {
+		return "Good morning";
+	}
+
+	if (hours < 18) {
+		return "Good afternoon";
+	}
+
+	return "Good evening";
+}
+
+export interface ActivitySummary {
+	bestDay: number;
+	bestWeek: number;
+	currentStreak: number;
+	dailyAverage: number;
+	thisWeek: number;
+}
+
+export function summarizeActivity(
+	activity: WritingActivityHeatmap,
+): ActivitySummary {
+	const pastDays = activity.cells.filter((cell) => !cell.isFuture);
+	const lastSevenDays = pastDays.slice(-7);
+	const thisWeek = lastSevenDays.reduce(
+		(sum, cell) => sum + cell.wordsAdded,
+		0,
+	);
+	const totalWords = pastDays.reduce((sum, cell) => sum + cell.wordsAdded, 0);
+	const activeDays = pastDays.filter((cell) => cell.wordsAdded > 0).length;
+	const bestDay = pastDays.reduce(
+		(max, cell) => Math.max(max, cell.wordsAdded),
+		0,
+	);
+
+	let currentStreak = 0;
+
+	for (let index = pastDays.length - 1; index >= 0; index -= 1) {
+		const cell = pastDays[index];
+
+		if (!cell || cell.wordsAdded <= 0) {
+			break;
+		}
+
+		currentStreak += 1;
+	}
+
+	let bestWeek = 0;
+
+	for (let end = pastDays.length; end > 0; end -= 7) {
+		const week = pastDays
+			.slice(Math.max(0, end - 7), end)
+			.reduce((sum, cell) => sum + cell.wordsAdded, 0);
+		bestWeek = Math.max(bestWeek, week);
+	}
+
+	return {
+		bestDay,
+		bestWeek,
+		currentStreak,
+		dailyAverage: activeDays === 0 ? 0 : Math.round(totalWords / activeDays),
+		thisWeek,
+	};
 }
 
 function serializeDate(date: Date): string {

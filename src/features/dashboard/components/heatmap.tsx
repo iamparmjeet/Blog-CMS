@@ -1,126 +1,122 @@
+import { formatNumber } from "#/lib/number";
+import { hexToRgba } from "#/lib/utils";
 import type {
 	ActivityLevel,
 	WritingActivityHeatmap as WritingActivityHeatmapData,
 } from "../writing-activity/writing.types";
 import { SectionLabel } from "./label";
 
-interface WritingActivityHeatmapProps {
+interface HeatmapProps {
+	accentColor: string;
 	data: WritingActivityHeatmapData;
 }
 
-const LEGEND_LEVELS = [0, 1, 2, 3, 4] as const;
-
-// const LEVEL_CLASSES = [
-// 	"bg-purple-700/10",
-// 	"bg-purple-700/20",
-// 	"bg-purple-700/40",
-// 	"bg-purple-700/70",
-// 	"bg-purple-700",
-// ] as const satisfies readonly [string, string, string, string, string];
-
-const LEVEL_CLASSES: Record<ActivityLevel, string> = {
-	0: "bg-[#171717]",
-	1: "bg-violet-950",
-	2: "bg-violet-800",
-	3: "bg-violet-600",
-	4: "bg-violet-500",
+const LEVEL_ALPHAS: Record<ActivityLevel, number> = {
+	0: 0,
+	1: 0.15,
+	2: 0.4,
+	3: 0.72,
+	4: 1,
 };
 
-const numberFormatter = new Intl.NumberFormat("en-IN");
+const LEGEND_LEVELS = [0, 1, 2, 3, 4] as const;
+const DAY_LABELS = [
+	{ key: "sunday", label: "" },
+	{ key: "monday", label: "M" },
+	{ key: "tuesday", label: "" },
+	{ key: "wednesday", label: "W" },
+	{ key: "thursday", label: "" },
+	{ key: "friday", label: "F" },
+	{ key: "saturday", label: "" },
+] as const;
 
-// ********* Main component ***********
-export function Heatmap({ data }: WritingActivityHeatmapProps) {
+function getCellBackground(accentColor: string, level: ActivityLevel): string {
+	if (level === 0) {
+		return "var(--border-subtle)";
+	}
+
+	return hexToRgba(accentColor, LEVEL_ALPHAS[level]);
+}
+
+export function Heatmap({ accentColor, data }: HeatmapProps) {
+	const columns = Math.ceil(data.cells.length / 7);
+
 	return (
 		<section
-			className="min-w-0"
 			aria-label={`Writing activity for the last 12 weeks: ${data.totalWordsAdded.toLocaleString()} words added across ${data.activeDays} active days`}
 		>
 			<SectionLabel>Writing activity · last 12 weeks</SectionLabel>
-			<HeatmapHeader totalWordsAdded={data.totalWordsAdded} />
 
-			{/* Cells */}
+			<header className="mt-3 mb-4 flex items-start justify-between gap-4">
+				<p className="text-text-muted text-xs">
+					Words added during the last 12 weeks
+				</p>
+				<p className="text-text-secondary text-xs tabular-nums">
+					{formatNumber(data.totalWordsAdded)} words
+				</p>
+			</header>
+
 			<div className="flex gap-2 overflow-x-auto pb-2">
-				<div className="flex w-max grid-cols-[12px_auto] gap-2">
-					<div
-						className="grid grid-rows-7 gap-1 text-[9px] text-text-muted leading-3"
-						aria-hidden="true"
-					>
-						<span />
-						<span>M</span>
-						<span />
-						<span>W</span>
-						<span />
-						<span>F</span>
-						<span />
-					</div>
+				<div
+					aria-hidden="true"
+					className="grid shrink-0 grid-rows-7 gap-0.5 text-[9px] text-text-muted"
+				>
+					{DAY_LABELS.map((day) => (
+						<span
+							className="flex h-[11px] items-center leading-none"
+							key={day.key}
+						>
+							{day.label}
+						</span>
+					))}
 				</div>
+
 				{/* biome-ignore lint/a11y/useSemanticElements: calendar heatmap, not tabular data; explicit grid role with row/col counts is deliberate. */}
 				<div
-					role="grid"
+					aria-colcount={columns}
 					aria-label="Writing activity for the last 12 weeks"
 					aria-rowcount={7}
-					aria-colcount={Math.ceil(data.cells.length / 7)}
-					className="grid w-max grid-flow-col grid-rows-7 gap-1.5"
+					className="grid w-max grid-flow-col grid-rows-7 gap-0.5"
+					role="grid"
 				>
-					{data.cells.map((cell) => {
-						const label = formatCellLabel(cell.date, cell.wordsAdded);
-
-						return (
-							<span
-								key={cell.date}
-								title={cell.isFuture ? undefined : label}
-								aria-hidden="true"
-								className={[
-									"size-3 rounded-[3px]",
-									cell.isFuture ? "bg-transparent" : LEVEL_CLASSES[cell.level],
-								].join(" ")}
-							/>
-						);
-					})}
-				</div>
-			</div>
-			<footer>
-				<span>Less</span>
-				<div>
-					{LEGEND_LEVELS.map((level) => (
+					{data.cells.map((cell) => (
 						<span
-							key={level}
-							className={`size-3 rounded-[3px] ${LEVEL_CLASSES[level]}`}
+							aria-hidden="true"
+							className="size-[11px] rounded-[2px]"
+							key={cell.date}
+							style={{
+								background: cell.isFuture
+									? "transparent"
+									: getCellBackground(accentColor, cell.level),
+							}}
+							title={cell.isFuture ? undefined : formatCellLabel(cell)}
 						/>
 					))}
 				</div>
+			</div>
+
+			<footer className="mt-2 flex items-center gap-1.5">
+				<span className="text-[11px] text-text-muted">Less</span>
+				{LEGEND_LEVELS.map((level) => (
+					<span
+						className="size-[11px] rounded-[2px]"
+						key={level}
+						style={{ background: getCellBackground(accentColor, level) }}
+					/>
+				))}
 				<span className="text-[11px] text-text-muted">More</span>
 			</footer>
 		</section>
 	);
 }
 
-// ******** Supporting components ***********
-function HeatmapHeader({ totalWordsAdded }: { totalWordsAdded: number }) {
-	return (
-		<header className="mb-5 flex items-start justify-between gap-4">
-			<div>
-				<p className="mt-1 text-text-muted text-xs">
-					Words added during the last 12 weeks
-				</p>
-			</div>
-
-			<p className="text-text-secondary text-xs">
-				{numberFormatter.format(totalWordsAdded)} words
-			</p>
-		</header>
-	);
-}
-
-function formatCellLabel(dateKey: string, wordsAdded: number): string {
-	const date = new Date(`${dateKey}T00:00:00.000Z`);
-
-	const formattedDate = new Intl.DateTimeFormat("en-IN", {
+function formatCellLabel(cell: { date: string; wordsAdded: number }): string {
+	const formattedDate = new Intl.DateTimeFormat("en-US", {
 		dateStyle: "medium",
 		timeZone: "UTC",
-	}).format(date);
+	}).format(new Date(`${cell.date}T00:00:00.000Z`));
 
-	return `${formattedDate}: ${wordsAdded.toLocaleString()} ${
-		wordsAdded === 1 ? "word" : "words"
+	return `${formattedDate}: ${cell.wordsAdded.toLocaleString()} ${
+		cell.wordsAdded === 1 ? "word" : "words"
 	} added`;
 }

@@ -11,12 +11,13 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Area | Status | Current state |
 | --- | --- | --- |
 | Marketing site | Implemented | Landing sections include hero, repurpose, how-it-works, open-source callout, and final CTA. The decorative product mock is responsive, `aria-hidden`/`inert`, and motion respects reduced-motion preferences. |
-| Application shell | Implemented | The manifest, SVG favicon, and shared header mark use the ContentOS identity. |
+| Application shell | Implemented | Protected routes render a persistent owner shell: sidebar navigation (Dashboard, Posts, Media, Analytics, Settings), command palette (⌘K), keyboard-shortcuts overlay (⌘?), `G`-chord navigation, account footer with sign-out, and a mobile navigation drawer. The manifest, SVG favicon, and shared brand mark use the ContentOS identity. |
 | Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint, then returned to the claimed-instance login state. |
 | Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
-| Dashboard | Partial | UI, post summaries, and writing-activity reads exist. Invalid post statuses are data-integrity errors; `unknown` was removed after the posts constraint landed. |
-| Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a live public preview; the server derives word counts and records only positive additions. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
+| Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
+| Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
+| Page UI shells | In progress | Dashboard and Posts are rebuilt on the ContentOS UI kit with real data. `/media`, `/analytics`, and `/settings` render full reference-faithful layouts over clearly-labelled sample data; their persistence and API wiring land with M3.2, M4.3, and M4.1. |
 | Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Schema only | Preference fields exist without an owner-facing settings workflow. |
@@ -31,16 +32,16 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 60/60, including canonical-body, metadata validation, positive-only writing-activity, owner-scoped lifecycle actions, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
+| `bun run test` | Passes | 63/63, including canonical-body, metadata validation, positive-only writing-activity, owner-scoped lifecycle actions, dashboard stat/streak/rhythm derivations, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 118 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 139 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2/M2.3/M2.4/M2.5 are complete. Local/remote Studio workflows and application identity are also implemented:
+The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1-M2.6 are complete. Local/remote Studio workflows and application identity are also implemented:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
@@ -56,6 +57,18 @@ The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2/M2.3/M2.4/M2.5 
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
 - `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
 - `bun run db:studio:local` discovers the non-metadata SQLite file in that state directory and opens it with Drizzle Studio. `bun run db:studio:remote` uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and a scoped `CLOUDFLARE_API_TOKEN`.
+
+## UI Shell Pass (2026-09-20)
+
+Branch `feat/m2.6-app-shell` rebuilds the protected area on the ContentOS UI kit ported from the `Blog-CMS-ai` and `Blog-CMS-claude` references:
+
+- `.dark` tokens are aligned to the reference palette (`#0a0a0a` app, `#0d0d0d` card, `#1f1f1f` border, `#e5e5e5`/`#d4d4d4`/`#a3a3a3`/`#737373` text ramp) with three added text tokens (`--text-body`, `--text-soft`, `--accent-soft`).
+- `src/components/content-os/ui.tsx` provides `StatusBadge`, `Kbd`, `SectionLabel`, `SegmentedControl`, `UserAvatar`, `AccentSwitch`, `PageHeader`, and `EmptyState`.
+- `src/components/content-os/sidebar.tsx` provides the owner navigation, editor post context with publish switch and schedule picker, and the account footer with sign-out; `sidebar-context.tsx` lets the editor publish the open post into the shell.
+- `src/components/content-os/command-palette.tsx` provides the ⌘K palette and the shortcuts overlay; `_protected.tsx` registers ⌘K, ⌘?, ⌘N, `G`-chords, and Escape.
+- The dashboard is rebuilt with real data (stat cards, continue/rhythm cards, heatmap, recent posts) and the posts list uses the reference toolbar, filter tabs, bulk bar, table, and footer stats.
+- `/media`, `/analytics`, and `/settings` render the reference layouts over clearly-labelled sample data so navigation is complete before their data milestones.
+- The editor gains the reference toolbar (breadcrumb, save state, Write/SEO, Draft/Published toggle, preview, trash), a character-counted SEO tab with a search preview, a light full-screen preview overlay (⌘⇧V), and explicit `immediatelyRender: false` for SSR-safe TipTap mounting.
 
 ## Marketing Page Pass (2026-09-19)
 
