@@ -31,9 +31,9 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 55/55, including canonical-body, metadata validation, positive-only writing-activity, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
+| `bun run test` | Passes | 60/60, including canonical-body, metadata validation, positive-only writing-activity, owner-scoped lifecycle actions, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 113 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 118 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
