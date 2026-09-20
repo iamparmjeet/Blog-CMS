@@ -1,5 +1,4 @@
-import { normalizePostStatus } from "#/features/dashboard/functions/dashboard.utils";
-import type { PostListItem } from "./posts.types";
+import type { PostListItem, PostStatus } from "./posts.types";
 
 export const UNTITLED_POST_TITLE = "Untitled";
 export const MAX_POST_TITLE_LENGTH = 200;
@@ -12,6 +11,17 @@ export interface PostRow {
 	status: string;
 	wordCount: number;
 	updatedAt: Date;
+}
+export function parsePostStatus(status: string): PostStatus {
+	switch (status) {
+		case "draft":
+		case "published":
+		case "scheduled":
+		case "archived":
+			return status;
+		default:
+			throw new Error(`Received invalid post status: ${status}`);
+	}
 }
 
 export function normalizePostTitle(title: string | null | undefined): string {
@@ -56,7 +66,7 @@ export function toPostListItem(row: PostRow): PostListItem {
 		id: row.id,
 		title: normalizePostTitle(row.title),
 		slug: row.slug,
-		status: normalizePostStatus(row.status),
+		status: parsePostStatus(row.status),
 		wordCount: Math.max(0, row.wordCount),
 		updatedAt: serializePostDate(row.updatedAt),
 	};

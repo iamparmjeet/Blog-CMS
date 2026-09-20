@@ -1,10 +1,10 @@
-import type { DashboardPostStatus } from "#/features/dashboard/functions/dashboard.types";
+export type PostStatus = "draft" | "published" | "scheduled" | "archived";
 
 export interface PostListItem {
 	id: number;
 	title: string;
 	slug: string;
-	status: DashboardPostStatus;
+	status: PostStatus;
 	wordCount: number;
 	updatedAt: string;
 }

@@ -13,8 +13,8 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Marketing site | Implemented | Static landing page sections are present. |
 | Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign back in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint, then returned to the claimed-instance login state. |
 | Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
-| Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. No enforced post-status or per-user slug constraints are present. |
-| Dashboard | Partial | UI, post summaries, and writing-activity reads exist. T0.1–T0.3 landed on `main`: archived/unknown status contract, dead activity modules removed, static checks green. |
+| Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness. |
+| Dashboard | Partial | UI, post summaries, and writing-activity reads exist. Invalid post statuses are data-integrity errors; `unknown` was removed after the posts constraint landed. |
 | Post editing | Partial | The owner-scoped posts list (soft-deleted posts excluded) and create-draft flow are implemented at `/posts`; a server function can save a body and record added words. No editor UI exists yet. |
 | Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
@@ -22,7 +22,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Analytics | Schema only | An Umami share URL field exists without an analytics page or integration. |
 | Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
 | Comments | Not implemented | No comment model or UI exists. |
-| Scheduling | Not implemented | `scheduled` is represented in the dashboard but has no publish-at data or scheduler. |
+| Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
 | Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared, and the app plus better-auth run on `drizzle-orm/d1` with local development on workerd and local D1. The committed D1 identifier is still a placeholder and no preview deployment exists yet (T1.4). |
 
 ## Verified Baseline
@@ -30,7 +30,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 40/40, including the dashboard status-contract, owner-claim (first-claim/return/rejection), and posts slug/owner-scoping cases. |
+| `bun run test` | Passes | 42/42, including post-status, per-owner slug-constraint, owner-claim, and owner-scoping cases. |
 | `bun run check-types` | Passes | 0 errors. |
 | `bun run check` | Passes | Biome 2.4.5 clean on 99 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
@@ -39,11 +39,12 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete; M1.1/T1.2/T1.3 are merged on `main`, and M2.1 (posts list + create-draft) is in review as PR #7:
+The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged or ready to merge:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
-- `/posts` lists the owner's non-deleted posts and creates untitled drafts; the rich editor arrives with M2.2.
+- `/posts` lists the owner's non-deleted posts and creates untitled drafts. The posts schema includes description plus publish/schedule timestamps, rejects invalid lifecycle statuses and duplicate owner slugs, and archives invalid legacy statuses during migration.
+- The rich editor arrives with M2.3.
 - Remaining before deployment: T1.4 deploy verification (provision D1/R2, replace the placeholder database ID, preview smoke).
 
 ## Tooling (added 2026-09-18)

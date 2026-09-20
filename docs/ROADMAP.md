@@ -61,18 +61,23 @@ This roadmap turns the current README commitments into independently verifiable 
   - Replace the placeholder Posts route with an owner-scoped list and create-draft workflow.
   - Acceptance: a signed-in owner can create and find an untitled draft; another user cannot access it.
 
-- [ ] **M2.2: Implement the rich post editor.**
-  - Depends on: M2.1.
-  - Add the chosen rich-text editor, autosave, word counting, and editing recovery behavior.
-  - Acceptance: content survives reloads, word count is correct for the canonical body representation, and writing activity records only positive additions.
+- [x] **M2.2: Enforce the publishing schema.**
+	- Depends on: M2.1.
+	- Add post description and lifecycle timestamps, enforce per-owner slug uniqueness and valid statuses, and resolve invalid legacy statuses before applying the constraint.
+	- Acceptance: a fresh local D1 applies the migration; invalid statuses are archived before the constraint applies; owner slug collisions are rejected.
 
-- [ ] **M2.3: Add post metadata and live preview.**
-  - Depends on: M2.2.
-  - Support title, stable slug, SEO title/description, validation, and a live public-preview representation.
-  - Acceptance: invalid or duplicate slugs are rejected; valid metadata renders in preview and is persisted.
+- [ ] **M2.3: Implement the rich post editor.**
+	- Depends on: M2.2.
+	- Add the chosen rich-text editor, autosave, word counting, and editing recovery behavior.
+	- Acceptance: content survives reloads, word count is correct for the canonical body representation, and writing activity records only positive additions.
 
-- [ ] **M2.4: Complete the post lifecycle.**
-  - Depends on: M2.3.
+- [ ] **M2.4: Add post metadata and live preview.**
+	- Depends on: M2.3.
+	- Support title, stable slug, SEO title/description, validation, and a live public-preview representation.
+	- Acceptance: invalid or duplicate slugs are rejected; valid metadata renders in preview and is persisted.
+
+- [ ] **M2.5: Complete the post lifecycle.**
+	- Depends on: M2.4.
   - Add publish/unpublish, soft delete, restore, purge, and bulk actions with clear irreversible-action confirmation.
   - Acceptance: each lifecycle transition is owner-authorized, reflected in the dashboard, and covered by integration tests.
 
@@ -81,7 +86,7 @@ This roadmap turns the current README commitments into independently verifiable 
 **Goal:** Deliver publishable content and managed assets safely.
 
 - [ ] **M3.1: Implement R2 media uploads.**
-  - Depends on: M1.2, M2.2.
+	- Depends on: M1.2, M2.3.
   - Add owner-authorized upload initiation, MIME/size validation, stable object keys, and persisted media metadata.
   - Acceptance: an uploaded image can be inserted into a post without exposing storage credentials to the browser.
 
@@ -91,7 +96,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Acceptance: assets can be reused across posts and deleted assets cannot silently leave broken published content.
 
 - [ ] **M3.3: Implement the public JSON feed.**
-  - Depends on: M2.4, M3.1.
+	- Depends on: M2.5, M3.1.
   - Add CORS-gated collection and single-post endpoints that expose only published posts and safe asset URLs.
   - Acceptance: allowed origins receive the documented response; disallowed origins and drafts receive no publishable content.
 
@@ -105,7 +110,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Acceptance: each setting is validated, persists, and is applied by its dependent feature.
 
 - [ ] **M4.2: Complete dashboard behavior.**
-  - Depends on: M2.4, M4.1.
+	- Depends on: M2.5, M4.1.
   - Verify dashboard totals, recent posts, continue-writing behavior, and time-zone-aware heatmap against real post activity.
   - Acceptance: all dashboard states have end-to-end coverage and navigation leads to functional post workflows.
 
@@ -119,7 +124,7 @@ This roadmap turns the current README commitments into independently verifiable 
 **Goal:** Add optional writing assistance without compromising ownership or published content.
 
 - [ ] **M5.1: Implement AI post generation.**
-  - Depends on: M2.2, M4.1.
+	- Depends on: M2.3, M4.1.
   - Add streamed generation using the selected model and writing profile, with cancellation, error states, and explicit owner approval before persistence.
   - Acceptance: generated text is never published automatically and provider failures leave the draft intact.
 
@@ -129,7 +134,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Acceptance: each variant is visibly labeled by target format and can be copied without changing the source post.
 
 - [ ] **M5.3: Implement scheduled publishing.**
-  - Depends on: M1.3, M2.4, M4.1.
+	- Depends on: M1.3, M2.5, M4.1.
   - Add a publish-at instant, schedule management UI, and reliable Worker-side execution.
   - Acceptance: a scheduled post publishes once at the expected time in the configured timezone, including after worker restarts.
 

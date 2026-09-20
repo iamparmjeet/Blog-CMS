@@ -49,12 +49,25 @@ describe("uniqueSlug", () => {
 });
 
 describe("toPostListItem", () => {
+	it("throws when a stored status violates the lifecycle contract", () => {
+		expect(() =>
+			toPostListItem({
+				id: 7,
+				title: "Test post",
+				slug: "test-post",
+				status: "deleted",
+				wordCount: 0,
+				updatedAt: new Date("2026-07-22T10:00:00.000Z"),
+			}),
+		).toThrow("Received invalid post status: deleted");
+	});
+
 	it("normalizes title, status, word count and date", () => {
 		const item = toPostListItem({
 			id: 7,
 			title: "   ",
 			slug: "untitled",
-			status: "deleted",
+			status: "draft",
 			wordCount: -5,
 			updatedAt: new Date("2026-07-22T10:00:00.000Z"),
 		});
@@ -63,7 +76,7 @@ describe("toPostListItem", () => {
 			id: 7,
 			title: UNTITLED_POST_TITLE,
 			slug: "untitled",
-			status: "unknown",
+			status: "draft",
 			wordCount: 0,
 			updatedAt: "2026-07-22T10:00:00.000Z",
 		});
