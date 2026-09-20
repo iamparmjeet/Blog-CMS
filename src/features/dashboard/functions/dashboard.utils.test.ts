@@ -4,7 +4,6 @@ import {
 	type DashboardPostRow,
 	DEFAULT_ACCENT_COLOR,
 	normalizeAccentColor,
-	normalizePostStatus,
 } from "./dashboard.utils";
 
 function createPost(
@@ -158,17 +157,11 @@ describe("buildDashboardData", () => {
 	});
 });
 
-describe("normalizePostStatus", () => {
-	it("preserves supported statuses", () => {
-		expect(normalizePostStatus("draft")).toBe("draft");
-		expect(normalizePostStatus("published")).toBe("published");
-		expect(normalizePostStatus("scheduled")).toBe("scheduled");
-		expect(normalizePostStatus("archived")).toBe("archived");
-	});
-
-	it("does not misrepresent an unsupported status as a draft", () => {
-		expect(normalizePostStatus("deleted")).toBe("unknown");
-		expect(normalizePostStatus("")).toBe("unknown");
+describe("post status integrity", () => {
+	it("fails when stored status violates the lifecycle contract", () => {
+		expect(() =>
+			buildDashboardData([createPost({ status: "deleted" })], null),
+		).toThrow("Received invalid post status: deleted");
 	});
 });
 

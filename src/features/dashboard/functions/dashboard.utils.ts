@@ -1,18 +1,9 @@
 import z from "zod";
-import type {
-	DashboardPostStatus,
-	DashboardStats,
-	DashboardSummary,
-} from "./dashboard.types";
+import { parsePostStatus } from "#/features/posts/functions/posts.utils";
+import type { DashboardStats, DashboardSummary } from "./dashboard.types";
 
 export const DEFAULT_ACCENT_COLOR = "#7c3aed";
 
-const PostStatusSchema = z.enum([
-	"draft",
-	"published",
-	"scheduled",
-	"archived",
-]);
 const AccentColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 
 export interface DashboardPostRow {
@@ -34,7 +25,7 @@ export function buildDashboardData(
 		.map((row) => ({
 			id: row.id,
 			title: row.title.trim() || "Untitled",
-			status: normalizePostStatus(row.status),
+			status: parsePostStatus(row.status),
 			wordCount: Math.max(0, row.wordCount),
 			updatedAt: serializeDate(row.updatedAt),
 		}));
@@ -71,13 +62,6 @@ export function buildDashboardData(
 }
 
 // ******** Supporting functions ************
-
-export function normalizePostStatus(status: string): DashboardPostStatus {
-	const result = PostStatusSchema.safeParse(status);
-
-	return result.success ? result.data : "unknown";
-}
-
 export function normalizeAccentColor(
 	accentColor: string | null | undefined,
 ): string {

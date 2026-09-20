@@ -6,6 +6,7 @@ import {
 	primaryKey,
 	sqliteTable,
 	text,
+	uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 import { user } from "./auth-schema";
 
@@ -63,6 +64,9 @@ export const posts = sqliteTable(
 		slug: text().notNull(),
 		status: text().notNull().default("draft"),
 		body: text(),
+		description: text().notNull().default(""),
+		publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+		scheduledAt: integer("scheduled_at", { mode: "timestamp_ms" }),
 		wordCount: integer({ mode: "number" }).notNull().default(0),
 		revision: integer({ mode: "number" }).notNull().default(0),
 		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
@@ -76,6 +80,11 @@ export const posts = sqliteTable(
 	},
 	(table) => [
 		foreignKey({ columns: [table.userId], foreignColumns: [user.id] }),
+		uniqueIndex("posts_user_id_slug_unique").on(table.userId, table.slug),
+		check(
+			"posts_status_valid",
+			sql`${table.status} in ('draft', 'published', 'scheduled', 'archived')`,
+		),
 	],
 );
 

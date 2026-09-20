@@ -1,16 +1,10 @@
+import type { PostStatus } from "#/features/posts/functions/posts.types";
 import type { WritingActivityHeatmap } from "../writing-activity/writing.types";
-
-export type DashboardPostStatus =
-	| "draft"
-	| "published"
-	| "scheduled"
-	| "archived"
-	| "unknown";
 
 export interface DashboardPostSummary {
 	id: number;
 	title: string;
-	status: DashboardPostStatus;
+	status: PostStatus;
 	wordCount: number;
 	updatedAt: string;
 }

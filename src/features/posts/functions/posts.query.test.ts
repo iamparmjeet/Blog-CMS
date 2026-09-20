@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "#/db";
@@ -19,11 +20,17 @@ function createThrowawayDb(): Db {
 			slug text NOT NULL,
 			status text DEFAULT 'draft' NOT NULL,
 			body text,
+			description text DEFAULT '' NOT NULL,
+			published_at integer,
+			scheduled_at integer,
 			wordCount integer DEFAULT 0 NOT NULL,
 			revision integer DEFAULT 0 NOT NULL,
 			deleted_at integer,
 			created_at integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
-			updated_at integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL
+			updated_at integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+			CONSTRAINT "posts_status_valid"
+			CHECK("status" in ('draft', 'published', 'scheduled', 'archived')),
+			CONSTRAINT "posts_user_id_slug_unique" UNIQUE("user_id", "slug")
 		);
 	`);
 
@@ -91,6 +98,13 @@ describe("insertPostDraft", () => {
 		expect(rows).toHaveLength(1);
 		expect(rows[0]?.status).toBe("draft");
 		expect(rows[0]?.wordCount).toBe(0);
+
+		const [post] = await db
+			.select({ description: posts.description })
+			.from(posts)
+			.where(eq(posts.id, created.id));
+
+		expect(post?.description).toBe("");
 	});
 
 	it("slugifies the title", async () => {
@@ -126,5 +140,38 @@ describe("insertPostDraft", () => {
 
 		expect(first.slug).toBe("shared");
 		expect(second.slug).toBe("shared");
+	});
+
+	it("enforces slugs as unique per owner", async () => {
+		await db.insert(posts).values({
+			userId: OWNER,
+			title: "First",
+			slug: "shared",
+		});
+
+		await expect(
+			db.insert(posts).values({
+				userId: OWNER,
+				title: "Duplicate",
+				slug: "shared",
+			}),
+		).rejects.toThrow(/unique/i);
+
+		await db.insert(posts).values({
+			userId: OTHER_OWNER,
+			title: "Other owner",
+			slug: "shared",
+		});
+	});
+
+	it("rejects statuses outside the lifecycle", async () => {
+		await expect(
+			db.insert(posts).values({
+				userId: OWNER,
+				title: "Invalid",
+				slug: "invalid",
+				status: "deleted",
+			}),
+		).rejects.toThrow(/check/i);
 	});
 });
