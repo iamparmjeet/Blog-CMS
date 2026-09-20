@@ -77,7 +77,7 @@ This roadmap turns the current README commitments into independently verifiable 
 	- Support title, stable slug, SEO title/description, validation, and a live public-preview representation.
 	- Acceptance: invalid or duplicate slugs are rejected; valid metadata renders in preview and is persisted.
 
-- [ ] **M2.5: Complete the post lifecycle.**
+- [x] **M2.5: Complete the post lifecycle.**
 	- Depends on: M2.4.
   - Add publish/unpublish, soft delete, restore, purge, and bulk actions with clear irreversible-action confirmation.
   - Acceptance: each lifecycle transition is owner-authorized, reflected in the dashboard, and covered by integration tests.

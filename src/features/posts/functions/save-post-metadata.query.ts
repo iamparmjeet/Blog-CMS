@@ -28,7 +28,12 @@ export async function updatePostMetadata(
 	}: UpdatePostMetadataInput,
 ) {
 	const existingPost = await db
-		.select({ id: posts.id, slug: posts.slug, status: posts.status })
+		.select({
+			id: posts.id,
+			slug: posts.slug,
+			status: posts.status,
+			publishedAt: posts.publishedAt,
+		})
 		.from(posts)
 		.where(
 			and(
@@ -43,7 +48,11 @@ export async function updatePostMetadata(
 		throw new Error("Post not found");
 	}
 
-	if (existingPost.status === "published" && existingPost.slug !== slug) {
+	if (
+		(existingPost.status === "published" ||
+			existingPost.publishedAt !== null) &&
+		existingPost.slug !== slug
+	) {
 		throw new Error("Published post slugs cannot be changed");
 	}
 

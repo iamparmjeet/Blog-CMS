@@ -171,4 +171,27 @@ describe("updatePostMetadata", () => {
 			}),
 		).rejects.toThrow("Published post slugs cannot be changed");
 	});
+
+	it("keeps a slug immutable after a post has been unpublished", async () => {
+		const postId = await insertPost(db, { slug: "was-published" });
+
+		await db
+			.update(posts)
+			.set({
+				status: "draft",
+				publishedAt: new Date("2026-01-02T00:00:00.000Z"),
+			})
+			.where(eq(posts.id, postId));
+
+		await expect(
+			updatePostMetadata(db, {
+				userId: OWNER,
+				postId,
+				title: "Was published",
+				slug: "renamed-post",
+				seoTitle: "",
+				description: "",
+			}),
+		).rejects.toThrow("Published post slugs cannot be changed");
+	});
 });
