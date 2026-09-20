@@ -1,8 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import type { Db } from "#/db";
 import { posts } from "#/db/schema";
-import type { CreatedPostDraft } from "./posts.types";
-import type { PostRow } from "./posts.utils";
+import type { CreatedPostDraft, PostEditorRow, PostRow } from "./posts.types";
 import { normalizePostTitle, slugify, uniqueSlug } from "./posts.utils";
 
 export async function selectPostRowsByOwner(
@@ -21,6 +20,33 @@ export async function selectPostRowsByOwner(
 		.from(posts)
 		.where(and(eq(posts.userId, userId), isNull(posts.deletedAt)))
 		.orderBy(desc(posts.updatedAt));
+}
+
+export async function selectPostEditorRowByOwner(
+	db: Db,
+	userId: string,
+	postId: number,
+): Promise<PostEditorRow | undefined> {
+	return db
+		.select({
+			id: posts.id,
+			title: posts.title,
+			slug: posts.slug,
+			seoTitle: posts.seoTitle,
+			description: posts.description,
+			body: posts.body,
+			wordCount: posts.wordCount,
+			updatedAt: posts.updatedAt,
+		})
+		.from(posts)
+		.where(
+			and(
+				eq(posts.id, postId),
+				eq(posts.userId, userId),
+				isNull(posts.deletedAt),
+			),
+		)
+		.get();
 }
 
 interface InsertPostDraftInput {

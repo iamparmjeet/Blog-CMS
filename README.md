@@ -21,7 +21,7 @@ A single-user, self-hosted blog content management system built on **TanStack St
 |-------|--------|
 | Framework | TanStack Start (React Router SSR) |
 | Styling | Tailwind CSS v4 + shadcn |
-| DB / ORM | Drizzle ORM — **SQLite (better-sqlite3)** in dev |
+| DB / ORM | Drizzle ORM with Cloudflare D1 |
 | Auth | better-auth (OAuth) |
 | Editor | TipTap v3 + lowlight |
 | AI | OpenRouter (chat completions) |
@@ -32,8 +32,7 @@ A single-user, self-hosted blog content management system built on **TanStack St
 
 ## Prerequisites
 
-- Node.js 22+ (tested on 26) or Bun
-- A package manager: `pnpm` (recommended), `npm`, or `bun`
+- Bun 1.4+
 - OAuth apps for **GitHub** and **Google**
 - A **Cloudflare R2** bucket (for media) — optional in dev
 - An **OpenRouter** API key (for AI features)
@@ -82,6 +81,67 @@ A single-user, self-hosted blog content management system built on **TanStack St
 
    Open http://localhost:3000. The first OAuth sign-in claims the instance as the owner.
 
+## Database Studio
+
+Use the local Studio command to inspect the same D1 database as `bun run dev`:
+
+```bash
+bun run db:studio:local
+```
+
+The local Worker state lives at `$XDG_RUNTIME_DIR/contentos-wrangler-state`
+(or `/tmp/contentos-wrangler-state`) and is cleared after a reboot or new login
+session. Run `bun run db:migrate` before starting Studio or the development
+server when that happens.
+
+To inspect the remote D1 database, set these values in `.env.local` and run the
+remote command:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_D1_DATABASE_ID=
+CLOUDFLARE_API_TOKEN=
+
+bun run db:studio:remote
+```
+
+The API token requires D1 Read and D1 Write permissions for the database.
+
+### Provision Remote D1
+
+Local D1 state is not automatically created in Cloudflare or synchronized with a
+remote database. Provision the remote database before deploying:
+
+```bash
+# An API token (including an empty placeholder) prevents OAuth login.
+unset CLOUDFLARE_API_TOKEN
+bunx wrangler login
+bunx wrangler whoami
+
+# Confirm the target account, then create the database.
+bunx wrangler d1 list
+bunx wrangler d1 create blog-cms
+```
+
+Copy the `database_id` printed by `d1 create` into both
+`wrangler.jsonc` (`d1_databases[0].database_id`) and
+`CLOUDFLARE_D1_DATABASE_ID` in `.env.local`. Then apply and inspect the remote
+schema:
+
+```bash
+bun run db:migrate:remote
+bunx wrangler d1 info blog-cms
+```
+
+Common D1 inspection commands:
+
+```bash
+bunx wrangler d1 list
+bunx wrangler d1 info blog-cms
+bunx wrangler d1 migrations list blog-cms --remote
+bunx wrangler d1 execute blog-cms --remote --command 'SELECT name FROM sqlite_master WHERE type = "table";'
+```
+
 ## Scripts
 
 | Command | Description |
@@ -94,6 +154,10 @@ A single-user, self-hosted blog content management system built on **TanStack St
 | `bun run db:generate` | Generate Drizzle SQL from the schema |
 | `bun run db:migrate` | Apply migrations to the local D1 database |
 | `bun run db:migrate:remote` | Apply migrations to remote D1 (after provisioning) |
+| `bun run db:studio:local` | Open Drizzle Studio for the local D1 database |
+| `bun run db:studio:remote` | Open Drizzle Studio for remote D1 using Cloudflare API credentials |
+| `bunx wrangler d1 list` | List D1 databases in the authenticated Cloudflare account |
+| `bunx wrangler d1 info blog-cms` | Inspect the remote `blog-cms` database |
 | `bun run deploy` | `bun run build && wrangler deploy` |
 
 ## Usage

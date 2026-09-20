@@ -16,6 +16,8 @@ import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
 import { Route as ProtectedPostsRouteImport } from './routes/_protected/posts'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as ProtectedPostsIndexRouteImport } from './routes/_protected/posts/index'
+import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/posts/$postId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const AppRoute = AppRouteImport.update({
@@ -50,6 +52,16 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const ProtectedPostsIndexRoute = ProtectedPostsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedPostsRoute,
+} as any)
+const ProtectedPostsPostIdRoute = ProtectedPostsPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => ProtectedPostsRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -60,15 +72,18 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login': typeof AppLoginRoute
   '/dashboard': typeof ProtectedDashboardRoute
-  '/posts': typeof ProtectedPostsRoute
+  '/posts': typeof ProtectedPostsRouteWithChildren
+  '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/posts/': typeof ProtectedPostsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/login': typeof AppLoginRoute
   '/dashboard': typeof ProtectedDashboardRoute
-  '/posts': typeof ProtectedPostsRoute
+  '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/posts': typeof ProtectedPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,15 +92,25 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_app/login': typeof AppLoginRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
-  '/_protected/posts': typeof ProtectedPostsRoute
+  '/_protected/posts': typeof ProtectedPostsRouteWithChildren
   '/_public/': typeof PublicIndexRoute
+  '/_protected/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_protected/posts/': typeof ProtectedPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard' | '/posts' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/posts'
+    | '/posts/$postId'
+    | '/api/auth/$'
+    | '/posts/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/posts' | '/api/auth/$'
+  to:
+    '/' | '/login' | '/dashboard' | '/posts/$postId' | '/api/auth/$' | '/posts'
   id:
     | '__root__'
     | '/_app'
@@ -95,7 +120,9 @@ export interface FileRouteTypes {
     | '/_protected/dashboard'
     | '/_protected/posts'
     | '/_public/'
+    | '/_protected/posts/$postId'
     | '/api/auth/$'
+    | '/_protected/posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +183,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_protected/posts/': {
+      id: '/_protected/posts/'
+      path: '/'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof ProtectedPostsIndexRouteImport
+      parentRoute: typeof ProtectedPostsRoute
+    }
+    '/_protected/posts/$postId': {
+      id: '/_protected/posts/$postId'
+      path: '/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof ProtectedPostsPostIdRouteImport
+      parentRoute: typeof ProtectedPostsRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -176,14 +217,28 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface ProtectedPostsRouteChildren {
+  ProtectedPostsPostIdRoute: typeof ProtectedPostsPostIdRoute
+  ProtectedPostsIndexRoute: typeof ProtectedPostsIndexRoute
+}
+
+const ProtectedPostsRouteChildren: ProtectedPostsRouteChildren = {
+  ProtectedPostsPostIdRoute: ProtectedPostsPostIdRoute,
+  ProtectedPostsIndexRoute: ProtectedPostsIndexRoute,
+}
+
+const ProtectedPostsRouteWithChildren = ProtectedPostsRoute._addFileChildren(
+  ProtectedPostsRouteChildren,
+)
+
 interface ProtectedRouteChildren {
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
-  ProtectedPostsRoute: typeof ProtectedPostsRoute
+  ProtectedPostsRoute: typeof ProtectedPostsRouteWithChildren
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedDashboardRoute: ProtectedDashboardRoute,
-  ProtectedPostsRoute: ProtectedPostsRoute,
+  ProtectedPostsRoute: ProtectedPostsRouteWithChildren,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

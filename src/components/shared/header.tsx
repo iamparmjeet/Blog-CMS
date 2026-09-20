@@ -1,26 +1,23 @@
 import { IconArrowRight, IconMenu } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
+import { motion, useMotionValueEvent, useScroll } from "motion/react";
+import { useState } from "react";
+import { cn } from "#/lib/utils";
+import { Button, buttonVariants } from "../ui/button";
 import { Logo } from "./logo";
 import { NavLinks } from "./nav-links";
 
 export function Header() {
 	const [scrolled, setScrolled] = useState(false);
+	const { scrollY } = useScroll();
 
-	useEffect(() => {
-		const onScroll = () => {
-			setScrolled(window.scrollY > 20);
-		};
+	useMotionValueEvent(scrollY, "change", (latest) => {
+		const next = latest > 20;
+		setScrolled((prev) => (prev === next ? prev : next));
+	});
 
-		onScroll();
-
-		window.addEventListener("scroll", onScroll);
-
-		return () => window.removeEventListener("scroll", onScroll);
-	}, []);
 	return (
-		<header
+		<motion.header
 			className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
 				scrolled
 					? "border-white/10 border-b bg-black/80 backdrop-blur-xl"
@@ -34,17 +31,20 @@ export function Header() {
 
 				{/* Right */}
 				<div className="flex items-center gap-2">
-					<Button>
-						<Link to="/login" className={"inline-flex items-center gap-2"}>
-							Sign In
-							<IconArrowRight className="size-4" />
-						</Link>
-					</Button>
-					<Button variant="ghost" size="icon" className="md:hidden">
+					<Link to="/login" className={cn(buttonVariants(), "gap-2")}>
+						Sign In
+						<IconArrowRight className="size-4" />
+					</Link>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="md:hidden"
+						aria-label="Open menu"
+					>
 						<IconMenu className="h-5 w-5" />
 					</Button>
 				</div>
 			</div>
-		</header>
+		</motion.header>
 	);
 }

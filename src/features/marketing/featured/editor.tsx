@@ -10,7 +10,7 @@ import { Separator } from "#/components/ui/separator";
 
 export function Editor() {
 	return (
-		<main className="flex h-full flex-col bg-black">
+		<div className="flex h-full flex-col bg-black">
 			{/* title */}
 			<div className="flex h-10 items-center justify-between border-white/5 border-b px-6">
 				<span className="text-xs text-zinc-600">
@@ -28,7 +28,7 @@ export function Editor() {
 						for a Custom CMS
 					</h1>
 					<p className="mt-2 font-mono text-[10px] text-zinc-600">
-						/why-i-diteched-notion
+						/why-i-ditched-notion
 					</p>
 					<Separator className="my-7 bg-white/5" />
 
@@ -80,7 +80,7 @@ export function Editor() {
 					</div>
 				</div>
 			</div>
-		</main>
+		</div>
 	);
 }
 

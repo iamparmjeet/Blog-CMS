@@ -1,6 +1,11 @@
 import { IconWand } from "@tabler/icons-react";
-import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { cn } from "#/lib/utils";
+
+interface ContentLine {
+	id: string;
+	text: string;
+}
 
 const PLATFORM_CONTENT: Record<string, string[]> = {
 	twitter: [
@@ -39,15 +44,26 @@ const PLATFORM_CONTENT: Record<string, string[]> = {
 	],
 };
 
-const tabs = ["Twitter", "LinkedIn", "Instagram"] as const;
+const PLATFORM_LINES: Record<string, ContentLine[]> = Object.fromEntries(
+	Object.entries(PLATFORM_CONTENT).map(([platform, lines]) => [
+		platform,
+		lines.map((text, i) => ({ id: `${platform}-${i}`, text })),
+	]),
+);
 
-export function RepurposePanel() {
-	const [active, setActive] = useState<number>(0);
-	const platform = tabs[active].toLowerCase();
-	const lines = PLATFORM_CONTENT[platform];
+const tabs = ["Twitter", "LinkedIn", "Instagram"] as const;
+const activeTab = tabs[0];
+
+export function RepurposePanel({ className }: { className?: string }) {
+	const lines = PLATFORM_LINES[activeTab.toLowerCase()];
 
 	return (
-		<aside className="flex h-full flex-col border-white/5 border-l bg-zinc-950">
+		<aside
+			className={cn(
+				"flex h-full flex-col border-white/5 border-l bg-zinc-950",
+				className,
+			)}
+		>
 			{/* Button*/}
 			<div className="flex items-center gap-2 border-white/5 border-b px-4 py-3">
 				<IconWand className="h-4 w-4 text-violet-400" />
@@ -56,12 +72,11 @@ export function RepurposePanel() {
 
 			{/* Tabs */}
 			<div className="flex gap-0.5 border-white/5 border-b p-2">
-				{tabs.map((tab, i) => (
+				{tabs.map((tab) => (
 					<Button
 						key={tab}
-						onClick={() => setActive(i)}
 						size="sm"
-						variant={i === active ? "purple" : "outline"}
+						variant={tab === activeTab ? "purple" : "outline"}
 					>
 						{tab}
 					</Button>
@@ -80,21 +95,21 @@ export function RepurposePanel() {
 				<div className="rounded-lg border border-white/5 bg-black px-4 py-3.5">
 					{lines.map((line, i) => (
 						<p
-							key={line}
+							key={line.id}
 							className={`text-[11px] leading-6 ${
-								line.startsWith("#") || line.startsWith("→")
+								line.text.startsWith("#") || line.text.startsWith("→")
 									? "text-violet-400/80"
 									: i === 0
 										? "font-semibold text-zinc-300"
-										: line
+										: line.text
 											? "text-zinc-500"
 											: "h-2"
 							}`}
 						>
-							{line || "\u00A0"}
+							{line.text || "\u00A0"}
 						</p>
 					))}
-					<span className="ml-0.5 inline-block h-4 w-[1.5px] animate-pulse bg-violet-500 align-text-bottom" />
+					<span className="ml-0.5 inline-block h-4 w-[1.5px] animate-pulse bg-violet-500 align-text-bottom motion-reduce:animate-none" />
 				</div>
 			</div>
 		</aside>
