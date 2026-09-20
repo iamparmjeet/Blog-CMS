@@ -28,17 +28,17 @@ export function NewDraftButton() {
 	return (
 		<div className="flex flex-col items-end gap-2">
 			<Button
-				variant="purple"
-				size="lg"
 				disabled={isPending}
 				onClick={handleCreate}
-				className="cursor-pointer"
+				size="sm"
+				type="button"
+				variant="outline"
 			>
 				<IconPlus aria-hidden="true" />
-				{isPending ? "Creating…" : "New draft"}
+				{isPending ? "Creating…" : "New post"}
 			</Button>
 			{error ? (
-				<p role="alert" className="text-destructive text-xs">
+				<p className="text-danger text-xs" role="alert">
 					{error}
 				</p>
 			) : null}
