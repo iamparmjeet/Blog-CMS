@@ -56,7 +56,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Let the owner manage a complete post lifecycle.
 
-- [ ] **M2.1: Implement post listing and creation.**
+- [x] **M2.1: Implement post listing and creation.**
   - Depends on: M0.4, M1.2.
   - Replace the placeholder Posts route with an owner-scoped list and create-draft workflow.
   - Acceptance: a signed-in owner can create and find an untitled draft; another user cannot access it.

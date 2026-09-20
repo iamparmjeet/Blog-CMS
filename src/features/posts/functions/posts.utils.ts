@@ -1,0 +1,71 @@
+import { normalizePostStatus } from "#/features/dashboard/functions/dashboard.utils";
+import type { PostListItem } from "./posts.types";
+
+export const UNTITLED_POST_TITLE = "Untitled";
+export const MAX_POST_TITLE_LENGTH = 200;
+export const MAX_POST_SLUG_LENGTH = 80;
+
+export interface PostRow {
+	id: number;
+	title: string;
+	slug: string;
+	status: string;
+	wordCount: number;
+	updatedAt: Date;
+}
+
+export function normalizePostTitle(title: string | null | undefined): string {
+	const trimmed = title?.trim() ?? "";
+
+	if (!trimmed) {
+		return UNTITLED_POST_TITLE;
+	}
+
+	return trimmed.slice(0, MAX_POST_TITLE_LENGTH);
+}
+
+export function slugify(title: string): string {
+	const slug = title
+		.normalize("NFKD")
+		.replace(/[\u0300-\u036f]/gu, "")
+		.toLowerCase()
+		.replace(/[^a-z0-9\s-]/gu, "")
+		.trim()
+		.replace(/[\s-]+/gu, "-")
+		.replace(/^-+|-+$/gu, "");
+
+	return (slug || "untitled").slice(0, MAX_POST_SLUG_LENGTH);
+}
+
+export function uniqueSlug(base: string, taken: ReadonlySet<string>): string {
+	if (!taken.has(base)) {
+		return base;
+	}
+
+	let suffix = 2;
+
+	while (taken.has(`${base}-${suffix}`)) {
+		suffix += 1;
+	}
+
+	return `${base}-${suffix}`;
+}
+
+export function toPostListItem(row: PostRow): PostListItem {
+	return {
+		id: row.id,
+		title: normalizePostTitle(row.title),
+		slug: row.slug,
+		status: normalizePostStatus(row.status),
+		wordCount: Math.max(0, row.wordCount),
+		updatedAt: serializePostDate(row.updatedAt),
+	};
+}
+
+function serializePostDate(date: Date): string {
+	if (Number.isNaN(date.getTime())) {
+		throw new Error("Received a post with an invalid updated date");
+	}
+
+	return date.toISOString();
+}
