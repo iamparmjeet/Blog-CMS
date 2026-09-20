@@ -76,6 +76,7 @@ export function toPostEditorData(row: PostEditorRow): PostEditorData {
 		id: row.id,
 		title: normalizePostTitle(row.title),
 		slug: row.slug,
+		status: parsePostStatus(row.status),
 		seoTitle: row.seoTitle,
 		description: row.description,
 		body: parseStoredPostBody(row.body),
