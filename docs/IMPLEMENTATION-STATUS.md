@@ -11,9 +11,10 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Area | Status | Current state |
 | --- | --- | --- |
 | Marketing site | Implemented | Landing sections include hero, repurpose, how-it-works, open-source callout, and final CTA. The decorative product mock is responsive, `aria-hidden`/`inert`, and motion respects reduced-motion preferences. |
+| Application shell | Implemented | The manifest, SVG favicon, and shared header mark use the ContentOS identity. |
 | Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint, then returned to the claimed-instance login state. |
 | Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
-| Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness. |
+| Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | UI, post summaries, and writing-activity reads exist. Invalid post statuses are data-integrity errors; `unknown` was removed after the posts constraint landed. |
 | Post editing | Partial | The owner-scoped posts list (soft-deleted posts excluded) creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a live public preview; the server derives word counts and records only positive additions. |
 | Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
@@ -39,7 +40,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2/M2.3/M2.4 are merged or ready to merge:
+The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged. M2.3/M2.4, local/remote Studio workflows, and application identity are committed and pushed on `feat/m2.3-rich-editor`, awaiting PR review:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
