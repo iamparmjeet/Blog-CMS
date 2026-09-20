@@ -10,8 +10,8 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 | Area | Status | Current state |
 | --- | --- | --- |
-| Marketing site | Implemented | Static landing page sections are present. |
-| Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign back in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint, then returned to the claimed-instance login state. |
+| Marketing site | Implemented | Landing sections include hero, repurpose, how-it-works, open-source callout, and final CTA. The decorative product mock is responsive, `aria-hidden`/`inert`, and motion respects reduced-motion preferences. |
+| Authentication | Partial | OAuth configuration, session helpers, and a protected route exist. The owner can always sign in (welcome-back login); a second distinct user is rejected by the server hook and an atomic database constraint, then returned to the claimed-instance login state. |
 | Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness. |
 | Dashboard | Partial | UI, post summaries, and writing-activity reads exist. Invalid post statuses are data-integrity errors; `unknown` was removed after the posts constraint landed. |
@@ -52,6 +52,20 @@ The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged or r
 - Cloudflare's Vite plugin can deadlock during Worker export initialization when it persists Miniflare SQLite state under this repository's Btrfs-backed `.wrangler/state` directory.
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
 - `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
+
+## Marketing Page Pass (2026-09-19)
+
+The landing page was reviewed against the design and React guidelines and corrected:
+
+- Replaced the fabricated "Alex Morgan" testimonial with an honest open-source callout (`src/features/marketing/open-source-section.tsx`): MIT/self-host meta, real repository link, and a self-host terminal snippet. `quote-section.tsx` was removed.
+- Rebuilt the final CTA as a bordered panel with an accent glow instead of a bare centered block.
+- Removed invalid nested interactive markup (`<button>` wrapping links) by styling router and native links with `buttonVariants`; CTA labels are unified to one intent each.
+- Fixed landing defects: `text-zince-500` typo, duplicate React keys in the repurpose mock, the dead `/why-i-diteched-notion` slug, placeholder GitHub links, and a raw `<a href="/dashboard">` full reload.
+- Header scroll state now uses Motion `useScroll`/`useMotionValueEvent` instead of a `window` scroll listener.
+- The decorative dashboard mock is responsive and no longer focusable or announced (`aria-hidden` + `inert`); its dead `useState` was removed.
+- Reduced motion is respected for the platform rotation, mock float, and typing caret.
+
+Not addressed in this pass: full accessibility audit, light-mode support, and deferred section-layout/eyebrow diversification.
 
 ## Tooling (added 2026-09-18)
 

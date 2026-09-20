@@ -159,4 +159,4 @@ This roadmap turns the current README commitments into independently verifiable 
 - Full-text post/media search.
 - Import/export and instance backup/restore.
 - Observability, error reporting, rate limiting, and security hardening beyond baseline authorization.
-- Accessibility and responsive-design audit after the functional workflows stabilize.
+- Accessibility and responsive-design audit after the functional workflows stabilize. (The landing page had an initial pass on 2026-09-19; the full audit is still pending.)
