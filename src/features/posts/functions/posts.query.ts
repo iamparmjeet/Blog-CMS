@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import type { Db } from "#/db";
 import { posts } from "#/db/schema";
 import type { CreatedPostDraft, PostEditorRow, PostRow } from "./posts.types";
@@ -19,6 +19,24 @@ export async function selectPostRowsByOwner(
 		})
 		.from(posts)
 		.where(and(eq(posts.userId, userId), isNull(posts.deletedAt)))
+		.orderBy(desc(posts.updatedAt));
+}
+
+export async function selectDeletedPostRowsByOwner(
+	db: Db,
+	userId: string,
+): Promise<PostRow[]> {
+	return db
+		.select({
+			id: posts.id,
+			title: posts.title,
+			slug: posts.slug,
+			status: posts.status,
+			wordCount: posts.wordCount,
+			updatedAt: posts.updatedAt,
+		})
+		.from(posts)
+		.where(and(eq(posts.userId, userId), isNotNull(posts.deletedAt)))
 		.orderBy(desc(posts.updatedAt));
 }
 

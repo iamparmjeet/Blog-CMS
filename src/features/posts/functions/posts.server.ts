@@ -1,6 +1,7 @@
 import { getDb } from "#/db";
 import {
 	insertPostDraft,
+	selectDeletedPostRowsByOwner,
 	selectPostEditorRowByOwner,
 	selectPostRowsByOwner,
 } from "./posts.query";
@@ -19,6 +20,14 @@ export async function readPostsByOwner({
 	userId,
 }: ReadPostsByOwnerInput): Promise<PostListItem[]> {
 	const rows = await selectPostRowsByOwner(getDb(), userId);
+
+	return rows.map(toPostListItem);
+}
+
+export async function readDeletedPostsByOwner({
+	userId,
+}: ReadPostsByOwnerInput): Promise<PostListItem[]> {
+	const rows = await selectDeletedPostRowsByOwner(getDb(), userId);
 
 	return rows.map(toPostListItem);
 }

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_protected/posts/")({
 });
 
 function PostsRoute() {
-	const posts = Route.useLoaderData();
+	const { posts, deletedPosts } = Route.useLoaderData();
 
-	return <PostsPage posts={posts} />;
+	return <PostsPage deletedPosts={deletedPosts} posts={posts} />;
 }

@@ -16,7 +16,7 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Ownership model | Partial | D2 settled: owner return allowed, second distinct user rejected. First-claim / owner-return / rejection covered by unit + throwaway-DB integration tests; the database invariant also prevents concurrent second claims. |
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | UI, post summaries, and writing-activity reads exist. Invalid post statuses are data-integrity errors; `unknown` was removed after the posts constraint landed. |
-| Post editing | Partial | The owner-scoped posts list (soft-deleted posts excluded) creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a live public preview; the server derives word counts and records only positive additions. |
+| Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a live public preview; the server derives word counts and records only positive additions. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
 | Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Schema only | Preference fields exist without an owner-facing settings workflow. |
@@ -40,13 +40,14 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged. M2.3/M2.4, local/remote Studio workflows, and application identity are committed and pushed on `feat/m2.3-rich-editor`, awaiting PR review:
+The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2/M2.3/M2.4/M2.5 are complete. Local/remote Studio workflows and application identity are also implemented:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
 - `/posts` lists the owner's non-deleted posts and creates untitled drafts. The posts schema includes description plus publish/schedule timestamps, rejects invalid lifecycle statuses and duplicate owner slugs, and archives invalid legacy statuses during migration.
 - `/posts/$postId` is owner-scoped and renders the TipTap editor. It persists canonical JSON with debounced, serialized autosaves and local recovery; word count is derived server-side and writing activity remains positive-only.
 - Post metadata validates title and stable slugs, enforces per-owner uniqueness, persists separate SEO title/description fields, and renders an in-place public preview from the canonical body.
+- Post lifecycle controls are owner-authorized and batch-capable: draft posts publish, published posts unpublish to drafts, posts can be archived or returned to drafts, soft-deleted posts move to a separate trash collection, and only trashed posts can be restored or permanently purged after explicit confirmation. Once a post has been published, its slug stays immutable across later status changes.
 - Remaining before deployment: T1.4 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
 
 ## Local Worker State
