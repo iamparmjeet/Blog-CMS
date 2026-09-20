@@ -47,6 +47,12 @@ The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged or r
 - The rich editor arrives with M2.3.
 - Remaining before deployment: T1.4 deploy verification (provision D1/R2, replace the placeholder database ID, preview smoke).
 
+## Local Worker State
+
+- Cloudflare's Vite plugin can deadlock during Worker export initialization when it persists Miniflare SQLite state under this repository's Btrfs-backed `.wrangler/state` directory.
+- `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
+- `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
+
 ## Tooling (added 2026-09-18)
 
 - `AGENTS.md` (131 words, WDS-style) + `CLAUDE.md` symlink; links `@CONTEXT.md`, `@COMMITS.md`, roadmap/plan/status, delivery conventions.
