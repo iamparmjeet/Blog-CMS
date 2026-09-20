@@ -21,6 +21,7 @@ export interface PostEditorData {
 	id: number;
 	title: string;
 	slug: string;
+	status: PostStatus;
 	seoTitle: string;
 	description: string;
 	body: PostBodyDocument;
@@ -32,6 +33,7 @@ export interface PostEditorRow {
 	id: number;
 	title: string;
 	slug: string;
+	status: string;
 	seoTitle: string;
 	description: string;
 	body: string | null;
