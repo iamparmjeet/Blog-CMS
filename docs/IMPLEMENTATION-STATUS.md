@@ -55,7 +55,7 @@ The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1/M2.2 are merged or r
 
 ## Marketing Page Pass (2026-09-19)
 
-The landing page was reviewed against the design and React guidelines and corrected:
+The landing page was reviewed against the design and React guidelines, then merged into `feat/m2.3-rich-editor` as `27736a0`:
 
 - Replaced the fabricated "Alex Morgan" testimonial with an honest open-source callout (`src/features/marketing/open-source-section.tsx`): MIT/self-host meta, real repository link, and a self-host terminal snippet. `quote-section.tsx` was removed.
 - Rebuilt the final CTA as a bordered panel with an accent glow instead of a bare centered block.
