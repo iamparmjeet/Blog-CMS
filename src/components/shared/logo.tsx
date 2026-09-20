@@ -39,27 +39,15 @@ export function Logo({ withTitle = true, size = "md", className }: LogoProps) {
 		>
 			<div
 				className={cn("flex shrink-0 items-center justify-center", styles.icon)}
-				style={{
-					background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-					boxShadow:
-						"0 0 0 1px rgba(124,58,237,0.3), 0 8px 24px rgba(124,58,237,0.2)",
-				}}
 			>
-				<svg
+				<img
+					alt=""
 					aria-hidden="true"
-					width={styles.svg}
+					className="size-full"
 					height={styles.svg}
-					viewBox="0 0 20 20"
-					fill="none"
-				>
-					<path
-						d="M4 6h8M4 10h12M4 14h9"
-						stroke="currentColor"
-						strokeWidth="1.75"
-						strokeLinecap="round"
-						className="text-white"
-					/>
-				</svg>
+					src="/favicon.svg"
+					width={styles.svg}
+				/>
 			</div>
 
 			{withTitle && (
