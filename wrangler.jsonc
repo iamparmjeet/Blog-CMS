@@ -17,7 +17,8 @@
 	"r2_buckets": [
 		{
 			"binding": "MEDIA",
-			"bucket_name": "blog-cms-media"
+			"bucket_name": "contentos",
+			"remote": true
 		}
 	]
 }
