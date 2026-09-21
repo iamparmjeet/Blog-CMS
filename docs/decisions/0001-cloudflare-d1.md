@@ -16,13 +16,14 @@ per-request Drizzle client with `drizzle-orm/d1`, sourced from the Worker `DB`
 binding. Local Worker development will run through Wrangler, which provides a
 local D1 binding; this keeps local and production on the same driver.
 
-`wrangler.jsonc` also declares the `MEDIA` R2 binding now. R2 remains unused
-until T3.1, but the binding establishes the Worker storage boundary without
-putting object-store credentials in application configuration.
+`wrangler.jsonc` also declares the `MEDIA` R2 binding. M3.1 now uses that binding
+to verify and clean up objects uploaded through short-lived presigned URLs. The
+presigning credentials remain server-only environment values and are never sent
+to the browser.
 
 The committed D1 identifier is an intentional non-production placeholder.
 Before any deployment, provision the D1 database and R2 bucket, replace it
-with the database's real ID, and confirm the configured bucket name. T1.4 will
+with the database's real ID, and confirm the configured bucket name. M1.3 will
 document and validate that deployment procedure.
 
 ## Consequences

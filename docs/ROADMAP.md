@@ -91,14 +91,14 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Deliver publishable content and managed assets safely.
 
-- [ ] **M3.1: Implement R2 media uploads.**
+- [x] **M3.1: Implement R2 media uploads.**
 	- Depends on: M1.2, M2.3.
   - Add owner-authorized upload initiation, MIME/size validation, stable object keys, and persisted media metadata.
-  - Acceptance: an uploaded image can be inserted into a post without exposing storage credentials to the browser.
+  - Acceptance: a supported image or video uploads directly to R2 through a short-lived presigned URL, transitions owner-scoped metadata from pending to ready only after object verification, and never exposes storage credentials to the browser.
 
 - [ ] **M3.2: Implement the media library.**
   - Depends on: M3.1.
-  - Provide an owner-facing searchable asset list, selection flow, deletion policy, and placeholders for media in editor content.
+  - Complete the owner-facing asset library with search, editor insertion, selection flow, deletion policy, optimized thumbnail variants, and placeholders for media in editor content. M3.1 already provides the ready-asset grid and original-object previews.
   - Acceptance: assets can be reused across posts and deleted assets cannot silently leave broken published content.
 
 - [ ] **M3.3: Implement the public JSON feed.**

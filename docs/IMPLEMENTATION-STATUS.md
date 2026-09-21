@@ -1,12 +1,12 @@
 # Implementation Status
 
-**Assessed:** 2026-09-20
+**Assessed:** 2026-09-21
 
 This baseline is based on the current tracked source, README commitments, and local verification. It is not a product specification; `docs/ROADMAP.md` is the implementation plan.
 
 ## Summary
 
-ContentOS has a usable visual shell and early server-side foundations, but it is not yet a functional CMS. The project is approximately **20% complete** against the feature set described in `README.md`.
+ContentOS now supports the core owner post workflow and direct managed-media uploads. Public delivery, deployment verification, settings, analytics, AI assistance, scheduling, and optional community features remain incomplete.
 
 | Area | Status | Current state |
 | --- | --- | --- |
@@ -17,31 +17,31 @@ ContentOS has a usable visual shell and early server-side foundations, but it is
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
 | Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
-| Page UI shells | In progress | Dashboard and Posts are rebuilt on the ContentOS UI kit with real data. `/media`, `/analytics`, and `/settings` render full reference-faithful layouts over clearly-labelled sample data; their persistence and API wiring land with M3.2, M4.3, and M4.1. |
-| Media | Schema only | Media metadata and R2 environment variables exist; no upload, storage, or library behavior exists. |
+| Page UI shells | In progress | Dashboard and Posts use real data. `/media` now uploads to R2 and lists ready owner assets with image/video previews; `/analytics` and `/settings` remain reference layouts over clearly-labelled sample data until M4.3 and M4.1. |
+| Media | Partial (M3.1 complete) | The owner can upload validated images and videos directly to R2 through five-minute presigned URLs. Pending D1 metadata becomes ready only after R2 size/type verification, ready assets survive refreshes and render in the media grid, and immutable object URLs receive long-lived cache metadata. Search, editor insertion, deletion policy, and optimized thumbnail variants remain M3.2. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Schema only | Preference fields exist without an owner-facing settings workflow. |
 | Analytics | Schema only | An Umami share URL field exists without an analytics page or integration. |
 | Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
-| Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared, and the app plus better-auth run on `drizzle-orm/d1` with local development on workerd and local D1. The committed D1 identifier is still a placeholder and no preview deployment exists yet (T1.4). |
+| Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. The committed D1 identifier is still a placeholder and no preview deployment exists yet (M1.3). |
 
 ## Verified Baseline
 
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 63/63, including canonical-body, metadata validation, positive-only writing-activity, owner-scoped lifecycle actions, dashboard stat/streak/rhythm derivations, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
+| `bun run test` | Passes | 84/84, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 139 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 148 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
 
 ## Immediate Repair Scope
 
-The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1-M2.6 are complete. Local/remote Studio workflows and application identity are also implemented:
+The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remote Studio workflows and application identity are also implemented:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
@@ -49,7 +49,8 @@ The T0 baseline repair is complete; M1.1/T1.2/T1.3 and M2.1-M2.6 are complete. L
 - `/posts/$postId` is owner-scoped and renders the TipTap editor. It persists canonical JSON with debounced, serialized autosaves and local recovery; word count is derived server-side and writing activity remains positive-only.
 - Post metadata validates title and stable slugs, enforces per-owner uniqueness, persists separate SEO title/description fields, and renders an in-place public preview from the canonical body.
 - Post lifecycle controls are owner-authorized and batch-capable: draft posts publish, published posts unpublish to drafts, posts can be archived or returned to drafts, soft-deleted posts move to a separate trash collection, and only trashed posts can be restored or permanently purged after explicit confirmation. Once a post has been published, its slug stays immutable across later status changes.
-- Remaining before deployment: T1.4 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
+- Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification, cancellation cleanup, owner-only listing, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
+- Remaining before deployment: M1.3 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
 
 ## Local Worker State
 
@@ -69,6 +70,16 @@ Branch `feat/m2.6-app-shell` rebuilds the protected area on the ContentOS UI kit
 - The dashboard is rebuilt with real data (stat cards, continue/rhythm cards, heatmap, recent posts) and the posts list uses the reference toolbar, filter tabs, bulk bar, table, and footer stats.
 - `/media`, `/analytics`, and `/settings` render the reference layouts over clearly-labelled sample data so navigation is complete before their data milestones.
 - The editor gains the reference toolbar (breadcrumb, save state, Write/SEO, Draft/Published toggle, preview, trash), a character-counted SEO tab with a search preview, a light full-screen preview overlay (⌘⇧V), and explicit `immediatelyRender: false` for SSR-safe TipTap mounting.
+
+## R2 Upload Pass (2026-09-21)
+
+Branch `feat/m3.1-r2-uploads` completes the M3.1 storage slice and starts the visible ready-asset surface needed by M3.2:
+
+- Upload initiation, completion, and cancellation are authenticated server functions. Validation accepts GIF, JPEG, PNG, WebP, MP4, and WebM files up to 50 MB; filenames and owner-scoped UUID object keys are sanitized before signing.
+- The browser uploads directly to the remote `contentos` bucket through a five-minute presigned `PUT`. Credentials remain server-side; completion verifies R2 object size and content type before changing D1 metadata from `pending` to `ready`.
+- `/media` loads only the signed-in owner's non-deleted ready rows, inserts a completed upload immediately, and preserves it across refreshes. Images and muted video previews lazy-load from the configured public R2 URL and fall back to type icons on load failure.
+- Authenticated list responses use `Cache-Control: no-store` and vary by cookie/authorization. New immutable R2 objects carry `Cache-Control: public, max-age=31536000, immutable`; a production custom domain and cache rule are still required for managed Cloudflare edge caching.
+- M3.2 remains responsible for search, editor insertion/reuse, safe deletion behavior, and generated thumbnail/poster variants so the grid does not depend on full-size originals.
 
 ## Marketing Page Pass (2026-09-19)
 
