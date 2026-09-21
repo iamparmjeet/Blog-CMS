@@ -1,19 +1,94 @@
 import { IconPhoto, IconUpload, IconVideo } from "@tabler/icons-react";
+import { useId, useRef, useState } from "react";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import { cn, hexToRgba } from "#/lib/utils";
 import type { MediaItem } from "../media.types";
 
-export function UploadZone() {
+type UploadStatus = "idle" | "uploading" | "success" | "error";
+
+interface UploadZoneProps {
+	message: string | null;
+	onUpload: (file: File) => Promise<void>;
+	status: UploadStatus;
+}
+
+export function UploadZone({ message, onUpload, status }: UploadZoneProps) {
+	const inputId = useId();
+	const inputRef = useRef<HTMLInputElement>(null);
+	const isUploading = status === "uploading";
+
+	function selectFile(files: FileList | null) {
+		if (isUploading) return;
+
+		const [file] = files ?? [];
+
+		if (file) {
+			void onUpload(file);
+		}
+	}
+
+	function openFilePicker() {
+		if (!isUploading) {
+			inputRef.current?.click();
+		}
+	}
+
 	return (
-		<div className="flex flex-col items-center justify-center rounded-lg border-[1.5px] border-border border-dashed px-5 py-7 text-center">
-			<IconUpload aria-hidden="true" className="size-5 text-text-dim" />
-			<p className="mt-2.5 font-medium text-[13px] text-text-body">
-				Drop files here or click to browse
-			</p>
-			<p className="mt-1 text-[11px] text-text-muted">
-				JPG · PNG · WebP · GIF · MP4 · WebM · max 50 MB
-			</p>
-			<p className="mt-2 text-[10px] text-text-faint">
-				Stored in Cloudflare R2 · uploads connect with the media milestone
+		<div>
+			<Input
+				accept="image/gif,image/jpeg,image/png,image/webp,video/mp4,video/webm"
+				className="sr-only"
+				disabled={isUploading}
+				id={inputId}
+				onChange={(event) => {
+					selectFile(event.target.files);
+					event.target.value = "";
+				}}
+				ref={inputRef}
+				type="file"
+			/>
+
+			<Button
+				aria-busy={isUploading}
+				aria-controls={inputId}
+				className="flex w-full flex-col items-center justify-center rounded-lg border-[1.5px] border-border border-dashed px-5 py-7 text-center transition-colors hover:border-input disabled:cursor-not-allowed disabled:opacity-70"
+				disabled={isUploading}
+				onClick={openFilePicker}
+				onDragOver={(event) => {
+					event.preventDefault();
+				}}
+				onDrop={(event) => {
+					event.preventDefault();
+					selectFile(event.dataTransfer.files);
+				}}
+				type="button"
+			>
+				<IconUpload aria-hidden="true" className="size-5 text-text-dim" />
+
+				<span className="mt-2.5 font-medium text-[13px] text-text-body">
+					{isUploading
+						? "Uploading to R2..."
+						: "Drop a file here or click to browse"}
+				</span>
+
+				<span className="mt-1 text-[11px] text-text-muted">
+					JPG · PNG · WebP · GIF · MP4 · WebM · max 50 MB
+				</span>
+
+				<span className="mt-2 text-[10px] text-text-faint">
+					Uploaded directly to Cloudflare R2
+				</span>
+			</Button>
+
+			<p
+				aria-live="polite"
+				className={cn(
+					"mt-2 min-h-4 text-[11px]",
+					status === "error" ? "text-danger" : "text-text-muted",
+				)}
+			>
+				{message}
 			</p>
 		</div>
 	);
@@ -45,6 +120,9 @@ export function MediaThumbnail({
 	color: string;
 	item: MediaItem;
 }) {
+	const [failedUrl, setFailedUrl] = useState<string | null>(null);
+	const hasFailed = failedUrl === item.url;
+
 	return (
 		<div
 			className={cn("flex items-center justify-center", className)}
@@ -52,10 +130,30 @@ export function MediaThumbnail({
 				background: `linear-gradient(135deg, ${hexToRgba(color, 0.18)} 0%, ${hexToRgba(color, 0.08)} 100%)`,
 			}}
 		>
-			{item.kind === "video" ? (
-				<IconVideo aria-hidden="true" className="size-6 text-white/35" />
+			{hasFailed ? (
+				item.kind === "video" ? (
+					<IconVideo aria-hidden="true" className="size-6 text-white/35" />
+				) : (
+					<IconPhoto aria-hidden="true" className="size-6 text-white/35" />
+				)
+			) : item.kind === "video" ? (
+				<video
+					className="size-full object-cover"
+					muted
+					onError={() => setFailedUrl(item.url)}
+					playsInline
+					preload="metadata"
+					src={item.url}
+				/>
 			) : (
-				<IconPhoto aria-hidden="true" className="size-6 text-white/35" />
+				<img
+					alt={item.name}
+					className="size-full object-cover"
+					decoding="async"
+					loading="lazy"
+					onError={() => setFailedUrl(item.url)}
+					src={item.url}
+				/>
 			)}
 		</div>
 	);
