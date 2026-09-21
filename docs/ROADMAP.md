@@ -50,7 +50,7 @@ This roadmap turns the current README commitments into independently verifiable 
 - [ ] **M1.3: Establish deployment verification.**
   - Depends on: M1.2.
   - Add documented preview and production deployment commands with environment/binding validation.
-  - Remote D1 setup: authenticate with `bunx wrangler login` (with `CLOUDFLARE_API_TOKEN` unset), create `blog-cms` with `bunx wrangler d1 create blog-cms`, replace the placeholder `database_id` in `wrangler.jsonc`, then run `bun run db:migrate:remote` and verify with `bunx wrangler d1 info blog-cms`.
+  - Remote D1 setup: `contentos-dev` and `contentos-prod` are provisioned as explicit Wrangler environments. Run `bun run db:migrate:production` and verify with `bunx wrangler d1 info contentos-prod` before deployment.
   - Acceptance: a preview deployment supports an authenticated smoke test without native SQLite dependencies.
 
 ## Milestone 2: Post Management

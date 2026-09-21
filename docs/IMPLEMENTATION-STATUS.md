@@ -25,7 +25,7 @@ ContentOS now supports the core owner post workflow and direct managed-media upl
 | Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
-| Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. The committed D1 identifier is still a placeholder and no preview deployment exists yet (M1.3). |
+| Deployment | Partial | Separate remote `contentos-dev` and `contentos-prod` D1 databases are provisioned, migrated, and selected through explicit Wrangler environments. Development and production still share the remote `contentos` R2 bucket, and no preview deployment exists yet (M1.3). |
 
 ## Verified Baseline
 
@@ -56,8 +56,8 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remot
 
 - Cloudflare's Vite plugin can deadlock during Worker export initialization when it persists Miniflare SQLite state under this repository's Btrfs-backed `.wrangler/state` directory.
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
-- `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
-- `bun run db:studio:local` discovers the non-metadata SQLite file in that state directory and opens it with Drizzle Studio. `bun run db:studio:remote` uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and a scoped `CLOUDFLARE_API_TOKEN`.
+- `bun run dev`, `bun run db:migrate`, and `bun run db:studio` target the remote `contentos-dev` D1 database. Production commands require the explicit `:production` suffix or Wrangler production environment.
+- Drizzle Studio uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID` and a scoped `CLOUDFLARE_API_TOKEN`; package scripts select the development or production database ID.
 
 ## UI Shell Pass (2026-09-20)
 

@@ -16,7 +16,7 @@
 
 | # | Question | Recommendation | Needed by |
 |---|----------|----------------|-----------|
-| D1 | Production database target | **Settled (T1.1): Cloudflare D1** via `drizzle-orm/d1`; local dev against local D1 (wrangler) so dev/prod share one driver. See `docs/decisions/0001-cloudflare-d1.md`. | Phase 1 |
+| D1 | Production database target | **Settled (T1.1): Cloudflare D1** via `drizzle-orm/d1`; local Worker code uses the remote `contentos-dev` binding and production uses `contentos-prod`, so both environments share one driver without sharing data. See `docs/decisions/0001-cloudflare-d1.md`. | Phase 1 |
 | D2 | Repeat owner sign-in | Owner may always sign in; only a *second distinct user* is rejected. Fix login loader + keep the `databaseHooks` guard. | Phase 0 |
 | D3 | Canonical post-body representation | **TipTap JSON** stored in `posts.body`; word count derived from text nodes server-side. One rule, used by editor, preview, feed, and activity. | Phase 2 |
 | D4 | Slug rules | `^[a-z0-9]+(?:-[a-z0-9]+)*$`, unique per `userId` (DB unique index), immutable once published unless owner explicitly regenerates. | Phase 2 |
@@ -39,7 +39,7 @@ If any recommendation is rejected, update this table and the affected tickets be
 ### Phase 1 — Deployable persistence (ROADMAP M1)
 
 - **T1.1 ADR + bindings.** Blocked by: T0.3. Record D1 decision; add D1 (+ R2 bucket placeholder) bindings to `wrangler.jsonc`; regenerate env typings.
-- **T1.2 Per-request DB client.** Blocked by: T1.1. Replace `src/db/index.ts` direct `better-sqlite3` construction with a client factory that resolves the D1 binding per request on Workers and local D1/file in dev. Migrate better-auth to the D1 adapter.
+- **T1.2 Per-request DB client.** Blocked by: T1.1. Replace `src/db/index.ts` direct `better-sqlite3` construction with a client factory that resolves the environment-specific D1 binding. Migrate better-auth to the D1 adapter.
 - **T1.3 Migration hygiene.** Blocked by: T1.2. Regenerate Drizzle journal from `full-schema.ts`, drop the `todos` scaffold table, apply from empty DB, document `db:*` commands. Verify: fresh `db:migrate` + authenticated smoke test on `wrangler dev`.
 - **T1.4 Deploy pipeline.** Blocked by: T1.3. Documented preview/prod deploy with binding + secret validation; one successful preview deploy with login + dashboard load.
 

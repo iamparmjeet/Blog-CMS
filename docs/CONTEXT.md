@@ -30,7 +30,7 @@
 ## Open Decisions
 
 - Settled (D2, T0.4): the owner may always sign in again; only a second distinct user is rejected. The login page distinguishes first claim from owner return; the server hook provides the rejection message and a database constraint enforces single ownership atomically.
-- Settled (D1, T1.1): Cloudflare D1 is the production database through `drizzle-orm/d1`; local development will use Wrangler's local D1 binding after T1.2. See `docs/decisions/0001-cloudflare-d1.md`.
+- Settled (D1, T1.1): Cloudflare D1 is the relational database through `drizzle-orm/d1`; local Worker code uses the remote `contentos-dev` binding and production uses the isolated `contentos-prod` binding. See `docs/decisions/0001-cloudflare-d1.md`.
 - The canonical post-body representation and derived word-count rules for rich editor content.
 
 ## Status Integrity

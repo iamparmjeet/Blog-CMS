@@ -6,19 +6,40 @@
 		"nodejs_compat"
 	],
 	"main": "@tanstack/react-start/server-entry",
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "blog-cms",
-			"database_id": "00000000-0000-0000-0000-000000000000",
-			"migrations_dir": "src/db/drizzle"
+	"env": {
+		"development": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "contentos-dev",
+					"database_id": "d00e22d9-5374-4b0d-82e2-2b565e10b088",
+					"migrations_dir": "src/db/drizzle",
+					"remote": true
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "MEDIA",
+					"bucket_name": "contentos",
+					"remote": true
+				}
+			]
+		},
+		"production": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "contentos-prod",
+					"database_id": "453390e6-6c50-4179-b921-916842a932ef",
+					"migrations_dir": "src/db/drizzle"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "MEDIA",
+					"bucket_name": "contentos"
+				}
+			]
 		}
-	],
-	"r2_buckets": [
-		{
-			"binding": "MEDIA",
-			"bucket_name": "contentos",
-			"remote": true
-		}
-	]
+	}
 }

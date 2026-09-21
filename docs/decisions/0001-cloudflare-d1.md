@@ -11,20 +11,22 @@ production without changing query semantics between environments.
 
 ## Decision
 
-Use Cloudflare D1 as ContentOS's relational database. T1.2 will create a
-per-request Drizzle client with `drizzle-orm/d1`, sourced from the Worker `DB`
-binding. Local Worker development will run through Wrangler, which provides a
-local D1 binding; this keeps local and production on the same driver.
+Use Cloudflare D1 as ContentOS's relational database. T1.2 creates a per-request
+Drizzle client with `drizzle-orm/d1`, sourced from the Worker `DB` binding.
+Local Worker code runs through the Cloudflare Vite plugin while the binding
+connects to the remote `contentos-dev` database; production uses a separate
+`contentos-prod` binding. Both environments therefore use the same driver and
+D1 service contract without sharing data.
 
 `wrangler.jsonc` also declares the `MEDIA` R2 binding. M3.1 now uses that binding
 to verify and clean up objects uploaded through short-lived presigned URLs. The
 presigning credentials remain server-only environment values and are never sent
 to the browser.
 
-The committed D1 identifier is an intentional non-production placeholder.
-Before any deployment, provision the D1 database and R2 bucket, replace it
-with the database's real ID, and confirm the configured bucket name. M1.3 will
-document and validate that deployment procedure.
+The development and production D1 identifiers are resource identifiers rather
+than secrets and are committed in their Wrangler environments. M1.3 still needs
+to validate the production deployment and separate development media from the
+shared R2 bucket.
 
 ## Consequences
 
