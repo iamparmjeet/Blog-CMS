@@ -87,6 +87,9 @@ export const publishingInputSchema = z.object({
 		.trim()
 		.max(2048)
 		.refine(isEmptyOrHttpUrl, "Must be empty or an http(s) URL"),
+	seoMeta: z.boolean(),
+	rssFeed: z.boolean(),
+	readingTime: z.boolean(),
 });
 
 export type PublishingInput = z.infer<typeof publishingInputSchema>;
@@ -216,6 +219,9 @@ export interface OwnerSettingsProfile {
 	writingStyle: string;
 	writingSample: string;
 	umamiShareUrl: string;
+	seoMeta: boolean;
+	rssFeed: boolean;
+	readingTime: boolean;
 }
 
 export const DEFAULT_PROFILE: OwnerSettingsProfile = {
@@ -228,6 +234,9 @@ export const DEFAULT_PROFILE: OwnerSettingsProfile = {
 	writingStyle: "",
 	writingSample: "",
 	umamiShareUrl: "",
+	seoMeta: true,
+	rssFeed: true,
+	readingTime: false,
 };
 
 function normalizeText(value: string | null | undefined): string {
@@ -249,6 +258,9 @@ export async function readOwnerProfile(
 			writingStyle: settings.writingStyle,
 			writingSample: settings.writingSample,
 			umamiShareUrl: settings.umamiShareUrl,
+			seoMeta: settings.seoMeta,
+			rssFeed: settings.rssFeed,
+			readingTime: settings.readingTime,
 		})
 		.from(settings)
 		.where(eq(settings.userId, userId))
@@ -270,6 +282,9 @@ export async function readOwnerProfile(
 		writingStyle: normalizeText(row.writingStyle),
 		writingSample: normalizeText(row.writingSample),
 		umamiShareUrl: normalizeText(row.umamiShareUrl),
+		seoMeta: row.seoMeta ?? DEFAULT_PROFILE.seoMeta,
+		rssFeed: row.rssFeed ?? DEFAULT_PROFILE.rssFeed,
+		readingTime: row.readingTime ?? DEFAULT_PROFILE.readingTime,
 	};
 }
 
@@ -320,5 +335,8 @@ export async function upsertPublishing(
 	await upsertProfileFields(db, userId, {
 		timeZone: input.timeZone,
 		umamiShareUrl: input.umamiShareUrl,
+		seoMeta: input.seoMeta,
+		rssFeed: input.rssFeed,
+		readingTime: input.readingTime,
 	});
 }

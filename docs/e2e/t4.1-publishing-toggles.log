@@ -1,0 +1,11 @@
+PASS: toggles persist and read back
+PASS: other publishing fields untouched
+PASS: seoMeta off empties seo fields
+PASS: readingTime on reports minutes
+PASS: rss enabled serves xml
+PASS: rss item links the public post
+PASS: rss disabled returns 404
+PASS: rss disabled exposes no content
+PASS: non-boolean toggle rejected
+
+E2E complete. All green.

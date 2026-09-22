@@ -17,12 +17,20 @@ async function loadFeedContext(): Promise<{
 	allowedOrigins: string[];
 	domain: string | null;
 	ownerId: string | null;
+	seoMeta: boolean;
+	readingTime: boolean;
 }> {
 	const db = getDb();
 	const ownerId = await selectInstanceOwnerId(db);
 
 	if (!ownerId) {
-		return { allowedOrigins: [], domain: null, ownerId: null };
+		return {
+			allowedOrigins: [],
+			domain: null,
+			ownerId: null,
+			seoMeta: true,
+			readingTime: false,
+		};
 	}
 
 	const feedSettings = await selectFeedSettings(db, ownerId);
@@ -31,6 +39,8 @@ async function loadFeedContext(): Promise<{
 		allowedOrigins: parseAllowedOrigins(feedSettings?.allowedOrigins),
 		domain: feedSettings?.domain ?? null,
 		ownerId,
+		seoMeta: feedSettings?.seoMeta ?? true,
+		readingTime: feedSettings?.readingTime ?? false,
 	};
 }
 
@@ -49,7 +59,8 @@ function originDeniedResponse(
 export async function handleFeedCollection(
 	request: Request,
 ): Promise<Response> {
-	const { allowedOrigins, domain, ownerId } = await loadFeedContext();
+	const { allowedOrigins, domain, ownerId, seoMeta, readingTime } =
+		await loadFeedContext();
 	const cors = evaluateFeedCors(request, allowedOrigins);
 
 	if (!cors.allowed) {
@@ -67,7 +78,7 @@ export async function handleFeedCollection(
 
 	const rows = await selectPublishedFeedPosts(getDb(), ownerId);
 	const posts = rows.map((row) =>
-		toFeedPost(row, { domain, requestUrl: request.url }),
+		toFeedPost(row, { domain, requestUrl: request.url, seoMeta, readingTime }),
 	);
 
 	return jsonFeedResponse(
@@ -81,7 +92,8 @@ export async function handleFeedPost(
 	request: Request,
 	slug: string,
 ): Promise<Response> {
-	const { allowedOrigins, domain, ownerId } = await loadFeedContext();
+	const { allowedOrigins, domain, ownerId, seoMeta, readingTime } =
+		await loadFeedContext();
 	const cors = evaluateFeedCors(request, allowedOrigins);
 
 	if (!cors.allowed) {
@@ -102,7 +114,7 @@ export async function handleFeedPost(
 	}
 
 	return jsonFeedResponse(
-		toFeedPost(row, { domain, requestUrl: request.url }),
+		toFeedPost(row, { domain, requestUrl: request.url, seoMeta, readingTime }),
 		200,
 		cors.headers,
 	);

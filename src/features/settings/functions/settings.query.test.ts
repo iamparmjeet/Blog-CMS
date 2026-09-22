@@ -87,26 +87,56 @@ describe("settings profile schemas", () => {
 			publishingInputSchema.safeParse({
 				timeZone: "Asia/Kolkata",
 				umamiShareUrl: "",
+				seoMeta: true,
+				rssFeed: true,
+				readingTime: false,
 			}).success,
 		).toBe(true);
 		expect(
 			publishingInputSchema.safeParse({
 				timeZone: "Not/AZone",
 				umamiShareUrl: "",
+				seoMeta: true,
+				rssFeed: true,
+				readingTime: false,
 			}).success,
 		).toBe(false);
 		expect(
 			publishingInputSchema.safeParse({
 				timeZone: "UTC",
 				umamiShareUrl: "https://umami.example.com/share/abc",
+				seoMeta: true,
+				rssFeed: true,
+				readingTime: false,
 			}).success,
 		).toBe(true);
 		expect(
 			publishingInputSchema.safeParse({
 				timeZone: "UTC",
 				umamiShareUrl: "javascript:alert(1)",
+				seoMeta: true,
+				rssFeed: true,
+				readingTime: false,
 			}).success,
 		).toBe(false);
+	});
+
+	it("requires publishing toggles as booleans", () => {
+		expect(
+			publishingInputSchema.safeParse({
+				timeZone: "UTC",
+				umamiShareUrl: "",
+			}).success,
+		).toBe(false);
+		expect(
+			publishingInputSchema.safeParse({
+				timeZone: "UTC",
+				umamiShareUrl: "",
+				seoMeta: true,
+				rssFeed: true,
+				readingTime: false,
+			}).success,
+		).toBe(true);
 	});
 
 	it("requires a non-empty default model", () => {
@@ -147,6 +177,9 @@ describe("owner settings profile (throwaway DB)", () => {
 		await upsertPublishing(db, OWNER, {
 			timeZone: "Europe/Berlin",
 			umamiShareUrl: "https://umami.example.com/share/x",
+			seoMeta: false,
+			rssFeed: true,
+			readingTime: true,
 		});
 
 		const profile = await readOwnerProfile(db, OWNER);
@@ -159,6 +192,9 @@ describe("owner settings profile (throwaway DB)", () => {
 		expect(profile.writingSample).toBe("Sample text.");
 		expect(profile.timeZone).toBe("Europe/Berlin");
 		expect(profile.umamiShareUrl).toBe("https://umami.example.com/share/x");
+		expect(profile.seoMeta).toBe(false);
+		expect(profile.rssFeed).toBe(true);
+		expect(profile.readingTime).toBe(true);
 	});
 
 	it("does not clobber other groups on update", async () => {
@@ -170,6 +206,9 @@ describe("owner settings profile (throwaway DB)", () => {
 		await upsertPublishing(db, OWNER, {
 			timeZone: "UTC",
 			umamiShareUrl: "",
+			seoMeta: true,
+			rssFeed: true,
+			readingTime: false,
 		});
 
 		await upsertIdentity(db, OWNER, {

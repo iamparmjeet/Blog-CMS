@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as RssRouteImport } from './routes/rss'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as ProtectedAnalyticsRouteImport } from './routes/_protected/analytics'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
@@ -37,6 +38,11 @@ const ProtectedRoute = ProtectedRouteImport.update({
 } as any)
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssRoute = RssRouteImport.update({
+  id: '/rss',
+  path: '/rss',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppLoginRoute = AppLoginRouteImport.update({
@@ -112,6 +118,7 @@ const ApiPostsSlugRoute = ApiPostsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/rss': typeof RssRoute
   '/login': typeof AppLoginRoute
   '/analytics': typeof ProtectedAnalyticsRoute
   '/dashboard': typeof ProtectedDashboardRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/rss': typeof RssRoute
   '/login': typeof AppLoginRoute
   '/analytics': typeof ProtectedAnalyticsRoute
   '/dashboard': typeof ProtectedDashboardRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/rss': typeof RssRoute
   '/_app/login': typeof AppLoginRoute
   '/_protected/analytics': typeof ProtectedAnalyticsRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/rss'
     | '/login'
     | '/analytics'
     | '/dashboard'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/rss'
     | '/login'
     | '/analytics'
     | '/dashboard'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_protected'
     | '/_public'
+    | '/rss'
     | '/_app/login'
     | '/_protected/analytics'
     | '/_protected/dashboard'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
+  RssRoute: typeof RssRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiAiRepurposeRoute: typeof ApiAiRepurposeRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss': {
+      id: '/rss'
+      path: '/rss'
+      fullPath: '/rss'
+      preLoaderRoute: typeof RssRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/login': {
@@ -408,6 +428,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
+  RssRoute: RssRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiAiRepurposeRoute: ApiAiRepurposeRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

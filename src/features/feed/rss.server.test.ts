@@ -5,15 +5,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "#/db";
 import { user } from "#/db/auth-schema";
 import { posts, settings } from "#/db/schema";
-import {
-	selectFeedSettings,
-	selectInstanceOwnerId,
-	selectPublishedFeedPostBySlug,
-	selectPublishedFeedPosts,
-} from "./feed.query";
+import { buildRssXml, handleRssFeed } from "./rss.server";
 
 const OWNER = "owner-1";
-const OTHER = "someone-else";
 
 function createThrowawayDb(): Db {
 	const sqlite = new Database(":memory:");
@@ -77,112 +71,98 @@ function createThrowawayDb(): Db {
 	return drizzle(sqlite) as unknown as Db;
 }
 
-async function seedOwner(db: Db) {
+let db: Db;
+
+beforeEach(async () => {
+	db = createThrowawayDb();
 	await db.insert(user).values({
 		id: OWNER,
 		name: "Owner",
 		email: "owner@example.com",
 		createdAt: new Date("2026-01-01T00:00:00.000Z"),
 	});
-}
-
-async function seedPost(
-	db: Db,
-	overrides: Partial<typeof posts.$inferInsert> & { slug: string },
-) {
+	await db.insert(settings).values({
+		userId: OWNER,
+		blogTitle: "Parm <Writes>",
+		bio: "Essays & notes",
+	});
 	await db.insert(posts).values({
 		userId: OWNER,
-		title: overrides.slug,
+		title: "Hello <world>",
+		slug: "hello",
 		status: "published",
+		seoTitle: "",
+		description: "A greeting & farewell",
 		publishedAt: new Date("2026-09-01T00:00:00.000Z"),
-		...overrides,
+		createdAt: new Date("2026-01-01T00:00:00.000Z"),
+		updatedAt: new Date("2026-09-02T00:00:00.000Z"),
 	});
-}
+});
 
-describe("feed queries (throwaway DB)", () => {
-	let db: Db;
-
-	beforeEach(() => {
-		db = createThrowawayDb();
-	});
-
-	it("resolves the instance owner as the single claimed user", async () => {
-		expect(await selectInstanceOwnerId(db)).toBeNull();
-
-		await seedOwner(db);
-
-		expect(await selectInstanceOwnerId(db)).toBe(OWNER);
-	});
-
-	it("returns only published, non-deleted owner posts newest first", async () => {
-		await seedOwner(db);
-		await seedPost(db, {
-			slug: "older",
-			publishedAt: new Date("2026-08-01T00:00:00.000Z"),
-		});
-		await seedPost(db, {
-			slug: "newer",
-			publishedAt: new Date("2026-09-10T00:00:00.000Z"),
-		});
-		await seedPost(db, { slug: "draft-one", status: "draft" });
-		await seedPost(db, { slug: "scheduled-one", status: "scheduled" });
-		await seedPost(db, { slug: "archived-one", status: "archived" });
-		await seedPost(db, {
-			slug: "trashed",
-			deletedAt: new Date("2026-09-12T00:00:00.000Z"),
-		});
-		await seedPost(db, {
-			slug: "foreign",
-			userId: OTHER,
+describe("buildRssXml", () => {
+	it("escapes markup in titles and descriptions", () => {
+		const xml = buildRssXml({
+			siteTitle: "Parm <Writes>",
+			siteUrl: "https://blog.example",
+			siteDescription: "Essays & notes",
+			items: [
+				{
+					title: "Hello <world>",
+					link: "https://blog.example/posts/hello",
+					description: "A greeting & farewell",
+					publishedAt: new Date("2026-09-01T00:00:00.000Z"),
+				},
+			],
 		});
 
-		const rows = await selectPublishedFeedPosts(db, OWNER);
-
-		expect(rows.map((row) => row.slug)).toEqual(["newer", "older"]);
+		expect(xml).toContain("<title>Parm &lt;Writes&gt;</title>");
+		expect(xml).toContain("<title>Hello &lt;world&gt;</title>");
+		expect(xml).toContain("A greeting &amp; farewell");
+		expect(xml).toContain("Essays &amp; notes");
+		expect(xml).not.toContain("<world>");
 	});
 
-	it("finds a single published post by slug and ignores drafts", async () => {
-		await seedOwner(db);
-		await seedPost(db, { slug: "live" });
-		await seedPost(db, { slug: "hidden", status: "draft" });
+	it("renders an empty channel without items", () => {
+		const xml = buildRssXml({
+			siteTitle: "Empty",
+			siteUrl: "https://blog.example",
+			siteDescription: "",
+			items: [],
+		});
 
-		const live = await selectPublishedFeedPostBySlug(db, OWNER, "live");
-		const hidden = await selectPublishedFeedPostBySlug(db, OWNER, "hidden");
-		const missing = await selectPublishedFeedPostBySlug(db, OWNER, "nope");
+		expect(xml).toContain("<channel>");
+		expect(xml).not.toContain("<item>");
+	});
+});
 
-		expect(live?.slug).toBe("live");
-		expect(hidden).toBeUndefined();
-		expect(missing).toBeUndefined();
+describe("handleRssFeed", () => {
+	it("serves the published posts as RSS when enabled", async () => {
+		const response = await handleRssFeed(
+			new Request("https://cms.example/feed.xml"),
+			db,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain(
+			"application/rss+xml",
+		);
+
+		const xml = await response.text();
+		expect(xml).toContain("Hello &lt;world&gt;");
+		expect(xml).toContain("https://cms.example/posts/hello");
 	});
 
-	it("reads the owner's feed settings allowlist", async () => {
-		await seedOwner(db);
-		expect(await selectFeedSettings(db, OWNER)).toBeNull();
-
-		await db.insert(settings).values({
-			userId: OWNER,
-			allowedOrigins: "https://site-a.example,https://site-b.example",
-			blogTitle: "My Blog",
-			domain: "blog.example",
-		});
-
-		const feedSettings = await selectFeedSettings(db, OWNER);
-
-		expect(feedSettings).toEqual({
-			allowedOrigins: "https://site-a.example,https://site-b.example",
-			blogTitle: "My Blog",
-			domain: "blog.example",
-			bio: null,
-			seoMeta: true,
-			rssFeed: true,
-			readingTime: false,
-		});
-
+	it("returns 404 when the RSS toggle is off", async () => {
 		await db
 			.update(settings)
-			.set({ allowedOrigins: null })
+			.set({ rssFeed: false })
 			.where(eq(settings.userId, OWNER));
 
-		expect((await selectFeedSettings(db, OWNER))?.allowedOrigins).toBe("");
+		const response = await handleRssFeed(
+			new Request("https://cms.example/feed.xml"),
+			db,
+		);
+
+		expect(response.status).toBe(404);
 	});
 });
