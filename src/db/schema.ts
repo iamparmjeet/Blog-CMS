@@ -110,6 +110,12 @@ export const media = sqliteTable(
 		duration: text(),
 		fileKey: text("file_key"),
 		url: text().notNull(),
+		// Optimized preview variant (image thumbnail / video poster) stored
+		// beside the original under the same immutable owner-scoped prefix.
+		previewKey: text("preview_key"),
+		previewUrl: text("preview_url"),
+		previewType: text("preview_type"),
+		previewSize: text("preview_size"),
 		status: text().notNull().default("pending"),
 		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 		createdAt: integer("created_at", { mode: "timestamp_ms" })

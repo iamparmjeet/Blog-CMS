@@ -121,8 +121,22 @@ export function MediaThumbnail({
 	color: string;
 	item: MediaItem;
 }) {
-	const [failedUrl, setFailedUrl] = useState<string | null>(null);
-	const hasFailed = failedUrl === item.url;
+	const [stage, setStage] = useState<"variant" | "original" | "failed">(
+		"variant",
+	);
+	const hasPreview = Boolean(item.previewUrl);
+	const activeUrl =
+		stage === "variant" ? (item.previewUrl ?? item.url) : item.url;
+	const hasFailed = stage === "failed";
+
+	function handleError() {
+		if (stage === "variant" && hasPreview) {
+			setStage("original");
+			return;
+		}
+
+		setStage("failed");
+	}
 
 	return (
 		<div
@@ -137,14 +151,14 @@ export function MediaThumbnail({
 				) : (
 					<IconPhoto aria-hidden="true" className="size-6 text-white/35" />
 				)
-			) : item.kind === "video" ? (
+			) : item.kind === "video" && !hasPreview ? (
 				<video
 					className="size-full object-cover"
 					muted
-					onError={() => setFailedUrl(item.url)}
+					onError={handleError}
 					playsInline
 					preload="metadata"
-					src={item.url}
+					src={activeUrl}
 				/>
 			) : (
 				<img
@@ -152,8 +166,8 @@ export function MediaThumbnail({
 					className="size-full object-cover"
 					decoding="async"
 					loading="lazy"
-					onError={() => setFailedUrl(item.url)}
-					src={item.url}
+					onError={handleError}
+					src={activeUrl}
 				/>
 			)}
 		</div>

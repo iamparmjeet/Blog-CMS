@@ -1,4 +1,5 @@
-import type { MediaItem, MediaKind } from "./media.types";
+import { THUMBNAIL_COLORS } from "./media.data";
+import type { MediaFilter, MediaItem, MediaKind } from "./media.types";
 
 export function formatMediaSize(sizeKb: number): string {
 	if (sizeKb < 1024) {
@@ -8,12 +9,39 @@ export function formatMediaSize(sizeKb: number): string {
 	return `${(sizeKb / 1024).toFixed(1)} MB`;
 }
 
+export function filterMediaItems(
+	items: MediaItem[],
+	{ filter, query }: { filter: MediaFilter; query: string },
+): MediaItem[] {
+	const normalizedQuery = query.trim().toLowerCase();
+
+	return items.filter((item) => {
+		const matchesKind =
+			filter === "all" ||
+			(filter === "images" && item.kind === "image") ||
+			(filter === "videos" && item.kind === "video");
+
+		const matchesQuery =
+			normalizedQuery.length === 0 ||
+			item.name.toLowerCase().includes(normalizedQuery);
+
+		return matchesKind && matchesQuery;
+	});
+}
+
+export function getMediaItemColor(items: MediaItem[], item: MediaItem): string {
+	const index = items.findIndex((entry) => entry.id === item.id);
+
+	return THUMBNAIL_COLORS[index % THUMBNAIL_COLORS.length] ?? "#7c3aed";
+}
+
 interface MediaRow {
 	createdAt: Date;
 	dims: string;
 	duration: string | null;
 	id: number;
 	name: string;
+	previewUrl: string | null;
 	size: string;
 	type: string;
 	url: string;
@@ -36,6 +64,10 @@ export function toMediaItem(row: MediaRow): MediaItem {
 		uploadedAt: row.createdAt.toISOString(),
 		url: row.url,
 	};
+
+	if (row.previewUrl) {
+		item.previewUrl = row.previewUrl;
+	}
 
 	if (row.duration) {
 		item.duration = row.duration;

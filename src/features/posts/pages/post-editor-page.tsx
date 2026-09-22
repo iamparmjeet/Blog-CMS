@@ -7,6 +7,7 @@ import {
 	IconItalic,
 	IconList,
 	IconListNumbers,
+	IconPhoto,
 	IconQuote,
 	IconSparkles,
 	IconTrash,
@@ -30,7 +31,10 @@ import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import { MediaPicker } from "#/features/media/components/media-picker";
+import type { MediaItem } from "#/features/media/media.types";
 import { cn } from "#/lib/utils";
+import { MediaAsset } from "../editor/media-asset";
 import {
 	countWords,
 	parseIncomingPostBody,
@@ -99,6 +103,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	const [wordCount, setWordCount] = useState(post.wordCount);
 	const router = useRouter();
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+	const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 	const [isRepurposeOpen, setIsRepurposeOpen] = useState(true);
 	const [isPublished, setIsPublished] = useState(post.status === "published");
 	const [isPublishing, setIsPublishing] = useState(false);
@@ -224,6 +229,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 			Placeholder.configure({
 				placeholder: "Start writing your draft...",
 			}),
+			MediaAsset,
 		],
 		content: post.body,
 		immediatelyRender: false,
@@ -421,6 +427,16 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 					)}
 
 					<Button
+						onClick={() => setIsMediaPickerOpen(true)}
+						size="default"
+						type="button"
+						variant="ghost"
+					>
+						<IconPhoto aria-hidden="true" className="text-brand" />
+						Media
+					</Button>
+
+					<Button
 						onClick={() => setIsPreviewOpen(true)}
 						size="default"
 						type="button"
@@ -537,6 +553,27 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 					isPublished={isPublished}
 					metadata={metadata}
 					onClose={() => setIsPreviewOpen(false)}
+				/>
+			) : null}
+
+			{isMediaPickerOpen && editor ? (
+				<MediaPicker
+					onClose={() => setIsMediaPickerOpen(false)}
+					onSelect={(item: MediaItem) => {
+						editor
+							.chain()
+							.focus()
+							.insertMediaAsset({
+								alt: item.name,
+								kind: item.kind,
+								mediaId: item.id,
+								poster: item.previewUrl ?? null,
+								src: item.url,
+								title: item.name,
+							})
+							.run();
+						setIsMediaPickerOpen(false);
+					}}
 				/>
 			) : null}
 		</main>
@@ -702,7 +739,7 @@ function PostPreviewOverlay({
 	onClose: () => void;
 }) {
 	const previewEditor = useEditor({
-		extensions: [StarterKit],
+		extensions: [StarterKit, MediaAsset],
 		content: parseIncomingPostBody(body),
 		editable: false,
 		immediatelyRender: false,
