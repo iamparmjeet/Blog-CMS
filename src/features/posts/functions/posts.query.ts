@@ -54,6 +54,7 @@ export async function selectPostEditorRowByOwner(
 			seoTitle: posts.seoTitle,
 			description: posts.description,
 			body: posts.body,
+			scheduledAt: posts.scheduledAt,
 			wordCount: posts.wordCount,
 			updatedAt: posts.updatedAt,
 		})

@@ -1,4 +1,7 @@
+import { eq } from "drizzle-orm";
 import { getDb } from "#/db";
+import { settings } from "#/db/schema";
+import { resolveTimeZone } from "#/features/dashboard/writing-activity/writing.utils";
 import {
 	insertPostDraft,
 	selectDeletedPostRowsByOwner,
@@ -58,5 +61,12 @@ export async function readPostEditorByOwner({
 	if (!row) {
 		throw new Error("Post not found");
 	}
-	return toPostEditorData(row);
+
+	const preference = await getDb()
+		.select({ timeZone: settings.timeZone })
+		.from(settings)
+		.where(eq(settings.userId, userId))
+		.get();
+
+	return toPostEditorData(row, resolveTimeZone(preference?.timeZone));
 }

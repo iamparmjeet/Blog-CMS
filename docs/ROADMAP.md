@@ -139,7 +139,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Generate owner-reviewable variants for the supported social formats from an existing post.
   - Acceptance: each variant is visibly labeled by target format and can be copied without changing the source post.
 
-- [ ] **M5.3: Implement scheduled publishing.**
+- [x] **M5.3: Implement scheduled publishing.**
 	- Depends on: M1.3, M2.5, M4.1.
   - Add a publish-at instant, schedule management UI, and reliable Worker-side execution.
   - Acceptance: a scheduled post publishes once at the expected time in the configured timezone, including after worker restarts.

@@ -71,7 +71,10 @@ export function toPostListItem(row: PostRow): PostListItem {
 	};
 }
 
-export function toPostEditorData(row: PostEditorRow): PostEditorData {
+export function toPostEditorData(
+	row: PostEditorRow,
+	timeZone = "UTC",
+): PostEditorData {
 	return {
 		id: row.id,
 		title: normalizePostTitle(row.title),
@@ -80,6 +83,8 @@ export function toPostEditorData(row: PostEditorRow): PostEditorData {
 		seoTitle: row.seoTitle,
 		description: row.description,
 		body: parseStoredPostBody(row.body),
+		scheduledAt: row.scheduledAt ? row.scheduledAt.toISOString() : null,
+		timeZone,
 		wordCount: Math.max(0, row.wordCount),
 		updatedAt: serializePostDate(row.updatedAt),
 	};
