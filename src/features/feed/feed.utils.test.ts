@@ -276,4 +276,48 @@ describe("toFeedPost", () => {
 
 		expect(post.wordCount).toBe(0);
 	});
+
+	it("omits SEO meta when the toggle is off", () => {
+		const post = toFeedPost(row, {
+			domain: null,
+			requestUrl: "http://localhost:3000/api/posts",
+			seoMeta: false,
+		});
+
+		expect(post.seoTitle).toBe("");
+		expect(post.description).toBe("");
+	});
+
+	it("keeps SEO meta when the toggle is on", () => {
+		const post = toFeedPost(row, {
+			domain: null,
+			requestUrl: "http://localhost:3000/api/posts",
+			seoMeta: true,
+		});
+
+		expect(post.seoTitle).toBe("Hello SEO");
+		expect(post.description).toBe("A greeting");
+	});
+
+	it("reports reading time only when the toggle is on", () => {
+		const off = toFeedPost(
+			{ ...row, wordCount: 450 },
+			{
+				domain: null,
+				requestUrl: "http://localhost:3000/api/posts",
+				readingTime: false,
+			},
+		);
+		const on = toFeedPost(
+			{ ...row, wordCount: 450 },
+			{
+				domain: null,
+				requestUrl: "http://localhost:3000/api/posts",
+				readingTime: true,
+			},
+		);
+
+		expect(off.readingTimeMinutes).toBeNull();
+		expect(on.readingTimeMinutes).toBe(3);
+	});
 });

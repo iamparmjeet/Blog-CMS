@@ -89,6 +89,9 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 					writingStyle: profile.writingStyle,
 					writingSample: profile.writingSample,
 					umamiShareUrl: profile.umamiShareUrl,
+					seoMeta: profile.seoMeta,
+					rssFeed: profile.rssFeed,
+					readingTime: profile.readingTime,
 					allowedOrigins: feedSettings.allowedOrigins,
 				}));
 				setIsLoaded(true);
@@ -234,6 +237,9 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 				data: {
 					timeZone: form.timeZone,
 					umamiShareUrl: form.umamiShareUrl,
+					seoMeta: form.seoMeta,
+					rssFeed: form.rssFeed,
+					readingTime: form.readingTime,
 				},
 			});
 			setIsPublishingDirty(false);
@@ -585,19 +591,27 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									checked={form.seoMeta}
 									description="Generate og:title and og:description from post content."
 									label="SEO meta tags"
-									onChange={(checked) => update("seoMeta", checked)}
+									onChange={(checked) => updatePublishing("seoMeta", checked)}
 								/>
 								<SettingsToggleRow
 									checked={form.rssFeed}
-									description="Expose /feed.xml for readers and aggregators."
+									description="Expose /rss for readers and aggregators."
 									label="RSS feed"
-									onChange={(checked) => update("rssFeed", checked)}
+									onChange={(checked) => updatePublishing("rssFeed", checked)}
 								/>
 								<SettingsToggleRow
 									checked={form.readingTime}
 									description="Show the estimated read time on published posts."
 									label="Reading time"
-									onChange={(checked) => update("readingTime", checked)}
+									onChange={(checked) =>
+										updatePublishing("readingTime", checked)
+									}
+								/>
+								<SaveRow
+									dirty={isPublishingDirty}
+									disabled={!isLoaded}
+									onClick={() => void savePublishing()}
+									state={publishingSaveState}
 								/>
 							</SettingsSection>
 

@@ -110,7 +110,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Let the owner configure how ContentOS writes and measures content.
 
-- [ ] **M4.1: Implement settings management.**
+- [x] **M4.1: Implement settings management.**
   - Depends on: M2.1.
   - Add owner-managed blog identity, accent color, timezone, feed origins, model preference, writing profile, and storage/analytics settings.
   - Acceptance: each setting is validated, persists, and is applied by its dependent feature.

@@ -8,6 +8,7 @@ export interface FeedPost {
 	publishedAt: string | null;
 	updatedAt: string;
 	wordCount: number;
+	readingTimeMinutes: number | null;
 	url: string;
 	body: JSONContent;
 }
@@ -21,6 +22,9 @@ export interface FeedSettingsSnapshot {
 	blogTitle: string | null;
 	domain: string | null;
 	bio: string | null;
+	seoMeta: boolean;
+	rssFeed: boolean;
+	readingTime: boolean;
 }
 
 export interface FeedPublishedPostRow {

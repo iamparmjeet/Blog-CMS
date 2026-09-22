@@ -140,23 +140,30 @@ export function buildFeedPostUrl({
 	return new URL(`/posts/${slug}`, requestUrl).toString();
 }
 
+export interface FeedPostOptions {
+	domain: string | null | undefined;
+	requestUrl: string;
+	seoMeta?: boolean;
+	readingTime?: boolean;
+}
+
 export function toFeedPost(
 	row: FeedPublishedPostRow,
-	{
-		domain,
-		requestUrl,
-	}: { domain: string | null | undefined; requestUrl: string },
+	{ domain, requestUrl, seoMeta = true, readingTime = false }: FeedPostOptions,
 ): FeedPost {
+	const wordCount = Math.max(0, row.wordCount);
+
 	return {
 		slug: row.slug,
 		title: row.title,
-		description: row.description,
-		seoTitle: row.seoTitle,
+		description: seoMeta ? row.description : "",
+		seoTitle: seoMeta ? row.seoTitle : "",
 		publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
 		updatedAt: row.updatedAt.toISOString(),
 		// Defensive: lifecycle rules prevent negative counts, but the feed
 		// must never expose one.
-		wordCount: Math.max(0, row.wordCount),
+		wordCount,
+		readingTimeMinutes: readingTime ? Math.ceil(wordCount / 200) : null,
 		url: buildFeedPostUrl({ domain, requestUrl, slug: row.slug }),
 		body: sanitizeFeedBody(parseStoredPostBody(row.body)),
 	};

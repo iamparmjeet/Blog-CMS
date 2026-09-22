@@ -25,6 +25,9 @@ export async function selectFeedSettings(
 			blogTitle: settings.blogTitle,
 			domain: settings.domain,
 			bio: settings.bio,
+			seoMeta: settings.seoMeta,
+			rssFeed: settings.rssFeed,
+			readingTime: settings.readingTime,
 		})
 		.from(settings)
 		.where(eq(settings.userId, userId))
@@ -40,6 +43,9 @@ export async function selectFeedSettings(
 		blogTitle: row.blogTitle,
 		domain: row.domain,
 		bio: row.bio,
+		seoMeta: row.seoMeta ?? true,
+		rssFeed: row.rssFeed ?? true,
+		readingTime: row.readingTime ?? false,
 	};
 }
 
