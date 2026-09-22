@@ -6,7 +6,11 @@ import type { MediaUploadInput } from "../media.types";
 import { toMediaItem } from "../media.utils";
 import {
 	createMediaObjectKey,
+	createMediaPreviewKey,
 	createMediaPublicUrl,
+	formatMediaDims,
+	formatMediaDuration,
+	validateMediaPreview,
 	validateMediaUpload,
 } from "./media-upload";
 import {
@@ -45,6 +49,7 @@ export async function initiateMediaUploadForOwner({
 	...input
 }: InitiateMediaUploadInput) {
 	const upload = validateMediaUpload(input);
+	const preview = validateMediaPreview(input.preview);
 	const config = getR2UploadConfig();
 	const fileKey = createMediaObjectKey({
 		fileName: upload.fileName,
@@ -57,10 +62,38 @@ export async function initiateMediaUploadForOwner({
 		fileKey,
 	});
 
+	const previewKey = preview
+		? createMediaPreviewKey({
+				contentType: preview.contentType,
+				fileKey,
+				userId,
+			})
+		: null;
+
+	const previewUploadUrl =
+		preview && previewKey
+			? await createPresignedUploadUrl({
+					config,
+					contentType: preview.contentType,
+					fileKey: previewKey,
+				})
+			: null;
+
 	const created = await createPendingMedia(getDb(), {
 		contentType: upload.contentType,
+		dims: formatMediaDims(input.width, input.height),
+		duration: formatMediaDuration(input.durationSeconds),
 		fileKey,
 		name: upload.fileName,
+		previewKey,
+		previewSizeBytes: preview?.sizeBytes ?? null,
+		previewType: preview?.contentType ?? null,
+		previewUrl: previewKey
+			? createMediaPublicUrl({
+					fileKey: previewKey,
+					publicUrl: config.publicUrl,
+				})
+			: null,
 		sizeBytes: upload.sizeBytes,
 		url: createMediaPublicUrl({
 			fileKey,
@@ -74,6 +107,16 @@ export async function initiateMediaUploadForOwner({
 	}
 
 	return {
+		previewUpload:
+			preview && previewUploadUrl
+				? {
+						uploadHeaders: {
+							"Cache-Control": MEDIA_CACHE_CONTROL,
+							"Content-Type": preview.contentType,
+						},
+						uploadUrl: previewUploadUrl,
+					}
+				: null,
 		uploadHeaders: {
 			"Cache-Control": MEDIA_CACHE_CONTROL,
 			"Content-Type": upload.contentType,
@@ -109,12 +152,23 @@ export async function completeMediaUploadForOwner({
 		object.httpMetadata?.contentType === pendingMedia.type;
 
 	if (!object || !matchesExpectedUpload) {
-		if (object) {
-			await env.MEDIA.delete(pendingMedia.fileKey);
-		}
-
+		await discardPendingObjects(pendingMedia);
 		await deletePendingMedia(db, userId, mediaId);
 		throw new Error("Uploaded file could not be verified");
+	}
+
+	if (pendingMedia.previewKey) {
+		const previewObject = await env.MEDIA.head(pendingMedia.previewKey);
+		const expectedPreviewSize = Number(pendingMedia.previewSize);
+		const matchesExpectedPreview =
+			previewObject?.size === expectedPreviewSize &&
+			previewObject.httpMetadata?.contentType === pendingMedia.previewType;
+
+		if (!previewObject || !matchesExpectedPreview) {
+			await discardPendingObjects(pendingMedia);
+			await deletePendingMedia(db, userId, mediaId);
+			throw new Error("Uploaded file could not be verified");
+		}
 	}
 
 	const completed = await markMediaReady(db, userId, mediaId);
@@ -143,11 +197,21 @@ export async function cancelMediaUploadForOwner({
 		return;
 	}
 
-	if (pendingMedia.fileKey) {
-		await env.MEDIA.delete(pendingMedia.fileKey);
-	}
-
+	await discardPendingObjects(pendingMedia);
 	await deletePendingMedia(db, userId, mediaId);
+}
+
+async function discardPendingObjects(pendingMedia: {
+	fileKey: string | null;
+	previewKey: string | null;
+}): Promise<void> {
+	const keys = [pendingMedia.fileKey, pendingMedia.previewKey].filter(
+		(key): key is string => Boolean(key),
+	);
+
+	if (keys.length > 0) {
+		await env.MEDIA.delete(keys);
+	}
 }
 
 function getR2UploadConfig(): R2UploadConfig {

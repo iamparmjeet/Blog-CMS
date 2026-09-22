@@ -10,9 +10,9 @@ import {
 	completeMediaUpload,
 	initiateMediaUpload,
 } from "../functions/media-upload.function";
-import { THUMBNAIL_COLORS } from "../media.data";
 import type { MediaFilter, MediaItem } from "../media.types";
-import { formatMediaSize } from "../media.utils";
+import { formatMediaSize, getMediaItemColor } from "../media.utils";
+import { generateMediaPreview } from "../media-preview";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -21,12 +21,6 @@ const FILTERS: { label: string; value: MediaFilter }[] = [
 	{ label: "Images", value: "images" },
 	{ label: "Videos", value: "videos" },
 ];
-
-function getItemColor(items: MediaItem[], item: MediaItem): string {
-	const index = items.findIndex((entry) => entry.id === item.id);
-
-	return THUMBNAIL_COLORS[index % THUMBNAIL_COLORS.length] ?? "#7c3aed";
-}
 
 export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 	const [filter, setFilter] = useState<MediaFilter>("all");
@@ -61,8 +55,22 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 				fileName: file.name,
 				sizeBytes: file.size,
 			});
+			const source = await generateMediaPreview(file);
 			const initiated = await initiateMediaUpload({
-				data: upload,
+				data: {
+					contentType: upload.contentType,
+					durationSeconds: source.durationSeconds,
+					fileName: upload.fileName,
+					height: source.height,
+					preview: source.preview
+						? {
+								contentType: source.preview.contentType,
+								sizeBytes: source.preview.blob.size,
+							}
+						: undefined,
+					sizeBytes: upload.sizeBytes,
+					width: source.width,
+				},
 			});
 
 			pendingMediaId = initiated.mediaId;
@@ -75,6 +83,20 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 
 			if (!uploadResponse.ok) {
 				throw new Error(`R2 rejected the upload with ${uploadResponse.status}`);
+			}
+
+			if (initiated.previewUpload && source.preview) {
+				const previewResponse = await fetch(initiated.previewUpload.uploadUrl, {
+					body: source.preview.blob,
+					headers: initiated.previewUpload.uploadHeaders,
+					method: "PUT",
+				});
+
+				if (!previewResponse.ok) {
+					throw new Error(
+						`R2 rejected the preview upload with ${previewResponse.status}`,
+					);
+				}
 			}
 
 			const completed = await completeMediaUpload({
@@ -147,7 +169,7 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 						<div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
 							{visibleItems.map((item) => (
 								<MediaCard
-									color={getItemColor(items, item)}
+									color={getMediaItemColor(items, item)}
 									item={item}
 									key={item.id}
 									onSelect={(itemId) =>
@@ -164,7 +186,7 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 
 				{selectedItem ? (
 					<MediaDetail
-						color={getItemColor(items, selectedItem)}
+						color={getMediaItemColor(items, selectedItem)}
 						item={selectedItem}
 					/>
 				) : null}

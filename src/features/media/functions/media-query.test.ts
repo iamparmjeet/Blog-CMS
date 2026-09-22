@@ -28,6 +28,10 @@ function createThrowawayDb(): Db {
 			duration text,
 			file_key text,
 			url text NOT NULL,
+			preview_key text,
+			preview_url text,
+			preview_type text,
+			preview_size text,
 			status text DEFAULT 'pending' NOT NULL,
 			deleted_at integer,
 			created_at integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL
@@ -59,6 +63,51 @@ describe("media upload metadata", () => {
 			size: "1024",
 			status: "pending",
 			type: "image/png",
+		});
+	});
+
+	it("stores generated preview variant metadata on the pending row", async () => {
+		const created = await createPendingMedia(db, {
+			contentType: "video/mp4",
+			dims: "1280×720",
+			duration: "0:30",
+			fileKey: "media/owner-1/upload-id-clip.mp4",
+			name: "clip.mp4",
+			previewKey: "media/owner-1/upload-id-clip.mp4.preview.jpg",
+			previewSizeBytes: 48_000,
+			previewType: "image/jpeg",
+			previewUrl:
+				"https://media.example.com/media/owner-1/upload-id-clip.mp4.preview.jpg",
+			sizeBytes: 2_048,
+			url: "https://media.example.com/media/owner-1/upload-id-clip.mp4",
+			userId: OWNER,
+		});
+
+		if (!created) {
+			throw new Error("Could not create media fixture");
+		}
+
+		expect(created).toMatchObject({
+			dims: "1280×720",
+			duration: "0:30",
+			previewUrl:
+				"https://media.example.com/media/owner-1/upload-id-clip.mp4.preview.jpg",
+		});
+
+		const selected = await selectMediaUploadByOwner(db, OWNER, created.id);
+
+		expect(selected).toMatchObject({
+			previewKey: "media/owner-1/upload-id-clip.mp4.preview.jpg",
+			previewSize: "48000",
+			previewType: "image/jpeg",
+		});
+
+		const ready = await markMediaReady(db, OWNER, created.id);
+
+		expect(ready).toMatchObject({
+			previewUrl:
+				"https://media.example.com/media/owner-1/upload-id-clip.mp4.preview.jpg",
+			status: "ready",
 		});
 	});
 

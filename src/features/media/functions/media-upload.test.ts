@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import { MAX_MEDIA_SIZE_BYTES } from "#/constants/media.constants";
 import {
 	createMediaObjectKey,
+	createMediaPreviewKey,
 	createMediaPublicUrl,
+	formatMediaDims,
+	formatMediaDuration,
 	sanitizeMediaFileName,
+	validateMediaPreview,
 	validateMediaUpload,
 } from "./media-upload";
 
@@ -85,6 +89,83 @@ describe("createMediaObjectKey", () => {
 				userId: "owner-1",
 			}),
 		).toBe("media/owner-1/upload-id-Hero-image.png");
+	});
+});
+
+describe("validateMediaPreview", () => {
+	it("accepts supported preview types within the size cap", () => {
+		expect(
+			validateMediaPreview({ contentType: "image/webp", sizeBytes: 42_000 }),
+		).toEqual({ contentType: "image/webp", sizeBytes: 42_000 });
+	});
+
+	it("returns null when no preview is declared", () => {
+		expect(validateMediaPreview(undefined)).toBeNull();
+	});
+
+	it("rejects unsupported preview types", () => {
+		expect(() =>
+			validateMediaPreview({ contentType: "image/gif", sizeBytes: 1_000 }),
+		).toThrow("Unsupported preview type");
+	});
+
+	it("rejects empty preview payloads", () => {
+		expect(() =>
+			validateMediaPreview({ contentType: "image/jpeg", sizeBytes: 0 }),
+		).toThrow("Select a non-empty file to upload");
+	});
+});
+
+describe("createMediaPreviewKey", () => {
+	it("derives a typed key beside the original object", () => {
+		expect(
+			createMediaPreviewKey({
+				contentType: "image/webp",
+				fileKey: "media/owner-1/upload-id-hero.png",
+				userId: "owner-1",
+			}),
+		).toBe("media/owner-1/upload-id-hero.png.preview.webp");
+
+		expect(
+			createMediaPreviewKey({
+				contentType: "image/jpeg",
+				fileKey: "media/owner-1/upload-id-clip.mp4",
+				userId: "owner-1",
+			}),
+		).toBe("media/owner-1/upload-id-clip.mp4.preview.jpg");
+	});
+
+	it("rejects keys outside the owner's prefix", () => {
+		expect(() =>
+			createMediaPreviewKey({
+				contentType: "image/webp",
+				fileKey: "media/owner-2/upload-id-hero.png",
+				userId: "owner-1",
+			}),
+		).toThrow("Preview variants must stay owner-scoped");
+	});
+});
+
+describe("formatMediaDims", () => {
+	it("formats stored dimensions", () => {
+		expect(formatMediaDims(1280, 720)).toBe("1280×720");
+	});
+
+	it("returns an empty string for unknown dimensions", () => {
+		expect(formatMediaDims(undefined, undefined)).toBe("");
+		expect(formatMediaDims(0, 100)).toBe("");
+	});
+});
+
+describe("formatMediaDuration", () => {
+	it("formats seconds as minutes and seconds", () => {
+		expect(formatMediaDuration(29)).toBe("0:29");
+		expect(formatMediaDuration(95)).toBe("1:35");
+	});
+
+	it("returns an empty string for unknown durations", () => {
+		expect(formatMediaDuration(undefined)).toBe("");
+		expect(formatMediaDuration(0)).toBe("");
 	});
 });
 

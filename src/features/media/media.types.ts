@@ -8,6 +8,7 @@ export interface MediaItem {
 	id: number;
 	kind: MediaKind;
 	name: string;
+	previewUrl?: string;
 	sizeKb: number;
 	uploadedAt: string;
 	url: string;
@@ -24,9 +25,32 @@ export const MEDIA_CONTENT_TYPES = [
 
 export type AllowedMediaContentType = (typeof MEDIA_CONTENT_TYPES)[number];
 
+export const MEDIA_PREVIEW_CONTENT_TYPES = [
+	"image/jpeg",
+	"image/png",
+	"image/webp",
+] as const;
+
+export type AllowedMediaPreviewContentType =
+	(typeof MEDIA_PREVIEW_CONTENT_TYPES)[number];
+
 export interface MediaUploadInput {
 	contentType: string;
 	fileName: string;
+	height?: number;
+	preview?: MediaPreviewInput;
+	sizeBytes: number;
+	width?: number;
+	durationSeconds?: number;
+}
+
+export interface MediaPreviewInput {
+	contentType: string;
+	sizeBytes: number;
+}
+
+export interface ValidatedMediaPreview {
+	contentType: AllowedMediaPreviewContentType;
 	sizeBytes: number;
 }
 

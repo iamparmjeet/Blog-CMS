@@ -1,8 +1,15 @@
-import { MAX_MEDIA_SIZE_BYTES } from "#/constants/media.constants";
+import {
+	MAX_MEDIA_PREVIEW_SIZE_BYTES,
+	MAX_MEDIA_SIZE_BYTES,
+} from "#/constants/media.constants";
 import {
 	type AllowedMediaContentType,
+	type AllowedMediaPreviewContentType,
 	MEDIA_CONTENT_TYPES,
+	MEDIA_PREVIEW_CONTENT_TYPES,
+	type MediaPreviewInput,
 	type MediaUploadInput,
+	type ValidatedMediaPreview,
 	type ValidatedMediaUpload,
 } from "../media.types";
 
@@ -29,11 +36,44 @@ export function validateMediaUpload(
 	};
 }
 
+export function validateMediaPreview(
+	input: MediaPreviewInput | undefined | null,
+): ValidatedMediaPreview | null {
+	if (!input) {
+		return null;
+	}
+
+	if (!Number.isSafeInteger(input.sizeBytes) || input.sizeBytes <= 0) {
+		throw new Error("Select a non-empty file to upload");
+	}
+
+	if (input.sizeBytes > MAX_MEDIA_PREVIEW_SIZE_BYTES) {
+		throw new Error("Preview variants must be 2 MB or smaller");
+	}
+
+	if (!isAllowedMediaPreviewContentType(input.contentType)) {
+		throw new Error("Unsupported preview type");
+	}
+
+	return {
+		contentType: input.contentType,
+		sizeBytes: input.sizeBytes,
+	};
+}
+
 // ********* Supporting functions ************
 export function isAllowedMediaContentType(
 	contentType: string,
 ): contentType is AllowedMediaContentType {
 	return MEDIA_CONTENT_TYPES.some((allowedType) => allowedType === contentType);
+}
+
+export function isAllowedMediaPreviewContentType(
+	contentType: string,
+): contentType is AllowedMediaPreviewContentType {
+	return MEDIA_PREVIEW_CONTENT_TYPES.some(
+		(allowedType) => allowedType === contentType,
+	);
 }
 
 // Prevents client supplied paths and unsafe key names
@@ -76,6 +116,61 @@ export function createMediaObjectKey({
 	}
 
 	return `media/${userId}/${objectId}-${sanitizeMediaFileName(fileName)}`;
+}
+
+// Preview variants live beside the original under the same immutable
+// owner-scoped prefix so deletion and caching stay consistent.
+export function createMediaPreviewKey({
+	contentType,
+	fileKey,
+	userId,
+}: {
+	contentType: AllowedMediaPreviewContentType;
+	fileKey: string;
+	userId: string;
+}): string {
+	if (!fileKey.startsWith(`media/${userId}/`)) {
+		throw new Error("Preview variants must stay owner-scoped");
+	}
+
+	const extension =
+		contentType === "image/webp"
+			? "webp"
+			: contentType === "image/png"
+				? "png"
+				: "jpg";
+
+	return `${fileKey}.preview.${extension}`;
+}
+
+export function formatMediaDims(
+	width: number | undefined,
+	height: number | undefined,
+): string {
+	if (
+		!Number.isFinite(width) ||
+		!Number.isFinite(height) ||
+		!width ||
+		!height ||
+		width <= 0 ||
+		height <= 0
+	) {
+		return "";
+	}
+
+	return `${Math.round(width)}×${Math.round(height)}`;
+}
+
+export function formatMediaDuration(seconds: number | undefined): string {
+	if (!Number.isFinite(seconds) || !seconds || seconds <= 0) {
+		return "";
+	}
+
+	const totalSeconds = Math.round(seconds);
+	const minutes = Math.floor(totalSeconds / 60);
+	const remainingSeconds = totalSeconds % 60;
+
+	return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
 }
 
 // Contructs the permanent public URL, not the temp upload URL
