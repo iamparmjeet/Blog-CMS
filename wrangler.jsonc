@@ -10,7 +10,7 @@
 		{
 			"binding": "DB",
 			"database_name": "blog-cms",
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "142c33e3-399b-4eea-9164-10995ce4f115",
 			"migrations_dir": "src/db/drizzle"
 		}
 	],
