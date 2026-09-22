@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserAvatar } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
@@ -16,7 +16,11 @@ import {
 	SurfaceTintPicker,
 	ThemeModeControl,
 } from "../components/settings-widgets";
-import { saveAppearanceSettings } from "../functions/settings.function";
+import {
+	getFeedSettings,
+	saveAppearanceSettings,
+	saveFeedSettings,
+} from "../functions/settings.function";
 import {
 	type AppearanceSettings,
 	DEFAULT_SETTINGS,
@@ -41,12 +45,42 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 	}));
 	const [saveState, setSaveState] = useState<SaveState>("idle");
 	const [isAppearanceDirty, setIsAppearanceDirty] = useState(false);
+	const [isFeedDirty, setIsFeedDirty] = useState(false);
+	const [feedSaveState, setFeedSaveState] = useState<SaveState>("idle");
+
+	useEffect(() => {
+		let cancelled = false;
+
+		void (async () => {
+			try {
+				const feedSettings = await getFeedSettings();
+
+				if (!cancelled) {
+					setForm((current) => ({
+						...current,
+						allowedOrigins: feedSettings.allowedOrigins,
+					}));
+				}
+			} catch {
+				// Feed settings load failure leaves the default empty allowlist.
+			}
+		})();
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	function update<TKey extends keyof SettingsForm>(
 		key: TKey,
 		value: SettingsForm[TKey],
 	) {
 		setForm((current) => ({ ...current, [key]: value }));
+
+		if (key === "allowedOrigins") {
+			setIsFeedDirty(true);
+			setFeedSaveState("idle");
+		}
 	}
 
 	function updateAppearance<TKey extends keyof AppearanceSettings>(
@@ -80,6 +114,19 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 			setSaveState("saved");
 		} catch {
 			setSaveState("error");
+		}
+	}
+
+	async function saveFeed() {
+		setFeedSaveState("saving");
+		try {
+			await saveFeedSettings({
+				data: { allowedOrigins: form.allowedOrigins },
+			});
+			setIsFeedDirty(false);
+			setFeedSaveState("saved");
+		} catch {
+			setFeedSaveState("error");
 		}
 	}
 
@@ -286,6 +333,37 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									}
 									value={form.allowedOrigins}
 								/>
+								<div className="flex items-center gap-3">
+									<span
+										aria-live="polite"
+										className={cn(
+											"text-[11px]",
+											feedSaveState === "error"
+												? "text-danger"
+												: feedSaveState === "saved"
+													? "text-success"
+													: "text-text-muted",
+										)}
+									>
+										{feedSaveState === "saving"
+											? "Saving feed origins…"
+											: feedSaveState === "saved"
+												? "Feed origins saved"
+												: feedSaveState === "error"
+													? "Couldn't save feed origins"
+													: isFeedDirty
+														? "Unsaved feed origin changes"
+														: "Allowlist drives CORS for /api/posts"}
+									</span>
+									<Button
+										disabled={!isFeedDirty || feedSaveState === "saving"}
+										onClick={() => void saveFeed()}
+										size="sm"
+										type="button"
+									>
+										{feedSaveState === "saving" ? "Saving…" : "Save origins"}
+									</Button>
+								</div>
 								<div className="flex flex-col gap-2">
 									<EndpointRow
 										label="Collection"
