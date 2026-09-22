@@ -1,5 +1,9 @@
 import type { Db } from "#/db";
 import {
+	enforceRateLimit,
+	RATE_LIMITS,
+} from "#/features/rate-limit/rate-limit.query";
+import {
 	selectFeedSettings,
 	selectInstanceOwnerId,
 	selectPublishedFeedPosts,
@@ -77,6 +81,12 @@ export async function handleRssFeed(
 	request: Request,
 	db: Db,
 ): Promise<Response> {
+	const limited = await enforceRateLimit(db, request, RATE_LIMITS.rss);
+
+	if (limited) {
+		return limited;
+	}
+
 	const ownerId = await selectInstanceOwnerId(db);
 
 	if (!ownerId) {

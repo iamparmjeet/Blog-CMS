@@ -1,4 +1,8 @@
-import { getDb } from "#/db";
+import type { Db } from "#/db";
+import {
+	enforceRateLimit,
+	RATE_LIMITS,
+} from "#/features/rate-limit/rate-limit.query";
 import {
 	selectFeedSettings,
 	selectInstanceOwnerId,
@@ -13,14 +17,13 @@ import {
 	toFeedPost,
 } from "./feed.utils";
 
-async function loadFeedContext(): Promise<{
+async function loadFeedContext(db: Db): Promise<{
 	allowedOrigins: string[];
 	domain: string | null;
 	ownerId: string | null;
 	seoMeta: boolean;
 	readingTime: boolean;
 }> {
-	const db = getDb();
 	const ownerId = await selectInstanceOwnerId(db);
 
 	if (!ownerId) {
@@ -58,9 +61,10 @@ function originDeniedResponse(
 
 export async function handleFeedCollection(
 	request: Request,
+	db: Db,
 ): Promise<Response> {
 	const { allowedOrigins, domain, ownerId, seoMeta, readingTime } =
-		await loadFeedContext();
+		await loadFeedContext(db);
 	const cors = evaluateFeedCors(request, allowedOrigins);
 
 	if (!cors.allowed) {
@@ -71,12 +75,22 @@ export async function handleFeedCollection(
 		return preflightResponse(cors);
 	}
 
+	const limited = await enforceRateLimit(
+		db,
+		request,
+		RATE_LIMITS.feedCollection,
+	);
+
+	if (limited) {
+		return limited;
+	}
+
 	if (!ownerId) {
 		const empty: FeedCollection = { posts: [] };
 		return jsonFeedResponse(empty, 200, cors.headers);
 	}
 
-	const rows = await selectPublishedFeedPosts(getDb(), ownerId);
+	const rows = await selectPublishedFeedPosts(db, ownerId);
 	const posts = rows.map((row) =>
 		toFeedPost(row, { domain, requestUrl: request.url, seoMeta, readingTime }),
 	);
@@ -91,9 +105,10 @@ export async function handleFeedCollection(
 export async function handleFeedPost(
 	request: Request,
 	slug: string,
+	db: Db,
 ): Promise<Response> {
 	const { allowedOrigins, domain, ownerId, seoMeta, readingTime } =
-		await loadFeedContext();
+		await loadFeedContext(db);
 	const cors = evaluateFeedCors(request, allowedOrigins);
 
 	if (!cors.allowed) {
@@ -104,9 +119,15 @@ export async function handleFeedPost(
 		return preflightResponse(cors);
 	}
 
+	const limited = await enforceRateLimit(db, request, RATE_LIMITS.feedPost);
+
+	if (limited) {
+		return limited;
+	}
+
 	const row =
 		ownerId !== null
-			? await selectPublishedFeedPostBySlug(getDb(), ownerId, slug)
+			? await selectPublishedFeedPostBySlug(db, ownerId, slug)
 			: undefined;
 
 	if (!row) {

@@ -1,11 +1,9 @@
 import Database from "better-sqlite3";
-import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "#/db";
 import { user } from "#/db/auth-schema";
-import { posts, settings } from "#/db/schema";
-import { buildRssXml, handleRssFeed } from "./rss.server";
+import { handleFeedCollection } from "./feed.server";
 
 const OWNER = "owner-1";
 
@@ -86,106 +84,48 @@ beforeEach(async () => {
 		email: "owner@example.com",
 		createdAt: new Date("2026-01-01T00:00:00.000Z"),
 	});
-	await db.insert(settings).values({
-		userId: OWNER,
-		blogTitle: "Parm <Writes>",
-		bio: "Essays & notes",
-	});
-	await db.insert(posts).values({
-		userId: OWNER,
-		title: "Hello <world>",
-		slug: "hello",
-		status: "published",
-		seoTitle: "",
-		description: "A greeting & farewell",
-		publishedAt: new Date("2026-09-01T00:00:00.000Z"),
-		createdAt: new Date("2026-01-01T00:00:00.000Z"),
-		updatedAt: new Date("2026-09-02T00:00:00.000Z"),
-	});
 });
 
-describe("buildRssXml", () => {
-	it("escapes markup in titles and descriptions", () => {
-		const xml = buildRssXml({
-			siteTitle: "Parm <Writes>",
-			siteUrl: "https://blog.example",
-			siteDescription: "Essays & notes",
-			items: [
-				{
-					title: "Hello <world>",
-					link: "https://blog.example/posts/hello",
-					description: "A greeting & farewell",
-					publishedAt: new Date("2026-09-01T00:00:00.000Z"),
-				},
-			],
-		});
-
-		expect(xml).toContain("<title>Parm &lt;Writes&gt;</title>");
-		expect(xml).toContain("<title>Hello &lt;world&gt;</title>");
-		expect(xml).toContain("A greeting &amp; farewell");
-		expect(xml).toContain("Essays &amp; notes");
-		expect(xml).not.toContain("<world>");
+function collectionRequest(ip: string): Request {
+	return new Request("https://cms.example/api/posts", {
+		headers: { "cf-connecting-ip": ip },
 	});
+}
 
-	it("renders an empty channel without items", () => {
-		const xml = buildRssXml({
-			siteTitle: "Empty",
-			siteUrl: "https://blog.example",
-			siteDescription: "",
-			items: [],
-		});
-
-		expect(xml).toContain("<channel>");
-		expect(xml).not.toContain("<item>");
-	});
-});
-
-describe("handleRssFeed", () => {
-	it("serves the published posts as RSS when enabled", async () => {
-		const response = await handleRssFeed(
-			new Request("https://cms.example/feed.xml"),
+describe("handleFeedCollection rate limiting", () => {
+	it("serves requests under the limit", async () => {
+		const response = await handleFeedCollection(
+			collectionRequest("1.2.3.4"),
 			db,
 		);
 
 		expect(response.status).toBe(200);
-		expect(response.headers.get("content-type")).toContain(
-			"application/rss+xml",
-		);
-
-		const xml = await response.text();
-		expect(xml).toContain("Hello &lt;world&gt;");
-		expect(xml).toContain("https://cms.example/posts/hello");
 	});
 
-	it("returns 404 when the RSS toggle is off", async () => {
-		await db
-			.update(settings)
-			.set({ rssFeed: false })
-			.where(eq(settings.userId, OWNER));
+	it("answers 429 past the limit without leaking posts", async () => {
+		for (let attempt = 0; attempt < 100; attempt += 1) {
+			await handleFeedCollection(collectionRequest("9.9.9.9"), db);
+		}
 
-		const response = await handleRssFeed(
-			new Request("https://cms.example/rss"),
+		const blocked = await handleFeedCollection(
+			collectionRequest("9.9.9.9"),
 			db,
 		);
 
-		expect(response.status).toBe(404);
+		expect(blocked.status).toBe(429);
+		expect(blocked.headers.get("retry-after")).not.toBeNull();
+
+		const payload = (await blocked.json()) as { posts?: unknown };
+		expect(payload.posts).toBeUndefined();
 	});
 
-	it("answers 429 past the limit without leaking items", async () => {
-		const request = () =>
-			new Request("https://cms.example/rss", {
-				headers: { "cf-connecting-ip": "9.9.9.9" },
-			});
-
-		for (let attempt = 0; attempt < 60; attempt += 1) {
-			await handleRssFeed(request(), db);
+	it("limits identities independently", async () => {
+		for (let attempt = 0; attempt < 100; attempt += 1) {
+			await handleFeedCollection(collectionRequest("9.9.9.9"), db);
 		}
 
-		const blocked = await handleRssFeed(request(), db);
+		const other = await handleFeedCollection(collectionRequest("1.2.3.4"), db);
 
-		expect(blocked.status).toBe(429);
-
-		const xml = await blocked.text();
-		expect(xml).not.toContain("<item>");
+		expect(other.status).toBe(200);
 	});
 });
