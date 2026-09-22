@@ -13,6 +13,12 @@ export const appearanceInputSchema = z.object({
 
 export type AppearanceInput = z.infer<typeof appearanceInputSchema>;
 
+export const feedSettingsInputSchema = z.object({
+	allowedOrigins: z.string().max(4000),
+});
+
+export type FeedSettingsInput = z.infer<typeof feedSettingsInputSchema>;
+
 const ThemeModeSchema = z.enum(["system", "day", "night"]);
 const HexSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 
@@ -91,4 +97,39 @@ export async function upsertAppearance(
 		accentColor: input.accentColor,
 		surfaceTint: input.surfaceTint,
 	};
+}
+
+export async function readFeedSettings(
+	db: Db,
+	userId: string,
+): Promise<FeedSettingsInput> {
+	const row = await db
+		.select({ allowedOrigins: settings.allowedOrigins })
+		.from(settings)
+		.where(eq(settings.userId, userId))
+		.limit(1)
+		.get();
+
+	return { allowedOrigins: row?.allowedOrigins ?? "" };
+}
+
+export async function upsertFeedSettings(
+	db: Db,
+	userId: string,
+	input: FeedSettingsInput,
+): Promise<FeedSettingsInput> {
+	const values = {
+		userId,
+		allowedOrigins: input.allowedOrigins,
+	};
+
+	await db
+		.insert(settings)
+		.values(values)
+		.onConflictDoUpdate({
+			target: settings.userId,
+			set: { allowedOrigins: input.allowedOrigins },
+		});
+
+	return { allowedOrigins: input.allowedOrigins };
 }

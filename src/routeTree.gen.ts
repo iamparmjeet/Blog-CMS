@@ -22,6 +22,8 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ProtectedPostsIndexRouteImport } from './routes/_protected/posts/index'
 import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/posts/$postId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiPostsIndexRouteImport } from './routes/api/posts/index'
+import { Route as ApiPostsSlugRouteImport } from './routes/api/posts/$slug'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -85,6 +87,16 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPostsIndexRoute = ApiPostsIndexRouteImport.update({
+  id: '/api/posts/',
+  path: '/api/posts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostsSlugRoute = ApiPostsSlugRouteImport.update({
+  id: '/api/posts/$slug',
+  path: '/api/posts/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
@@ -96,7 +108,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts/': typeof ProtectedPostsIndexRoute
+  '/api/posts/': typeof ApiPostsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
@@ -107,7 +121,9 @@ export interface FileRoutesByTo {
   '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts': typeof ProtectedPostsIndexRoute
+  '/api/posts': typeof ApiPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,7 +139,9 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_protected/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/_protected/posts/': typeof ProtectedPostsIndexRoute
+  '/api/posts/': typeof ApiPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,7 +155,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/posts/$postId'
     | '/api/auth/$'
+    | '/api/posts/$slug'
     | '/posts/'
+    | '/api/posts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,7 +168,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/posts/$postId'
     | '/api/auth/$'
+    | '/api/posts/$slug'
     | '/posts'
+    | '/api/posts'
   id:
     | '__root__'
     | '/_app'
@@ -163,7 +185,9 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_protected/posts/$postId'
     | '/api/auth/$'
+    | '/api/posts/$slug'
     | '/_protected/posts/'
+    | '/api/posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +195,8 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiPostsSlugRoute: typeof ApiPostsSlugRoute
+  ApiPostsIndexRoute: typeof ApiPostsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -266,6 +292,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/posts/': {
+      id: '/api/posts/'
+      path: '/api/posts'
+      fullPath: '/api/posts/'
+      preLoaderRoute: typeof ApiPostsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/posts/$slug': {
+      id: '/api/posts/$slug'
+      path: '/api/posts/$slug'
+      fullPath: '/api/posts/$slug'
+      preLoaderRoute: typeof ApiPostsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -329,6 +369,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiPostsSlugRoute: ApiPostsSlugRoute,
+  ApiPostsIndexRoute: ApiPostsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

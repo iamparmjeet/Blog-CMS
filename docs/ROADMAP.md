@@ -101,7 +101,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Complete the owner-facing asset library with search, editor insertion, selection flow, deletion policy, optimized thumbnail variants, and placeholders for media in editor content. M3.1 already provides the ready-asset grid and original-object previews.
   - Acceptance: assets can be reused across posts and deleted assets cannot silently leave broken published content.
 
-- [ ] **M3.3: Implement the public JSON feed.**
+- [x] **M3.3: Implement the public JSON feed.**
 	- Depends on: M2.5, M3.1.
   - Add CORS-gated collection and single-post endpoints that expose only published posts and safe asset URLs.
   - Acceptance: allowed origins receive the documented response; disallowed origins and drafts receive no publishable content.
