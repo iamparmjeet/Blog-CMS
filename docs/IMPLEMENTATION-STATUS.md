@@ -41,7 +41,7 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 
 ## Immediate Repair Scope
 
-The T0 baseline repair and M0 through M5 are complete (M4.1 open only for the publishing toggles). Local/remote Studio workflows and application identity are also implemented:
+The T0 baseline repair and M0 through M5 are complete, including the M4.1 publishing-toggles closeout. Local/remote Studio workflows and application identity are also implemented:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts` plus additive milestones through `0004_fuzzy_flatman.sql`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
@@ -55,12 +55,12 @@ The T0 baseline repair and M0 through M5 are complete (M4.1 open only for the pu
 
 ## Current Handoff
 
-`origin/main` is past PR #22 (T5.3 / M5.3, Milestone 5 complete). Each ticket landed as one slice PR from a fresh branch based on current `main`:
+`origin/main` is past PR #23 (T4.1 publishing-toggles closeout); M0–M5 are all checked. Each ticket landed as one slice PR from a fresh branch based on current `main`:
 
 - T5.1 AI generation (`feat/t5.1-ai-generation`, PR #20): streamed OpenRouter drafting from the writing profile with explicit insert; nothing auto-publishes.
 - T5.2 social repurposing (`feat/t5.2-repurpose`, PR #21): read-only per-format variants with explicit copy; source posts never mutated.
 - T5.3 scheduled publishing (`feat/t5.3-scheduling`, PR #22): timezone-aware schedule UI plus the 5-minute cron promoter via the custom `src/server.ts` entry.
-- M4.1 remains open only for the publishing toggles (`seoMeta`, `rssFeed`, `readingTime`), which have no consumers; model/writing profile are consumed by T5.1. Next candidate: close M4.1 (wire-or-defer decision on the toggles), then M6 only if D8 is revisited.
+- M4.1 closeout (`feat/t4.1-publishing-toggles`, PR #23): toggles validate, persist, and drive the feed — `seoMeta` gates SEO fields, `readingTime` adds minutes, `rssFeed` gates `/rss`. M4.1 is checked.
 - Standing follow-ups: register the preview origin as an OAuth callback URL at GitHub/Google, then one browser sign-in to claim the instance; verify one live cron promotion on the next deploy.
 
 ## Local Worker State
