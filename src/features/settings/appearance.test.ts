@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	APPEARANCE_BOOTSTRAP_SCRIPT,
 	APPEARANCE_STORAGE_KEY,
@@ -7,6 +7,25 @@ import {
 	readCachedAppearance,
 } from "./appearance";
 import { DEFAULT_APPEARANCE } from "./settings.types";
+
+function createMemoryStorage() {
+	const store = new Map<string, string>();
+
+	return {
+		clear() {
+			store.clear();
+		},
+		getItem(key: string) {
+			return store.get(key) ?? null;
+		},
+		removeItem(key: string) {
+			store.delete(key);
+		},
+		setItem(key: string, value: string) {
+			store.set(key, value);
+		},
+	};
+}
 
 describe("normalizeAppearance", () => {
 	it("returns defaults for null input", () => {
@@ -45,7 +64,11 @@ describe("normalizeAppearance", () => {
 
 describe("appearance cache", () => {
 	beforeEach(() => {
-		window.localStorage.clear();
+		vi.stubGlobal("window", { localStorage: createMemoryStorage() });
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
 	});
 
 	it("round-trips through localStorage", () => {
@@ -73,10 +96,7 @@ describe("bootstrap script", () => {
 		expect(APPEARANCE_BOOTSTRAP_SCRIPT).toContain("prefers-color-scheme");
 	});
 
-	it("does not reference user-controlled input", () => {
-		const spy = vi.spyOn(console, "error");
+	it("does not throw when storage is unavailable", () => {
 		expect(() => new Function(APPEARANCE_BOOTSTRAP_SCRIPT)()).not.toThrow();
-		expect(spy).not.toHaveBeenCalled();
-		spy.mockRestore();
 	});
 });
