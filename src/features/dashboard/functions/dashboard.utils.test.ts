@@ -217,10 +217,32 @@ function createActivity(days: number[]): WritingActivityHeatmap {
 }
 
 describe("getGreeting", () => {
-	it("maps the hour of day to a greeting", () => {
-		expect(getGreeting(new Date(2026, 8, 20, 8))).toBe("Good morning");
-		expect(getGreeting(new Date(2026, 8, 20, 14))).toBe("Good afternoon");
-		expect(getGreeting(new Date(2026, 8, 20, 20))).toBe("Good evening");
+	it("maps the UTC hour of day to a greeting by default", () => {
+		expect(getGreeting(new Date("2026-09-20T08:00:00.000Z"))).toBe(
+			"Good morning",
+		);
+		expect(getGreeting(new Date("2026-09-20T14:00:00.000Z"))).toBe(
+			"Good afternoon",
+		);
+		expect(getGreeting(new Date("2026-09-20T20:00:00.000Z"))).toBe(
+			"Good evening",
+		);
+	});
+
+	it("uses the owner time zone for the greeting boundary", () => {
+		const instant = new Date("2026-09-20T02:30:00.000Z");
+
+		expect(getGreeting(instant, "UTC")).toBe("Good morning");
+		expect(getGreeting(instant, "Asia/Kolkata")).toBe("Good morning");
+		expect(getGreeting(instant, "America/New_York")).toBe("Good evening");
+	});
+
+	it("shifts the afternoon boundary across time zones", () => {
+		const instant = new Date("2026-09-20T17:30:00.000Z");
+
+		expect(getGreeting(instant, "UTC")).toBe("Good afternoon");
+		expect(getGreeting(instant, "Asia/Kolkata")).toBe("Good evening");
+		expect(getGreeting(instant, "America/Los_Angeles")).toBe("Good morning");
 	});
 });
 

@@ -71,8 +71,13 @@ export function normalizeAccentColor(
 	return result.success ? result.data : DEFAULT_ACCENT_COLOR;
 }
 
-export function getGreeting(date: Date): string {
-	const hours = date.getHours();
+export function getGreeting(date: Date, timeZone = "UTC"): string {
+	const hourText = new Intl.DateTimeFormat("en-US", {
+		hour: "numeric",
+		hourCycle: "h23",
+		timeZone,
+	}).format(date);
+	const hours = Number(hourText);
 
 	if (hours < 12) {
 		return "Good morning";

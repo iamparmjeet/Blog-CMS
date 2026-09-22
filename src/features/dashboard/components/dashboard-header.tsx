@@ -3,16 +3,21 @@ import { getGreeting } from "../functions/dashboard.utils";
 
 interface DashboardHeaderProps {
 	firstName: string;
+	timeZone: string;
 }
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-	day: "numeric",
-	month: "long",
-	weekday: "long",
-});
+function createDateFormatter(timeZone: string): Intl.DateTimeFormat {
+	return new Intl.DateTimeFormat("en-US", {
+		day: "numeric",
+		month: "long",
+		timeZone,
+		weekday: "long",
+	});
+}
 
-export function DashboardHeader({ firstName }: DashboardHeaderProps) {
+export function DashboardHeader({ firstName, timeZone }: DashboardHeaderProps) {
 	const now = new Date();
+	const dateFormatter = createDateFormatter(timeZone);
 
 	return (
 		<header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -21,7 +26,7 @@ export function DashboardHeader({ firstName }: DashboardHeaderProps) {
 					Your writing desk
 				</p>
 				<h1 className="font-semibold text-[28px] text-text-primary leading-tight tracking-[-0.035em] sm:text-[32px]">
-					{getGreeting(now)}, {firstName}
+					{getGreeting(now, timeZone)}, {firstName}
 				</h1>
 				<p className="mt-2 text-[13px] text-text-soft">
 					{dateFormatter.format(now)}
