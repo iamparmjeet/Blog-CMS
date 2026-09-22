@@ -1,5 +1,16 @@
 # AGENTS.md
 
+Testing policy:
+
+- Default to E2E: drive the real system through its public surface to verify complex behavior.
+- Make the E2E test deterministic and runnable — after it passes, it must emit a repeatable
+  artifact (a committed script/command and its output at `<path>`).
+- Choose a medium-to-hard scenario, not the easiest passing path; cover at least one
+  realistic failure/edge case.
+- No unit tests after the code exists. Isolation-level tests are allowed only test-first:
+  enumerate the failure modes first, then write tests, then code.
+- Regression tests for a reported bug are an explicit exception and may be written after the fact.
+
 ContentOS is a single-owner blog CMS — owner writes/publishes posts served via a CORS-gated public feed on Cloudflare Workers (TanStack Start + Drizzle + better-auth).
 
 - Package manager is `bun`. Do not suggest `npm`/`pnpm` commands.
