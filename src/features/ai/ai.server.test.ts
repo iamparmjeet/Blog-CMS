@@ -5,7 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Db } from "#/db";
 import { user } from "#/db/auth-schema";
 import { posts, settings } from "#/db/schema";
-import { AiError, generateDraftStream } from "./ai.server";
+import {
+	AiError,
+	generateDraftStream,
+	handleGenerateRequest,
+} from "./ai.server";
 
 const OWNER = "owner-1";
 const OTHER = "someone-else";
@@ -120,6 +124,11 @@ function createThrowawayDb(): Db {
 			CONSTRAINT "posts_status_valid"
 			CHECK("status" in ('draft', 'published', 'scheduled', 'archived')),
 			CONSTRAINT "posts_user_id_slug_unique" UNIQUE("user_id", "slug")
+		);
+		CREATE TABLE rate_limits (
+			key TEXT PRIMARY KEY NOT NULL,
+			window_start INTEGER NOT NULL,
+			count INTEGER NOT NULL
 		);
 	`);
 
@@ -303,5 +312,53 @@ describe("generateDraftStream", () => {
 			),
 		).rejects.toThrow();
 		expect(await readDraft()).toMatchObject({ body: null, status: "draft" });
+	});
+});
+
+describe("handleGenerateRequest rate limiting", () => {
+	it("answers 429 past the budget without calling the provider", async () => {
+		const fetchImpl = vi.fn(
+			async (_url: string | URL | Request, _init?: RequestInit) => {
+				return new Response(sseBody(["Hi"]), {
+					status: 200,
+					headers: { "content-type": "text/event-stream" },
+				});
+			},
+		);
+
+		const request = () =>
+			new Request("https://cms.example/api/ai/generate", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ prompt: "Draft an intro." }),
+			});
+
+		for (let attempt = 0; attempt < 10; attempt += 1) {
+			const response = await handleGenerateRequest(request(), {
+				db,
+				userId: OWNER,
+				apiKey: "test-key",
+				baseUrl: "https://stub.test/v1",
+				fetchImpl,
+			});
+			expect(response.status).toBe(200);
+			await response.text();
+		}
+
+		const blocked = await handleGenerateRequest(request(), {
+			db,
+			userId: OWNER,
+			apiKey: "test-key",
+			baseUrl: "https://stub.test/v1",
+			fetchImpl,
+		});
+
+		expect(blocked.status).toBe(429);
+		expect(fetchImpl).toHaveBeenCalledTimes(10);
+
+		const payload = (await blocked.json()) as {
+			error?: { code?: string };
+		};
+		expect(payload.error?.code).toBe("rate_limited");
 	});
 });

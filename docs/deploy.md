@@ -162,3 +162,4 @@ points at the intended account first.
 | `duplicate column` during migrate | Migration already applied; `bun run db:migrate:remote` is idempotent — check `d1 migrations list`. |
 | Placeholder `database_id` | Run `d1 create`/`d1 list`, paste the real UUID into `wrangler.jsonc`. |
 | Media upload 5xx on deploy | Set `R2_*` secrets and confirm the bucket name matches `wrangler.jsonc`. |
+| 429 from feed/RSS/AI routes | Fixed-window budgets (feed 100/min/IP, RSS 60/min/IP, AI 10/min/user); back off for the `Retry-After` delay. |

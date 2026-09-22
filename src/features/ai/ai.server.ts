@@ -5,9 +5,21 @@ import {
 	extractPlainText,
 	parseStoredPostBody,
 } from "#/features/posts/functions/post-body";
+import {
+	enforceRateLimit,
+	RATE_LIMITS,
+} from "#/features/rate-limit/rate-limit.query";
 import { readOwnerProfile } from "#/features/settings/functions/settings.query";
-import { buildChatMessages, resolveModel } from "./ai-prompts";
-import { buildRepurposeMessages, type RepurposePlatform } from "./ai-repurpose";
+import {
+	buildChatMessages,
+	generateInputSchema,
+	resolveModel,
+} from "./ai-prompts";
+import {
+	buildRepurposeMessages,
+	type RepurposePlatform,
+	repurposeInputSchema,
+} from "./ai-repurpose";
 import { createSseParser, mapProviderError } from "./ai-stream";
 
 export const OPENROUTER_DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
@@ -287,4 +299,157 @@ export async function repurposePostStream(
 		fetchImpl: deps.fetchImpl,
 		signal: input.signal,
 	});
+}
+
+export function aiErrorResponse(
+	code: string,
+	message: string,
+	status: number,
+): Response {
+	return new Response(JSON.stringify({ error: { code, message } }), {
+		status,
+		headers: {
+			"content-type": "application/json",
+			"cache-control": "no-store",
+		},
+	});
+}
+
+async function parseJsonBody(request: Request): Promise<
+	| {
+			ok: true;
+			body: unknown;
+	  }
+	| { ok: false; response: Response }
+> {
+	try {
+		return { ok: true, body: await request.json() };
+	} catch {
+		return {
+			ok: false,
+			response: aiErrorResponse(
+				"invalid_request",
+				"The request body must be JSON.",
+				400,
+			),
+		};
+	}
+}
+
+function mapAiFailure(error: unknown): Response {
+	if (error instanceof AiError) {
+		return aiErrorResponse(error.code, error.message, error.status);
+	}
+
+	if (error instanceof Error && error.message === "Post not found") {
+		return aiErrorResponse("not_found", "Post not found.", 404);
+	}
+
+	throw error;
+}
+
+export interface AiRequestDeps {
+	db: Db;
+	userId: string;
+	apiKey?: string | null;
+	baseUrl?: string;
+	fetchImpl?: typeof fetch;
+}
+
+export async function handleGenerateRequest(
+	request: Request,
+	deps: AiRequestDeps,
+): Promise<Response> {
+	const parsed = await parseJsonBody(request);
+
+	if (!parsed.ok) {
+		return parsed.response;
+	}
+
+	const input = generateInputSchema.safeParse(parsed.body);
+
+	if (!input.success) {
+		return aiErrorResponse(
+			"invalid_request",
+			"Provide a prompt of 1–4000 characters.",
+			400,
+		);
+	}
+
+	const limited = await enforceRateLimit(deps.db, request, {
+		...RATE_LIMITS.aiGenerate,
+		identity: deps.userId,
+	});
+
+	if (limited) {
+		return limited;
+	}
+
+	try {
+		return await generateDraftStream(
+			{
+				userId: deps.userId,
+				postId: input.data.postId,
+				prompt: input.data.prompt,
+				model: input.data.model,
+			},
+			{
+				db: deps.db,
+				apiKey: deps.apiKey,
+				baseUrl: deps.baseUrl,
+				fetchImpl: deps.fetchImpl,
+			},
+		);
+	} catch (error) {
+		return mapAiFailure(error);
+	}
+}
+
+export async function handleRepurposeRequest(
+	request: Request,
+	deps: AiRequestDeps,
+): Promise<Response> {
+	const parsed = await parseJsonBody(request);
+
+	if (!parsed.ok) {
+		return parsed.response;
+	}
+
+	const input = repurposeInputSchema.safeParse(parsed.body);
+
+	if (!input.success) {
+		return aiErrorResponse(
+			"invalid_request",
+			"Provide a postId and one of twitter, linkedin, instagram, reels.",
+			400,
+		);
+	}
+
+	const limited = await enforceRateLimit(deps.db, request, {
+		...RATE_LIMITS.aiRepurpose,
+		identity: deps.userId,
+	});
+
+	if (limited) {
+		return limited;
+	}
+
+	try {
+		return await repurposePostStream(
+			{
+				userId: deps.userId,
+				postId: input.data.postId,
+				platform: input.data.platform,
+				model: input.data.model,
+			},
+			{
+				db: deps.db,
+				apiKey: deps.apiKey,
+				baseUrl: deps.baseUrl,
+				fetchImpl: deps.fetchImpl,
+			},
+		);
+	} catch (error) {
+		return mapAiFailure(error);
+	}
 }

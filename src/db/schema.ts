@@ -151,3 +151,10 @@ export const writingActivity = sqliteTable(
 		),
 	],
 );
+
+export const rateLimits = sqliteTable("rate_limits", {
+	// Fixed-window bucket key, e.g. "feed-collection:1.2.3.4".
+	key: text("key").primaryKey(),
+	windowStart: integer("window_start").notNull(),
+	count: integer("count").notNull().default(1),
+});

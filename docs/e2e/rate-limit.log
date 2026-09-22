@@ -1,0 +1,15 @@
+PASS: fourth hit in window blocked
+PASS: retry guidance spans the window
+PASS: next window allows again
+PASS: keys tracked independently
+PASS: feed 101st hit answers 429
+PASS: feed 429 carries retry-after
+PASS: feed 429 leaks no posts
+PASS: feed limits identities independently
+PASS: rss 61st hit answers 429
+PASS: rss 429 leaks no items
+PASS: ai 11th hit answers 429
+PASS: ai 429 never reaches the provider
+PASS: empty prompt rejected with 400
+
+E2E complete. All green.
