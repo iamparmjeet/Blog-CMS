@@ -25,6 +25,8 @@ export interface PostEditorData {
 	seoTitle: string;
 	description: string;
 	body: PostBodyDocument;
+	scheduledAt: string | null;
+	timeZone: string;
 	wordCount: number;
 	updatedAt: string;
 }
@@ -37,6 +39,7 @@ export interface PostEditorRow {
 	seoTitle: string;
 	description: string;
 	body: string | null;
+	scheduledAt: Date | null;
 	wordCount: number;
 	updatedAt: Date;
 }

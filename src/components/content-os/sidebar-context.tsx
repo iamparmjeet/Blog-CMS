@@ -1,9 +1,14 @@
 import { createContext, useContext, useState } from "react";
+import type { PostStatus } from "#/features/posts/functions/posts.types";
 
 export interface SidebarPostContext {
 	isPublished: boolean;
 	onPublishChange?: (next: boolean) => void;
+	postId: number;
+	scheduledAt: string | null;
 	slug: string;
+	status: PostStatus;
+	timeZone: string;
 	title: string;
 	updatedAt: string;
 	wordCount: number;

@@ -1,0 +1,14 @@
+PASS: schedule stores the timezone-correct instant
+PASS: schedule flips status to scheduled
+PASS: promoter publishes the due post
+PASS: promoted row is published with the promotion instant
+PASS: second promotion run changes nothing
+PASS: publishedAt stays stable across runs
+PASS: past instant rejected
+PASS: draft unchanged after rejected schedule
+PASS: unschedule clears back to draft
+PASS: wrangler uses the custom worker entry
+PASS: wrangler declares a cron trigger
+PASS: worker entry runs the promoter on schedule
+
+E2E complete. All green.

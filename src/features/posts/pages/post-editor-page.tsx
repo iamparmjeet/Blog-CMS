@@ -122,14 +122,28 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 		setSidebarPost({
 			isPublished,
 			onPublishChange: handleSidebarPublishChange,
+			postId: post.id,
+			scheduledAt: post.scheduledAt,
 			slug: metadata.slug,
+			status: resolveSidebarStatus(isPublished, post.status),
+			timeZone: post.timeZone,
 			title: metadata.title,
 			updatedAt: "just now",
 			wordCount,
 		});
 
 		return () => setSidebarPost(null);
-	}, [isPublished, metadata.slug, metadata.title, setSidebarPost, wordCount]);
+	}, [
+		isPublished,
+		metadata.slug,
+		metadata.title,
+		post.id,
+		post.scheduledAt,
+		post.status,
+		post.timeZone,
+		setSidebarPost,
+		wordCount,
+	]);
 
 	const saveLatestBody = useEffectEvent(async () => {
 		if (isSavingRef.current) {
@@ -1300,6 +1314,21 @@ function getSaveStatusLabel(
 		return "Unsaved changes";
 	}
 	return "Saved";
+}
+
+function resolveSidebarStatus(
+	isPublished: boolean,
+	status: PostEditorData["status"],
+): PostEditorData["status"] {
+	if (isPublished) {
+		return "published";
+	}
+
+	if (status === "scheduled" || status === "archived") {
+		return status;
+	}
+
+	return "draft";
 }
 
 function isSameMetadata(left: PostMetadata, right: PostMetadata): boolean {
