@@ -6,7 +6,7 @@ This baseline is based on the current tracked source, README commitments, and lo
 
 ## Summary
 
-ContentOS now supports the core owner post workflow, direct managed-media uploads, and the first settings-backed appearance slice (schema, owner-scoped server functions, and a client appearance module). Public delivery, deployment verification, the settings UI wiring, analytics, AI assistance, scheduling, and optional community features remain incomplete.
+ContentOS now supports the core owner post workflow, direct managed-media uploads, and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Public delivery, deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
 
 | Area | Status | Current state |
 | --- | --- | --- |
@@ -17,7 +17,7 @@ ContentOS now supports the core owner post workflow, direct managed-media upload
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
 | Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
-| Page UI shells | In progress | Dashboard and Posts use real data. `/media` now uploads to R2 and lists ready owner assets with image/video previews; `/analytics` and `/settings` remain reference layouts over clearly-labelled sample data until M4.3 and M4.1. |
+| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets; `/settings` Appearance is fully wired (theme, accent, card surfaces); `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
 | Media | Partial (M3.1 complete) | The owner can upload validated images and videos directly to R2 through five-minute presigned URLs. Pending D1 metadata becomes ready only after R2 size/type verification, ready assets survive refreshes and render in the media grid, and immutable object URLs receive long-lived cache metadata. Search, editor insertion, deletion policy, and optimized thumbnail variants remain M3.2. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Partial (M4.1 in progress) | The `settings` table stores `themeMode` (default `night`) and `surfaceTint`; appearance is loaded on protected routes, applied live from the settings UI, and persisted through owner-scoped server functions. The Appearance tab offers explicit Plain and Tinted card surfaces, while the broader form still has unconnected storage fields (bucket/bucketName mismatch, omitted timeZone). |
@@ -54,12 +54,12 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remot
 
 ## Current Handoff
 
-The merged product baseline is `5c730f7`, where PR #12 squash-merged M3.1. Continue each next concern from a separate fresh branch based on current `main`:
+The merged product baseline advances with PR #13, which squash-merges the M4.1 appearance slice on top of `5c730f7` (PR #12 / M3.1). Continue each next concern from a separate fresh branch based on current `main`:
 
-- The appearance/settings slice (M4.1 partial) is committed on `fix/dashboard-visual-refresh` as `f321fa5` plus follow-up test/fix commits: schema columns, migration `0003_acoustic_karnak.sql`, the appearance module and owner-scoped server functions, root no-flash bootstrap, protected-route appearance load, tabbed settings controls, explicit plain/tinted card surfaces, flat-surface CSS tokens, and dashboard/editor/login token swaps. Analytics uses the same `--brand` token instead of a hardcoded violet. The broad settings form (blog identity, timezone, storage fields) remains unwired, so M4.1 stays open.
+- The appearance/settings slice (M4.1 partial) landed via PR #13: schema columns, migration `0003_acoustic_karnak.sql`, the appearance module and owner-scoped server functions, root no-flash bootstrap, protected-route appearance load, tabbed settings controls, explicit plain/tinted card surfaces, flat-surface CSS tokens, and dashboard/editor/login token swaps. Analytics uses the same `--brand` token instead of a hardcoded violet. The broad settings form (blog identity, timezone, storage fields) remains unwired, so M4.1 stays open.
 - The next unstarted product slice is M3.2: media search, editor insertion and reuse, safe deletion, and generated image/video thumbnail variants.
 - M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
-- Keep each independent concern (appearance/settings, frontend repair, M3.2, M1.3) on its own fresh branch. Do not absorb M3.2 scope into the appearance branch.
+- Keep each independent concern (frontend repair, M3.2, M1.3, M4.1 remainder) on its own fresh branch.
 
 ## Local Worker State
 
@@ -70,7 +70,7 @@ The merged product baseline is `5c730f7`, where PR #12 squash-merged M3.1. Conti
 
 ## Settings & Appearance Pass (2026-09-22)
 
-Branch `fix/dashboard-visual-refresh` completes the M4.1 appearance slice wiring.
+PR #13 (`fix/dashboard-visual-refresh`) completes the M4.1 appearance slice wiring:
 
 - `src/db/schema.ts` adds `themeMode` (`text`, not null, default `night`) and nullable `surfaceTint` to `settings`. Migration `src/db/drizzle/0003_acoustic_karnak.sql` applies `ALTER TABLE settings ADD theme_mode ...` and `ADD surface_tint ...`; it was generated with `bun run db:generate` and applied locally with `bun run db:migrate` (3 commands executed successfully).
 - `src/features/settings/settings.types.ts` extends `SettingsForm`/`DEFAULT_SETTINGS` and adds `ThemeMode` (`system | day | night`), `AppearanceSettings`, and `DEFAULT_APPEARANCE` (`night`, `#7c3aed`, empty tint).
