@@ -40,7 +40,7 @@ Required for a working authenticated deploy:
 | Secret | Purpose |
 | --- | --- |
 | `BETTER_AUTH_SECRET` | Session signing secret (long random string) |
-| `BETTER_AUTH_URL` | Public base URL of the deployment, e.g. `https://blog-cms.example.workers.dev` |
+| `BETTER_AUTH_URL` | Canonical public origin, e.g. `https://contentos.example.com` (login only works on this origin) |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth |
 
@@ -68,12 +68,18 @@ straight into Cloudflare (nothing is printed or committed):
 ```bash
 set -a; . /path/to/.env.local; set +a
 printf '%s' "$BETTER_AUTH_SECRET" | bunx wrangler secret put BETTER_AUTH_SECRET
-printf '%s' "https://<your-worker>.workers.dev" | bunx wrangler secret put BETTER_AUTH_URL
+printf '%s' "https://<your-canonical-domain>" | bunx wrangler secret put BETTER_AUTH_URL
 # …repeat for GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 ```
 
-`BETTER_AUTH_URL` must be the deployment origin (not `localhost`) or login
-redirects will point at the wrong host.
+`BETTER_AUTH_URL` must be the canonical origin (not `localhost`) or login
+redirects will point at the wrong host. better-auth trusts exactly one
+origin, so sign in only on that domain: the `workers.dev` URL stays up but
+rejects logins once the secret points at the custom domain. Register the
+callback URL at each provider for every origin you sign in from —
+`https://<origin>/api/auth/callback/github` (GitHub allows one callback URL
+per OAuth app, so the canonical domain needs its own) and the same path for
+`.../google` (Google allows several redirect URIs on one client).
 
 ## Environment / binding validation
 
@@ -113,9 +119,10 @@ bunx wrangler d1 migrations list blog-cms --remote
 
 ## Preview deployment
 
-Preview is a Workers deploy of the current branch build to the
-`workers.dev` URL (no separate `preview` env is configured in
-`wrangler.jsonc`, so preview and production share the same deploy path):
+Preview is a Workers deploy of the current branch build (no separate
+`preview` env is configured in `wrangler.jsonc`, so preview and production
+share the same deploy path). The custom domain serves canonical traffic;
+the `workers.dev` URL keeps working for non-auth smoke checks:
 
 ```bash
 bun run deploy:preview
