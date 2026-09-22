@@ -134,7 +134,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Add streamed generation using the selected model and writing profile, with cancellation, error states, and explicit owner approval before persistence.
   - Acceptance: generated text is never published automatically and provider failures leave the draft intact.
 
-- [ ] **M5.2: Implement social repurposing.**
+- [x] **M5.2: Implement social repurposing.**
   - Depends on: M5.1.
   - Generate owner-reviewable variants for the supported social formats from an existing post.
   - Acceptance: each variant is visibly labeled by target format and can be copied without changing the source post.
