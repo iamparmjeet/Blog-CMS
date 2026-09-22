@@ -43,6 +43,11 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 		}
 	}
 
+	function removeItem(mediaId: number) {
+		setItems((current) => current.filter((item) => item.id !== mediaId));
+		setSelectedId((current) => (current === mediaId ? null : current));
+	}
+
 	async function uploadFile(file: File) {
 		let pendingMediaId: number | null = null;
 
@@ -188,6 +193,7 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 					<MediaDetail
 						color={getMediaItemColor(items, selectedItem)}
 						item={selectedItem}
+						onDeleted={removeItem}
 					/>
 				) : null}
 			</div>
