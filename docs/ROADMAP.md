@@ -129,7 +129,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Add optional writing assistance without compromising ownership or published content.
 
-- [ ] **M5.1: Implement AI post generation.**
+- [x] **M5.1: Implement AI post generation.**
 	- Depends on: M2.3, M4.1.
   - Add streamed generation using the selected model and writing profile, with cancellation, error states, and explicit owner approval before persistence.
   - Acceptance: generated text is never published automatically and provider failures leave the draft intact.

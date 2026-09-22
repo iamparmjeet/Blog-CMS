@@ -21,6 +21,7 @@ import { Route as ProtectedSettingsRouteImport } from './routes/_protected/setti
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ProtectedPostsIndexRouteImport } from './routes/_protected/posts/index'
 import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/posts/$postId'
+import { Route as ApiAiGenerateRouteImport } from './routes/api/ai/generate'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiPostsIndexRouteImport } from './routes/api/posts/index'
 import { Route as ApiPostsSlugRouteImport } from './routes/api/posts/$slug'
@@ -82,6 +83,11 @@ const ProtectedPostsPostIdRoute = ProtectedPostsPostIdRouteImport.update({
   path: '/$postId',
   getParentRoute: () => ProtectedPostsRoute,
 } as any)
+const ApiAiGenerateRoute = ApiAiGenerateRouteImport.update({
+  id: '/api/ai/generate',
+  path: '/api/ai/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/posts': typeof ProtectedPostsRouteWithChildren
   '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts/': typeof ProtectedPostsIndexRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/media': typeof ProtectedMediaRoute
   '/settings': typeof ProtectedSettingsRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts': typeof ProtectedPostsIndexRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/_protected/settings': typeof ProtectedSettingsRoute
   '/_public/': typeof PublicIndexRoute
   '/_protected/posts/$postId': typeof ProtectedPostsPostIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/_protected/posts/': typeof ProtectedPostsIndexRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/posts'
     | '/settings'
     | '/posts/$postId'
+    | '/api/ai/generate'
     | '/api/auth/$'
     | '/api/posts/$slug'
     | '/posts/'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/settings'
     | '/posts/$postId'
+    | '/api/ai/generate'
     | '/api/auth/$'
     | '/api/posts/$slug'
     | '/posts'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_protected/settings'
     | '/_public/'
     | '/_protected/posts/$postId'
+    | '/api/ai/generate'
     | '/api/auth/$'
     | '/api/posts/$slug'
     | '/_protected/posts/'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
+  ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiPostsSlugRoute: typeof ApiPostsSlugRoute
   ApiPostsIndexRoute: typeof ApiPostsIndexRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedPostsPostIdRouteImport
       parentRoute: typeof ProtectedPostsRoute
     }
+    '/api/ai/generate': {
+      id: '/api/ai/generate'
+      path: '/api/ai/generate'
+      fullPath: '/api/ai/generate'
+      preLoaderRoute: typeof ApiAiGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -368,6 +388,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
+  ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiPostsSlugRoute: ApiPostsSlugRoute,
   ApiPostsIndexRoute: ApiPostsIndexRoute,
