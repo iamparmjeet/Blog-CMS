@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { Db } from "#/db";
 import { posts, settings } from "#/db/schema";
 import { resolveTimeZone } from "#/features/dashboard/writing-activity/writing.utils";
+import { DEFAULT_SETTINGS } from "#/features/settings/settings.types";
 import { postMetadataSchema } from "./post-metadata";
 import { zonedDateTimeToUtc } from "./schedule-time";
 
@@ -98,7 +99,7 @@ export async function savePostSchedule(
 
 	const scheduledAt = zonedDateTimeToUtc(
 		dateTimeLocal,
-		resolveTimeZone(preference?.timeZone),
+		resolveTimeZone(preference?.timeZone ?? DEFAULT_SETTINGS.timeZone),
 	);
 
 	if (scheduledAt.getTime() <= now.getTime()) {
