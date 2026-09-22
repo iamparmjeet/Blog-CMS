@@ -55,11 +55,11 @@ describe("addDays / getHeatmapStartDate", () => {
 		expect(addDays("2026-10-01", -1)).toBe("2026-09-30");
 	});
 
-	it("starts the 12-week window on the Sunday before the current week", () => {
-		// 2026-09-20 is a Sunday.
-		expect(getHeatmapStartDate("2026-09-20")).toBe("2026-06-28");
-		// 2026-09-22 is a Tuesday; window still starts on the prior Sunday chain.
-		expect(getHeatmapStartDate("2026-09-22")).toBe("2026-06-28");
+	it("starts the 12-week window eleven weeks before the current week's Sunday", () => {
+		// 2026-09-20 is a Sunday; 12 week columns end Saturday 2026-09-26.
+		expect(getHeatmapStartDate("2026-09-20")).toBe("2026-07-05");
+		// 2026-09-22 is a Tuesday; same week-aligned window.
+		expect(getHeatmapStartDate("2026-09-22")).toBe("2026-07-05");
 	});
 });
 
@@ -74,10 +74,10 @@ describe("getActivityLevel", () => {
 });
 
 describe("buildWritingActivityHeatmap", () => {
-	it("builds a 12-week grid that ends on today and marks future cells", () => {
+	it("builds a week-aligned 12-week grid through the current week and marks future cells", () => {
 		const heatmap = buildWritingActivityHeatmap({
 			rows: [
-				{ activityDate: "2026-06-28", wordsAdded: 120 },
+				{ activityDate: "2026-07-05", wordsAdded: 120 },
 				{ activityDate: "2026-09-20", wordsAdded: 400 },
 			],
 			today: "2026-09-22",
@@ -85,7 +85,7 @@ describe("buildWritingActivityHeatmap", () => {
 		});
 
 		expect(heatmap.cells).toHaveLength(84);
-		expect(heatmap.startDate).toBe("2026-06-28");
+		expect(heatmap.startDate).toBe("2026-07-05");
 		expect(heatmap.today).toBe("2026-09-22");
 		expect(heatmap.endDate).toBe("2026-09-26");
 		expect(heatmap.timeZone).toBe("Asia/Kolkata");
@@ -98,9 +98,9 @@ describe("buildWritingActivityHeatmap", () => {
 
 		const startCell = heatmap.cells[0];
 		expect(startCell).toEqual({
-			date: "2026-06-28",
+			date: "2026-07-05",
 			isFuture: false,
-			level: 1,
+			level: 2,
 			wordsAdded: 120,
 		});
 

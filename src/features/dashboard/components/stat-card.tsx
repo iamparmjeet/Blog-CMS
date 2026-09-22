@@ -5,7 +5,7 @@ interface StatCardProps {
 	accentColor: string;
 	detail: string;
 	label: string;
-	search?: { tab: string };
+	search?: { tab: "all" | "published" | "drafts" | "deleted" };
 	value: string;
 }
 
