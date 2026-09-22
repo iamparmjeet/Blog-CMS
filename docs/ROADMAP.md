@@ -47,7 +47,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Make authentication, posts, settings, media metadata, and writing activity use the selected database in local and Worker environments.
   - Acceptance: migrations apply from an empty database and a Worker preview can read/write each core model.
 
-- [ ] **M1.3: Establish deployment verification.**
+- [x] **M1.3: Establish deployment verification.**
   - Depends on: M1.2.
   - Add documented preview and production deployment commands with environment/binding validation.
   - Remote D1 setup: authenticate with `bunx wrangler login` (with `CLOUDFLARE_API_TOKEN` unset), create `blog-cms` with `bunx wrangler d1 create blog-cms`, replace the placeholder `database_id` in `wrangler.jsonc`, then run `bun run db:migrate:remote` and verify with `bunx wrangler d1 info blog-cms`.

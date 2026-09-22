@@ -110,7 +110,8 @@ The API token requires D1 Read and D1 Write permissions for the database.
 ### Provision Remote D1
 
 Local D1 state is not automatically created in Cloudflare or synchronized with a
-remote database. Provision the remote database before deploying:
+remote database. Provision the remote database before deploying (full flow in
+[docs/deploy.md](./docs/deploy.md)):
 
 ```bash
 # An API token (including an empty placeholder) prevents OAuth login.
@@ -131,6 +132,7 @@ schema:
 ```bash
 bun run db:migrate:remote
 bunx wrangler d1 info blog-cms
+bun run deploy:check
 ```
 
 Common D1 inspection commands:
@@ -158,7 +160,13 @@ bunx wrangler d1 execute blog-cms --remote --command 'SELECT name FROM sqlite_ma
 | `bun run db:studio:remote` | Open Drizzle Studio for remote D1 using Cloudflare API credentials |
 | `bunx wrangler d1 list` | List D1 databases in the authenticated Cloudflare account |
 | `bunx wrangler d1 info blog-cms` | Inspect the remote `blog-cms` database |
-| `bun run deploy` | `bun run build && wrangler deploy` |
+| `bun run deploy:check` | Validate D1/R2 bindings and placeholder database id |
+| `bun run deploy:preview` | Build and deploy a preview Worker (same as `deploy`) |
+| `bun run deploy` | `bun run build && wrangler deploy` (production) |
+
+See [docs/deploy.md](./docs/deploy.md) for the full preview vs production flow,
+required secrets (`BETTER_AUTH_*`, OAuth, optional `R2_*` / `UMAMI_*`), and the
+post-deploy smoke checklist.
 
 ## Usage
 
@@ -186,7 +194,7 @@ src/
 
 These are tracked and not yet implemented:
 
-- **Deployment DB** — local development and the Worker runtime use Cloudflare D1 through the `DB` binding. The committed database ID is a placeholder until provisioning (T1.4).
+- **Deployment DB** — local development and the Worker runtime use Cloudflare D1 through the `DB` binding. Remote provisioning and the preview/production flow are documented in [docs/deploy.md](./docs/deploy.md) (M1.3); run `bun run deploy:check` before deploying.
 - **Comments** — no comments table or UI yet.
 - **Scheduling** — `PostStatus` includes `"scheduled"` but no scheduler exists.
 
