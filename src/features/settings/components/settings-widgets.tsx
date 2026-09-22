@@ -1,5 +1,5 @@
 import { IconCheck } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AccentSwitch, SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
@@ -124,6 +124,8 @@ export function ThemeModeControl({
 	);
 }
 
+const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+
 export function SurfaceTintPicker({
 	onChange,
 	value,
@@ -131,6 +133,14 @@ export function SurfaceTintPicker({
 	onChange: (value: string) => void;
 	value: string;
 }) {
+	// Local draft lets the hex field accept partial input (e.g. "#f43");
+	// only complete values propagate, and blur snaps back to the last one.
+	const [draft, setDraft] = useState(value);
+
+	useEffect(() => {
+		setDraft(value);
+	}, [value]);
+
 	return (
 		<div className="flex flex-col gap-1.5">
 			<span className="font-medium text-text-secondary text-xs">
@@ -149,14 +159,20 @@ export function SurfaceTintPicker({
 					className="w-28 rounded-md border border-border bg-app-bg px-2 py-1.5 font-mono text-text-body text-xs outline-none transition-colors placeholder:text-text-ghost focus:border-text-dim"
 					inputMode="text"
 					maxLength={7}
+					onBlur={() => {
+						if (draft !== value && !(draft === "" || HEX_PATTERN.test(draft))) {
+							setDraft(value);
+						}
+					}}
 					onChange={(event) => {
 						const next = event.target.value;
-						if (next === "" || /^#[0-9a-fA-F]{6}$/.test(next)) {
+						setDraft(next);
+						if (next === "" || HEX_PATTERN.test(next)) {
 							onChange(next);
 						}
 					}}
 					placeholder="#rrggbb"
-					value={value}
+					value={draft}
 				/>
 				<Button
 					disabled={!value}
