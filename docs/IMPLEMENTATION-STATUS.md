@@ -1,12 +1,12 @@
 # Implementation Status
 
-**Assessed:** 2026-09-21
+**Assessed:** 2026-09-22
 
 This baseline is based on the current tracked source, README commitments, and local verification. It is not a product specification; `docs/ROADMAP.md` is the implementation plan.
 
 ## Summary
 
-ContentOS now supports the core owner post workflow and direct managed-media uploads. Public delivery, deployment verification, settings, analytics, AI assistance, scheduling, and optional community features remain incomplete.
+ContentOS now supports the core owner post workflow, direct managed-media uploads, and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Public delivery, deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
 
 | Area | Status | Current state |
 | --- | --- | --- |
@@ -17,11 +17,11 @@ ContentOS now supports the core owner post workflow and direct managed-media upl
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
 | Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
-| Page UI shells | In progress | Dashboard and Posts use real data. `/media` now uploads to R2 and lists ready owner assets with image/video previews; `/analytics` and `/settings` remain reference layouts over clearly-labelled sample data until M4.3 and M4.1. |
+| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets; `/settings` Appearance is fully wired (theme, accent, card surfaces); `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
 | Media | Partial (M3.1 complete) | The owner can upload validated images and videos directly to R2 through five-minute presigned URLs. Pending D1 metadata becomes ready only after R2 size/type verification, ready assets survive refreshes and render in the media grid, and immutable object URLs receive long-lived cache metadata. Search, editor insertion, deletion policy, and optimized thumbnail variants remain M3.2. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
-| Settings | Schema only | Preference fields exist without an owner-facing settings workflow. |
-| Analytics | Schema only | An Umami share URL field exists without an analytics page or integration. |
+| Settings | Partial (M4.1 in progress) | The `settings` table stores `themeMode` (default `night`) and `surfaceTint`; appearance is loaded on protected routes, applied live from the settings UI, and persisted through owner-scoped server functions. The Appearance tab offers explicit Plain and Tinted card surfaces, while the broader form still has unconnected storage fields (bucket/bucketName mismatch, omitted timeZone). |
+| Analytics | Partial (M4.3 not started) | A reference analytics layout renders demo traffic data and inherits the saved appearance accent. It has no Umami integration yet. |
 | Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
@@ -32,9 +32,9 @@ ContentOS now supports the core owner post workflow and direct managed-media upl
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 84/84, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
+| `bun run test` | Passes | 97/97, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, and analytics appearance-token use. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 148 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 155 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
@@ -52,12 +52,34 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remot
 - Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification, cancellation cleanup, owner-only listing, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
 - Remaining before deployment: M1.3 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
 
+## Current Handoff
+
+The merged product baseline advances with PR #13, which squash-merges the M4.1 appearance slice on top of `5c730f7` (PR #12 / M3.1). Continue each next concern from a separate fresh branch based on current `main`:
+
+- The appearance/settings slice (M4.1 partial) landed via PR #13: schema columns, migration `0003_acoustic_karnak.sql`, the appearance module and owner-scoped server functions, root no-flash bootstrap, protected-route appearance load, tabbed settings controls, explicit plain/tinted card surfaces, flat-surface CSS tokens, and dashboard/editor/login token swaps. Analytics uses the same `--brand` token instead of a hardcoded violet. The broad settings form (blog identity, timezone, storage fields) remains unwired, so M4.1 stays open.
+- The next unstarted product slice is M3.2: media search, editor insertion and reuse, safe deletion, and generated image/video thumbnail variants.
+- M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
+- Keep each independent concern (frontend repair, M3.2, M1.3, M4.1 remainder) on its own fresh branch.
+
 ## Local Worker State
 
 - Cloudflare's Vite plugin can deadlock during Worker export initialization when it persists Miniflare SQLite state under this repository's Btrfs-backed `.wrangler/state` directory.
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
 - `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
 - `bun run db:studio:local` discovers the non-metadata SQLite file in that state directory and opens it with Drizzle Studio. `bun run db:studio:remote` uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and a scoped `CLOUDFLARE_API_TOKEN`.
+
+## Settings & Appearance Pass (2026-09-22)
+
+PR #13 (`fix/dashboard-visual-refresh`) completes the M4.1 appearance slice wiring:
+
+- `src/db/schema.ts` adds `themeMode` (`text`, not null, default `night`) and nullable `surfaceTint` to `settings`. Migration `src/db/drizzle/0003_acoustic_karnak.sql` applies `ALTER TABLE settings ADD theme_mode ...` and `ADD surface_tint ...`; it was generated with `bun run db:generate` and applied locally with `bun run db:migrate` (3 commands executed successfully).
+- `src/features/settings/settings.types.ts` extends `SettingsForm`/`DEFAULT_SETTINGS` and adds `ThemeMode` (`system | day | night`), `AppearanceSettings`, and `DEFAULT_APPEARANCE` (`night`, `#7c3aed`, empty tint).
+- `src/features/settings/appearance.ts` is the client appearance contract: `APPEARANCE_STORAGE_KEY` (`contentos-appearance`), cache read/write, `normalizeAppearance`, `applyAppearance` (toggles `.dark` on `documentElement`, sets `--brand` and `--surface-tint`, and tracks `prefers-color-scheme` for `system` mode with listener cleanup), plus `APPEARANCE_BOOTSTRAP_SCRIPT` for no-flash head injection.
+- `src/features/settings/functions/` adds the owner-scoped read/write path: `appearanceInputSchema` validates the theme enum, a `#rrggbb` accent, and an empty-or-hex tint; `readAppearance`/`upsertAppearance` use the `settings.userId` conflict target; server and server-function wrappers require a session and return `Cache-Control: no-store`.
+- `__root.tsx` drops the hardcoded `<html className="dark">` and injects the bootstrap script before first paint (`suppressHydrationWarning` on `<html>`). `_protected.tsx` loads appearance in `beforeLoad` and applies it in an effect; `_protected/settings.tsx` passes it into the page.
+- The settings page is tabbed (Appearance, Account, Site, Publishing, Storage). Appearance controls (theme segmented control, AccentPicker, explicit Plain/Tinted card-surface control with a tint picker) apply live via `setAppearance` and persist through `saveAppearanceSettings`; the header Save button is scoped to that appearance slice.
+- `styles.css` adds `--surface-tint`, `--flat-surface` (`color-mix` of card + 8% tint), and editor code tokens; dashboard and shared `bg-card` surfaces swap to `bg-flat-surface`; editor ProseMirror/editor-content and login hardcoded hexes swap to theme tokens for day mode.
+- Unit coverage: `src/features/settings/appearance.test.ts` (normalize, cache round-trip, bootstrap script shape), `src/features/settings/components/settings-widgets.test.tsx` (surface-tint hex field accepts partial keystrokes, reverts an invalid draft on blur, and selects Plain/Tinted surfaces), and `src/features/analytics/pages/analytics-page.test.tsx` (analytics uses the saved appearance token).
 
 ## UI Shell Pass (2026-09-20)
 
@@ -73,7 +95,7 @@ Branch `feat/m2.6-app-shell` rebuilds the protected area on the ContentOS UI kit
 
 ## R2 Upload Pass (2026-09-21)
 
-Branch `feat/m3.1-r2-uploads` completes the M3.1 storage slice and starts the visible ready-asset surface needed by M3.2:
+PR #12 (`5c730f7`) completes the M3.1 storage slice and starts the visible ready-asset surface needed by M3.2:
 
 - Upload initiation, completion, and cancellation are authenticated server functions. Validation accepts GIF, JPEG, PNG, WebP, MP4, and WebM files up to 50 MB; filenames and owner-scoped UUID object keys are sanitized before signing.
 - The browser uploads directly to the remote `contentos` bucket through a five-minute presigned `PUT`. Credentials remain server-side; completion verifies R2 object size and content type before changing D1 metadata from `pending` to `ready`.

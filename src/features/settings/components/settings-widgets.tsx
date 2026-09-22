@@ -1,9 +1,9 @@
 import { IconCheck } from "@tabler/icons-react";
-import { useState } from "react";
-import { AccentSwitch } from "#/components/content-os/ui";
+import { useEffect, useState } from "react";
+import { AccentSwitch, SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
-import { ACCENT_SWATCHES } from "../settings.types";
+import { ACCENT_SWATCHES, type ThemeMode } from "../settings.types";
 
 export function SettingsSection({
 	children,
@@ -94,6 +94,118 @@ export function SettingsToggleRow({
 				<p className="mt-0.5 text-[11px] text-text-muted">{description}</p>
 			</div>
 			<AccentSwitch checked={checked} onChange={onChange} />
+		</div>
+	);
+}
+
+const THEME_OPTIONS: readonly { label: string; value: ThemeMode }[] = [
+	{ label: "System", value: "system" },
+	{ label: "Day", value: "day" },
+	{ label: "Night", value: "night" },
+];
+
+export function ThemeModeControl({
+	onChange,
+	value,
+}: {
+	onChange: (value: ThemeMode) => void;
+	value: ThemeMode;
+}) {
+	return (
+		<div className="flex flex-col gap-1.5">
+			<span className="font-medium text-text-secondary text-xs">Theme</span>
+			<SegmentedControl
+				ariaLabel="Theme mode"
+				onChange={onChange}
+				options={THEME_OPTIONS}
+				value={value}
+			/>
+		</div>
+	);
+}
+
+const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const DEFAULT_SURFACE_TINT = "#7c3aed";
+
+export function SurfaceTintPicker({
+	onChange,
+	value,
+}: {
+	onChange: (value: string) => void;
+	value: string;
+}) {
+	// Local draft lets the hex field accept partial input (e.g. "#f43");
+	// only complete values propagate, and blur snaps back to the last one.
+	const [draft, setDraft] = useState(value);
+
+	useEffect(() => {
+		setDraft(value);
+	}, [value]);
+
+	return (
+		<div className="flex flex-col gap-1.5">
+			<span className="font-medium text-text-secondary text-xs">
+				Card surfaces
+			</span>
+			<div className="flex gap-2">
+				<Button
+					aria-pressed={!value}
+					onClick={() => onChange("")}
+					size="sm"
+					type="button"
+					variant={!value ? "default" : "outline"}
+				>
+					Plain
+				</Button>
+				<Button
+					aria-pressed={Boolean(value)}
+					onClick={() => onChange(value || DEFAULT_SURFACE_TINT)}
+					size="sm"
+					type="button"
+					variant={value ? "default" : "outline"}
+				>
+					Tinted
+				</Button>
+			</div>
+			{value ? (
+				<div className="flex items-center gap-2">
+					<input
+						aria-label="Surface tint color"
+						className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+						onChange={(event) => onChange(event.target.value)}
+						type="color"
+						value={value}
+					/>
+					<input
+						aria-label="Surface tint hex"
+						className="w-28 rounded-md border border-border bg-app-bg px-2 py-1.5 font-mono text-text-body text-xs outline-none transition-colors placeholder:text-text-ghost focus:border-text-dim"
+						inputMode="text"
+						maxLength={7}
+						onBlur={() => {
+							if (
+								draft !== value &&
+								!(draft === "" || HEX_PATTERN.test(draft))
+							) {
+								setDraft(value);
+							}
+						}}
+						onChange={(event) => {
+							const next = event.target.value;
+							setDraft(next);
+							if (HEX_PATTERN.test(next)) {
+								onChange(next);
+							}
+						}}
+						placeholder="#rrggbb"
+						value={draft}
+					/>
+				</div>
+			) : null}
+			<span className="text-[11px] text-text-muted">
+				{value
+					? "Optional wash applied to flat dashboard surfaces."
+					: "Cards use the default background with no color wash."}
+			</span>
 		</div>
 	);
 }

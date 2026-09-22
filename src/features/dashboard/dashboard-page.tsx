@@ -19,12 +19,12 @@ export function DashBoardPage({ data, user }: DashBoardPageProps) {
 	const activity = summarizeActivity(data.activity);
 
 	return (
-		<main className="mx-auto flex w-full max-w-[840px] flex-col px-6 pt-9 pb-16 sm:px-10">
+		<main className="mx-auto flex w-full max-w-[1080px] flex-col px-4 pt-7 pb-16 sm:px-8 sm:pt-10 lg:px-12">
 			<DashboardHeader firstName={firstName} />
 
 			<section
 				aria-label="Writing statistics"
-				className="mt-7 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4"
+				className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
 			>
 				<StatCard
 					accentColor={data.accentColor}
@@ -54,25 +54,25 @@ export function DashBoardPage({ data, user }: DashBoardPageProps) {
 
 			<section
 				aria-label="Continue writing and writing rhythm"
-				className="mt-4 flex flex-col gap-2.5 lg:flex-row"
+				className="mt-3 grid gap-3 lg:grid-cols-12"
 			>
 				<ContinueCard
 					accentColor={data.accentColor}
-					className="lg:flex-[5]"
+					className="lg:col-span-5"
 					post={data.continuePost}
 				/>
 				<RhythmCard
 					accentColor={data.accentColor}
-					className="lg:flex-[7]"
+					className="lg:col-span-7"
 					summary={activity}
 				/>
 			</section>
 
-			<div className="mt-8">
+			<div className="mt-3 rounded-xl border border-border bg-flat-surface p-4 sm:p-5">
 				<Heatmap accentColor={data.accentColor} data={data.activity} />
 			</div>
 
-			<div className="mt-8">
+			<div className="mt-3 rounded-xl border border-border bg-flat-surface p-4 sm:p-5">
 				<RecentPosts posts={data.recentPosts} />
 			</div>
 		</main>

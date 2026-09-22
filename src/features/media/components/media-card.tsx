@@ -14,7 +14,7 @@ export function MediaCard({ color, item, onSelect, selected }: MediaCardProps) {
 	return (
 		<button
 			className={cn(
-				"group overflow-hidden rounded-lg border bg-card text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+				"group overflow-hidden rounded-lg border bg-flat-surface text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				selected
 					? "border-brand bg-brand/5"
 					: "border-border hover:border-input",

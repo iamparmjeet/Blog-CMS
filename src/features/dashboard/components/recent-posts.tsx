@@ -19,22 +19,22 @@ export function RecentPosts({ posts }: RecentPostsProps) {
 					Your most recently updated posts will appear here.
 				</p>
 			) : (
-				<ul className="mt-2">
+				<ul className="mt-3">
 					{posts.map((post) => (
 						<li key={post.id}>
 							<Link
-								className="flex items-center gap-3 border-border-dim border-b px-1 py-2.5 transition-colors last:border-b-0 hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+								className="flex items-center gap-3 border-border-subtle border-b px-1 py-3 transition-colors last:border-b-0 hover:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 								params={{ postId: String(post.id) }}
 								to="/posts/$postId"
 							>
-								<span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-card text-text-muted">
+								<span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-flat-surface text-text-muted">
 									<IconFileText aria-hidden="true" className="size-3.5" />
 								</span>
 								<span className="min-w-0 flex-1 truncate font-medium text-[13px] text-text-body">
 									{post.title}
 								</span>
 								<StatusBadge status={post.status} />
-								<span className="w-24 shrink-0 text-right text-[11px] text-text-muted">
+								<span className="hidden w-24 shrink-0 text-right text-[11px] text-text-muted sm:block">
 									{formatDate(post.updatedAt)}
 								</span>
 							</Link>

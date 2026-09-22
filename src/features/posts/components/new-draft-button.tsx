@@ -30,12 +30,12 @@ export function NewDraftButton() {
 			<Button
 				disabled={isPending}
 				onClick={handleCreate}
-				size="sm"
+				size="default"
 				type="button"
-				variant="outline"
+				variant="brand"
 			>
 				<IconPlus aria-hidden="true" />
-				{isPending ? "Creating…" : "New post"}
+				{isPending ? "Creating…" : "New draft"}
 			</Button>
 			{error ? (
 				<p className="text-danger text-xs" role="alert">

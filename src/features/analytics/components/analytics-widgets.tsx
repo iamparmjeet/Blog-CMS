@@ -1,5 +1,4 @@
 import { formatNumber } from "#/lib/number";
-import { hexToRgba } from "#/lib/utils";
 import type { BarItem, DailyView, TopPage } from "../analytics.types";
 
 export function AnalyticsCard({
@@ -12,7 +11,7 @@ export function AnalyticsCard({
 	title?: string;
 }) {
 	return (
-		<section className="rounded-lg border border-border bg-card p-4">
+		<section className="rounded-lg border border-border bg-flat-surface p-4">
 			{title || action ? (
 				<div className="mb-3 flex items-center justify-between gap-3">
 					{title ? (
@@ -29,25 +28,23 @@ export function AnalyticsCard({
 }
 
 export function StatTile({
-	accentColor,
 	detail,
 	label,
 	value,
 }: {
-	accentColor: string;
 	detail: string;
 	label: string;
 	value: string;
 }) {
 	return (
-		<article className="rounded-lg border border-border bg-card px-4.5 py-4">
+		<article className="rounded-lg border border-border bg-flat-surface px-4.5 py-4">
 			<p className="text-[11px] text-text-soft">{label}</p>
 			<p className="mt-1.5 font-semibold text-[22px] text-text-primary tabular-nums tracking-[-0.02em]">
 				{value}
 			</p>
 			<p
 				className="mt-1.5 truncate text-[11px]"
-				style={{ color: hexToRgba(accentColor, 0.85) }}
+				style={{ color: "var(--brand)", opacity: 0.85 }}
 				title={detail}
 			>
 				{detail}
@@ -56,13 +53,7 @@ export function StatTile({
 	);
 }
 
-export function BarList({
-	accentColor,
-	items,
-}: {
-	accentColor: string;
-	items: BarItem[];
-}) {
+export function BarList({ items }: { items: BarItem[] }) {
 	const max = Math.max(...items.map((item) => item.value), 1);
 
 	return (
@@ -79,7 +70,7 @@ export function BarList({
 						<div
 							className="h-full rounded-full"
 							style={{
-								background: accentColor,
+								background: "var(--brand)",
 								width: `${(item.value / max) * 100}%`,
 							}}
 						/>
@@ -90,13 +81,7 @@ export function BarList({
 	);
 }
 
-export function ViewsChart({
-	accentColor,
-	daily,
-}: {
-	accentColor: string;
-	daily: DailyView[];
-}) {
+export function ViewsChart({ daily }: { daily: DailyView[] }) {
 	const max = Math.max(...daily.map((day) => day.views), 1);
 	const lastSevenStart = daily.length - 7;
 	const first = daily[0]?.date;
@@ -113,8 +98,8 @@ export function ViewsChart({
 						style={{
 							background:
 								index >= lastSevenStart
-									? accentColor
-									: hexToRgba(accentColor, 0.4),
+									? "var(--brand)"
+									: "color-mix(in oklab, var(--brand), transparent 60%)",
 							height: `${Math.max(2, (day.views / max) * 100)}%`,
 						}}
 						title={`${day.date}: ${formatNumber(day.views)} views`}
@@ -132,14 +117,16 @@ export function ViewsChart({
 				<span className="flex items-center gap-1.5">
 					<span
 						className="size-2 rounded-sm"
-						style={{ background: hexToRgba(accentColor, 0.4) }}
+						style={{
+							background: "color-mix(in oklab, var(--brand), transparent 60%)",
+						}}
 					/>
 					Prior weeks
 				</span>
 				<span className="flex items-center gap-1.5">
 					<span
 						className="size-2 rounded-sm"
-						style={{ background: accentColor }}
+						style={{ background: "var(--brand)" }}
 					/>
 					Last 7 days
 				</span>
@@ -148,13 +135,7 @@ export function ViewsChart({
 	);
 }
 
-export function TopPagesTable({
-	accentColor,
-	pages,
-}: {
-	accentColor: string;
-	pages: TopPage[];
-}) {
+export function TopPagesTable({ pages }: { pages: TopPage[] }) {
 	const max = Math.max(...pages.map((page) => page.views), 1);
 
 	return (
@@ -190,7 +171,7 @@ export function TopPagesTable({
 										<div
 											className="h-full rounded-full"
 											style={{
-												background: accentColor,
+												background: "var(--brand)",
 												width: `${(page.views / max) * 100}%`,
 											}}
 										/>

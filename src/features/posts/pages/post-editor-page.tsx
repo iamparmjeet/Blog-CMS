@@ -1,7 +1,21 @@
-import { IconArrowLeft, IconEye, IconTrash } from "@tabler/icons-react";
+import {
+	IconArrowLeft,
+	IconBold,
+	IconCheck,
+	IconCode,
+	IconH2,
+	IconItalic,
+	IconList,
+	IconListNumbers,
+	IconQuote,
+	IconSparkles,
+	IconTrash,
+	IconX,
+} from "@tabler/icons-react";
 import { Link, useRouter } from "@tanstack/react-router";
 import Placeholder from "@tiptap/extension-placeholder";
 import { type Editor, EditorContent, useEditor } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import {
 	type ReactNode,
@@ -35,6 +49,24 @@ const AUTOSAVE_DELAY_MS = 700;
 
 type SaveStatus = "saved" | "saving" | "local" | "error";
 type EditorView = "write" | "seo";
+type RepurposePlatform = "twitter" | "linkedin" | "instagram" | "reels";
+
+const REPURPOSE_PLATFORMS: readonly {
+	label: string;
+	value: RepurposePlatform;
+}[] = [
+	{ label: "X / Twitter", value: "twitter" },
+	{ label: "LinkedIn", value: "linkedin" },
+	{ label: "Instagram", value: "instagram" },
+	{ label: "Reels", value: "reels" },
+];
+
+const REPURPOSE_PROMPTS: Record<RepurposePlatform, string> = {
+	instagram: "an Instagram caption",
+	linkedin: "a LinkedIn post",
+	reels: "a Reels script",
+	twitter: "a Twitter thread",
+};
 
 interface PostEditorPageProps {
 	post: PostEditorData;
@@ -46,6 +78,9 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	const metadataSaveTimeoutRef = useRef<number | null>(null);
 	const isSavingRef = useRef(false);
 	const isSavingMetadataRef = useRef(false);
+	const shouldSelectInitialTitleRef = useRef(
+		post.title === "Untitled" && post.wordCount === 0,
+	);
 	const latestBodyRef = useRef(serializePostBody(post.body));
 	const latestMetadataRef = useRef<PostMetadata>({
 		title: post.title,
@@ -64,6 +99,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	const [wordCount, setWordCount] = useState(post.wordCount);
 	const router = useRouter();
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+	const [isRepurposeOpen, setIsRepurposeOpen] = useState(true);
 	const [isPublished, setIsPublished] = useState(post.status === "published");
 	const [isPublishing, setIsPublishing] = useState(false);
 	const [publishError, setPublishError] = useState<string | null>(null);
@@ -335,11 +371,11 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	}
 
 	return (
-		<main className="flex h-full min-h-0 flex-col">
-			<header className="flex h-11 shrink-0 items-center justify-between gap-3 border-border border-b px-4">
+		<main className="flex h-full min-h-0 flex-col bg-app-bg">
+			<header className="flex h-12 shrink-0 items-center justify-between gap-4 border-border border-b bg-sidebar-bg px-4 sm:px-6">
 				<div className="flex min-w-0 items-center gap-2 text-xs">
 					<Link
-						className="inline-flex shrink-0 items-center gap-1 text-text-muted transition-colors hover:text-text-secondary"
+						className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded px-1 text-text-muted transition-colors hover:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						to="/posts"
 					>
 						<IconArrowLeft aria-hidden="true" className="size-3.5" />
@@ -348,20 +384,21 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 					<span aria-hidden="true" className="text-text-faint">
 						/
 					</span>
-					<span className="truncate text-text-soft">
+					<span className="truncate text-text-dim">
 						{metadata.title || "Untitled"}
 					</span>
 				</div>
 
-				<div className="flex shrink-0 items-center gap-2">
+				<div className="flex min-w-0 items-center gap-2">
 					<EditorSaveStatus
 						bodyStatus={bodySaveStatus}
 						metadataError={metadataError}
 						metadataStatus={metadataSaveStatus}
-						wordCount={wordCount}
 					/>
 
 					<SegmentedControl
+						ariaLabel="Editor view"
+						className="hidden sm:inline-flex"
 						onChange={setView}
 						options={[
 							{ label: "Write", value: "write" },
@@ -370,36 +407,41 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 						value={view}
 					/>
 
-					<SegmentedControl
-						onChange={(next) => void togglePublish(next === "published")}
-						options={[
-							{ label: "Draft", value: "draft" },
-							{ label: "Published", value: "published" },
-						]}
-						value={isPublished ? "published" : "draft"}
-					/>
+					{isRepurposeOpen ? null : (
+						<Button
+							className="hidden xl:inline-flex"
+							onClick={() => setIsRepurposeOpen(true)}
+							size="default"
+							type="button"
+							variant="ghost"
+						>
+							<IconSparkles aria-hidden="true" className="text-brand" />
+							Repurpose
+						</Button>
+					)}
 
 					<Button
 						onClick={() => setIsPreviewOpen(true)}
-						size="sm"
+						size="default"
 						type="button"
 						variant="outline"
 					>
-						<IconEye aria-hidden="true" />
 						Preview
-					</Button>
-
-					<Button
-						aria-label="Move to trash"
-						onClick={() => void moveToTrash()}
-						size="icon-sm"
-						type="button"
-						variant="ghost"
-					>
-						<IconTrash aria-hidden="true" className="size-3.5" />
 					</Button>
 				</div>
 			</header>
+
+			<div className="border-border border-b px-4 py-2 sm:hidden">
+				<SegmentedControl
+					ariaLabel="Editor view"
+					onChange={setView}
+					options={[
+						{ label: "Write", value: "write" },
+						{ label: "SEO", value: "seo" },
+					]}
+					value={view}
+				/>
+			</div>
 
 			{publishError ? (
 				<p
@@ -410,50 +452,82 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 				</p>
 			) : null}
 
-			<div className="min-h-0 flex-1 overflow-y-auto">
-				{view === "write" ? (
-					<section className="mx-auto w-full max-w-[720px] px-6 py-12">
-						<Input
-							aria-label="Post title"
-							className="h-auto border-0 bg-transparent px-0 py-1 font-semibold text-[30px] tracking-[-0.02em] placeholder:text-text-ghost focus-visible:border-0 focus-visible:ring-0"
-							onChange={(event) => updateMetadata("title", event.target.value)}
-							placeholder="Untitled"
-							value={metadata.title}
-						/>
-						<div className="mt-2 flex items-center gap-1 text-text-dim text-xs">
-							<span aria-hidden="true">/</span>
+			<div
+				className={cn(
+					"grid min-h-0 flex-1",
+					isRepurposeOpen &&
+						"xl:grid-cols-[minmax(0,1fr)_320px] 2xl:grid-cols-[minmax(0,1fr)_384px]",
+				)}
+			>
+				<div className="min-h-0 overflow-y-auto">
+					{view === "write" ? (
+						<section className="group relative mx-auto w-full max-w-[808px] px-5 py-10 sm:px-8 sm:py-16">
 							<Input
-								aria-describedby="slug-help"
-								aria-invalid={
-									metadataError?.toLowerCase().includes("slug")
-										? true
-										: undefined
+								aria-label="Post title"
+								autoFocus={shouldSelectInitialTitleRef.current}
+								className="h-auto border-0 bg-transparent px-0 py-1 font-semibold text-[32px]/tight tracking-[-0.035em] placeholder:text-text-ghost focus-visible:border-0 focus-visible:ring-0 md:text-[36px]/tight dark:bg-transparent"
+								onFocus={(event) => {
+									if (shouldSelectInitialTitleRef.current) {
+										event.currentTarget.select();
+										shouldSelectInitialTitleRef.current = false;
+									}
+								}}
+								onChange={(event) =>
+									updateMetadata("title", event.target.value)
 								}
-								aria-label="Post slug"
-								className="h-auto max-w-md border-0 bg-transparent px-0 py-0 font-mono text-xs focus-visible:border-0 focus-visible:ring-0"
-								onChange={(event) => updateMetadata("slug", event.target.value)}
-								value={metadata.slug}
+								placeholder="Untitled"
+								value={metadata.title}
 							/>
-						</div>
-						<p className="sr-only" id="slug-help">
-							The URL stays stable when you change the title.
-						</p>
+							<div className="mt-2 flex items-center gap-1 text-[13px] text-text-dim">
+								<span aria-hidden="true">/</span>
+								<Input
+									aria-describedby="slug-help"
+									aria-invalid={
+										metadataError?.toLowerCase().includes("slug")
+											? true
+											: undefined
+									}
+									aria-label="Post slug"
+									className="h-auto max-w-md border-0 bg-transparent px-0 py-0 font-mono text-[13px] focus-visible:border-0 focus-visible:ring-0 md:text-[13px] dark:bg-transparent"
+									onChange={(event) =>
+										updateMetadata("slug", event.target.value)
+									}
+									value={metadata.slug}
+								/>
+							</div>
+							<p className="sr-only" id="slug-help">
+								The URL stays stable when you change the title.
+							</p>
+							<Button
+								aria-label="Move to trash"
+								className="absolute top-14 right-5 text-text-dim opacity-0 transition-opacity hover:text-danger focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100 sm:right-8"
+								onClick={() => void moveToTrash()}
+								size="icon-sm"
+								title="Move to trash"
+								type="button"
+								variant="ghost"
+							>
+								<IconTrash aria-hidden="true" />
+							</Button>
 
-						<div className="mt-6 border-border border-y">
-							<EditorToolbar editor={editor} />
-							<div className="min-h-120 py-8">
+							<div className="mt-8 border-border border-t pt-9">
+								<BubbleEditorToolbar editor={editor} />
 								<EditorContent editor={editor} />
 							</div>
-						</div>
-					</section>
-				) : null}
+						</section>
+					) : null}
 
-				{view === "seo" ? (
-					<MetadataPanel
-						error={metadataError}
-						metadata={metadata}
-						onChange={updateMetadata}
-					/>
+					{view === "seo" ? (
+						<MetadataPanel
+							error={metadataError}
+							metadata={metadata}
+							onChange={updateMetadata}
+						/>
+					) : null}
+				</div>
+
+				{isRepurposeOpen ? (
+					<RepurposeRail onClose={() => setIsRepurposeOpen(false)} />
 				) : null}
 			</div>
 
@@ -482,8 +556,8 @@ function MetadataPanel({
 	) => void;
 }) {
 	return (
-		<section className="mx-auto w-full max-w-2xl px-6 py-12">
-			<h1 className="font-semibold text-[18px] text-text-primary tracking-[-0.01em]">
+		<section className="mx-auto w-full max-w-2xl px-4 py-7 sm:px-8 sm:py-10">
+			<h1 className="font-semibold text-[24px] text-text-primary tracking-[-0.03em]">
 				SEO &amp; meta
 			</h1>
 			<p className="mt-1.5 text-text-muted text-xs">
@@ -546,7 +620,7 @@ function MetadataPanel({
 				</MetadataField>
 			</div>
 
-			<div className="mt-8 rounded-lg border border-border bg-card p-4">
+			<div className="mt-8 rounded-xl border border-border bg-flat-surface p-4 sm:p-5">
 				<p className="font-medium text-[10px] text-text-dim uppercase tracking-[0.07em]">
 					Search preview
 				</p>
@@ -667,7 +741,7 @@ function PostPreviewOverlay({
 
 	return (
 		<div className="fixed inset-0 z-[8000] overflow-y-auto bg-[#fafafa] text-[#1a1a1a]">
-			<div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-[#e5e5e5] border-b bg-[#fafafa]/95 px-5 py-2.5 backdrop-blur">
+			<div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-[#e5e5e5] border-b bg-[#fafafa]/95 px-4 py-2.5 backdrop-blur sm:px-5">
 				<button
 					className="inline-flex items-center gap-1.5 text-[#525252] text-xs transition-colors hover:text-[#111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
 					onClick={onClose}
@@ -677,7 +751,7 @@ function PostPreviewOverlay({
 					Exit preview
 				</button>
 
-				<span className="rounded-full border border-[#e0e0e0] bg-white px-3 py-1 font-mono text-[#525252] text-[11px]">
+				<span className="hidden rounded-full border border-[#e0e0e0] bg-white px-3 py-1 font-mono text-[#525252] text-[11px] sm:inline-flex">
 					your-domain.com/{metadata.slug}
 				</span>
 
@@ -686,8 +760,8 @@ function PostPreviewOverlay({
 				</span>
 			</div>
 
-			<article className="mx-auto max-w-[680px] px-6 py-12">
-				<h1 className="font-semibold text-[#111] text-[36px] leading-[1.2] tracking-[-0.02em]">
+			<article className="mx-auto max-w-[680px] px-5 py-8 sm:px-6 sm:py-12">
+				<h1 className="font-semibold text-[#111] text-[32px] leading-[1.2] tracking-[-0.03em] sm:text-[36px]">
 					{metadata.title || "Untitled"}
 				</h1>
 				{metadata.description ? (
@@ -704,74 +778,188 @@ function PostPreviewOverlay({
 	);
 }
 
-function EditorToolbar({ editor }: { editor: Editor | null }) {
+function RepurposeRail({ onClose }: { onClose: () => void }) {
+	const [platform, setPlatform] = useState<RepurposePlatform>("twitter");
+
+	return (
+		<aside className="hidden min-h-0 flex-col border-border border-l bg-sidebar-bg xl:flex">
+			<div className="flex h-12 shrink-0 items-center justify-between border-border border-b px-4">
+				<div className="flex items-center gap-2">
+					<IconSparkles aria-hidden="true" className="size-4 text-brand" />
+					<h2 className="font-semibold text-sm text-text-body">Repurpose</h2>
+				</div>
+				<Button
+					aria-label="Close repurpose panel"
+					className="text-text-dim hover:text-text-secondary"
+					onClick={onClose}
+					size="icon-sm"
+					type="button"
+					variant="ghost"
+				>
+					<IconX aria-hidden="true" />
+				</Button>
+			</div>
+
+			<div
+				aria-label="Repurpose platform"
+				className="flex shrink-0 items-center justify-between gap-1 overflow-x-auto border-border border-b px-4 py-2"
+				role="tablist"
+			>
+				{REPURPOSE_PLATFORMS.map((option) => {
+					const isActive = option.value === platform;
+
+					return (
+						<button
+							aria-selected={isActive}
+							className={cn(
+								"shrink-0 rounded-md px-3 py-1.5 font-medium text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+								isActive
+									? "bg-brand/15 text-accent-soft"
+									: "text-text-dim hover:text-text-secondary",
+							)}
+							key={option.value}
+							onClick={() => setPlatform(option.value)}
+							role="tab"
+							type="button"
+						>
+							{option.label}
+						</button>
+					);
+				})}
+			</div>
+
+			<div className="shrink-0 border-border border-b p-4">
+				<div className="flex items-center gap-3">
+					<label
+						className="font-mono text-[10px] text-text-dim"
+						htmlFor="repurpose-model"
+					>
+						openrouter
+					</label>
+					<select
+						aria-describedby="repurpose-unavailable"
+						className="h-8 min-w-0 flex-1 rounded-md border border-border bg-app-bg px-2 text-text-muted text-xs outline-none"
+						disabled
+						id="repurpose-model"
+						title="AI repurposing is planned for Phase 5"
+					>
+						<option>Claude Haiku 3.5 - fast</option>
+					</select>
+				</div>
+
+				<Button
+					aria-describedby="repurpose-unavailable"
+					className="mt-4 h-10 w-full disabled:opacity-100"
+					disabled
+					title="AI repurposing is planned for Phase 5"
+					type="button"
+					variant="brand"
+				>
+					<IconSparkles aria-hidden="true" />
+					Generate
+				</Button>
+			</div>
+
+			<div className="flex min-h-0 flex-1 flex-col items-center justify-center px-8 pb-20 text-center">
+				<IconSparkles aria-hidden="true" className="size-6 text-text-faint" />
+				<p className="mt-5 text-text-dim text-xs">
+					Generate {REPURPOSE_PROMPTS[platform]} from this post
+				</p>
+				<p className="sr-only" id="repurpose-unavailable">
+					AI repurposing is planned for Phase 5.
+				</p>
+			</div>
+		</aside>
+	);
+}
+
+function BubbleEditorToolbar({ editor }: { editor: Editor | null }) {
 	if (!editor) {
 		return null;
 	}
 
 	return (
-		<div
-			aria-label="Editor formatting"
-			className="flex flex-wrap gap-1 border-border border-b p-2"
-			role="toolbar"
+		<BubbleMenu
+			className="flex items-center gap-0.5 rounded-lg border border-border bg-popover p-1 shadow-xl"
+			editor={editor}
+			options={{ placement: "top" }}
 		>
-			<EditorToolbarButton
-				active={editor.isActive("bold")}
-				label="Bold"
-				onClick={() => editor.chain().focus().toggleBold().run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("italic")}
-				label="Italic"
-				onClick={() => editor.chain().focus().toggleItalic().run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("heading", { level: 2 })}
-				label="Heading"
-				onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("bulletList")}
-				label="Bullets"
-				onClick={() => editor.chain().focus().toggleBulletList().run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("orderedList")}
-				label="Numbered list"
-				onClick={() => editor.chain().focus().toggleOrderedList().run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("blockquote")}
-				label="Quote"
-				onClick={() => editor.chain().focus().toggleBlockquote().run()}
-			/>
-			<EditorToolbarButton
-				active={editor.isActive("codeBlock")}
-				label="Code block"
-				onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-			/>
-		</div>
+			<div
+				aria-label="Editor formatting"
+				className="flex gap-0.5"
+				role="toolbar"
+			>
+				<EditorToolbarButton
+					active={editor.isActive("bold")}
+					icon={<IconBold aria-hidden="true" />}
+					label="Bold"
+					onClick={() => editor.chain().focus().toggleBold().run()}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("italic")}
+					icon={<IconItalic aria-hidden="true" />}
+					label="Italic"
+					onClick={() => editor.chain().focus().toggleItalic().run()}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("heading", { level: 2 })}
+					icon={<IconH2 aria-hidden="true" />}
+					label="Heading"
+					onClick={() =>
+						editor.chain().focus().toggleHeading({ level: 2 }).run()
+					}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("bulletList")}
+					icon={<IconList aria-hidden="true" />}
+					label="Bullets"
+					onClick={() => editor.chain().focus().toggleBulletList().run()}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("orderedList")}
+					icon={<IconListNumbers aria-hidden="true" />}
+					label="Numbered list"
+					onClick={() => editor.chain().focus().toggleOrderedList().run()}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("blockquote")}
+					icon={<IconQuote aria-hidden="true" />}
+					label="Quote"
+					onClick={() => editor.chain().focus().toggleBlockquote().run()}
+				/>
+				<EditorToolbarButton
+					active={editor.isActive("codeBlock")}
+					icon={<IconCode aria-hidden="true" />}
+					label="Code block"
+					onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+				/>
+			</div>
+		</BubbleMenu>
 	);
 }
 
 function EditorToolbarButton({
 	active,
+	icon,
 	label,
 	onClick,
 }: {
 	active: boolean;
+	icon: ReactNode;
 	label: string;
 	onClick: () => void;
 }) {
 	return (
 		<Button
+			aria-label={label}
 			aria-pressed={active}
-			size="sm"
+			size="icon"
+			title={label}
 			type="button"
 			variant={active ? "secondary" : "ghost"}
 			onClick={onClick}
 		>
-			{label}
+			{icon}
 		</Button>
 	);
 }
@@ -780,12 +968,10 @@ function EditorSaveStatus({
 	bodyStatus,
 	metadataStatus,
 	metadataError,
-	wordCount,
 }: {
 	bodyStatus: SaveStatus;
 	metadataStatus: SaveStatus;
 	metadataError: string | null;
-	wordCount: number;
 }) {
 	const label = getSaveStatusLabel(bodyStatus, metadataStatus, metadataError);
 	const hasError =
@@ -797,7 +983,7 @@ function EditorSaveStatus({
 		<p
 			aria-live="polite"
 			className={cn(
-				"shrink-0 text-[11px] tabular-nums",
+				"hidden max-w-32 items-center gap-1 truncate text-xs tabular-nums sm:flex sm:max-w-none",
 				hasError
 					? "text-danger"
 					: label === "Saved"
@@ -805,7 +991,10 @@ function EditorSaveStatus({
 						: "text-text-muted",
 			)}
 		>
-			{label} · {wordCount} words
+			{label === "Saved" ? (
+				<IconCheck aria-hidden="true" className="size-3.5" />
+			) : null}
+			{label}
 		</p>
 	);
 }

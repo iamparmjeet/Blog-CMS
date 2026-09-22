@@ -11,8 +11,6 @@ import {
 	ViewsChart,
 } from "../components/analytics-widgets";
 
-const ACCENT_COLOR = "#7c3aed";
-
 const RANGES: { label: string; value: AnalyticsRange }[] = [
 	{ label: "7d", value: "7d" },
 	{ label: "30d", value: "30d" },
@@ -33,10 +31,10 @@ export function AnalyticsPage() {
 	const totalViews = daily.reduce((sum, day) => sum + day.views, 0);
 
 	return (
-		<main className="mx-auto flex w-full max-w-[1080px] flex-col px-6 pt-9 pb-16 sm:px-10">
+		<main className="mx-auto flex w-full max-w-[1120px] flex-col px-4 pt-7 pb-16 sm:px-8 sm:pt-10 lg:px-12">
 			<header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
 				<div>
-					<h1 className="font-semibold text-[22px] text-text-primary tracking-[-0.02em]">
+					<h1 className="font-semibold text-[28px] text-text-primary tracking-[-0.035em] sm:text-[32px]">
 						Analytics
 					</h1>
 					<p className="mt-1.5 text-[13px] text-text-muted">
@@ -59,76 +57,50 @@ export function AnalyticsPage() {
 
 			<section
 				aria-label="Traffic statistics"
-				className="mt-7 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4"
+				className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
 			>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail={`Last ${dayCount} days`}
 					label="Blog views"
 					value={formatNumber(totalViews)}
 				/>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail="Unique readers"
 					label="Visitors"
 					value={formatNumber(Math.round(totalViews * 0.6))}
 				/>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail="Single-page sessions"
 					label="Bounce rate"
 					value="74%"
 				/>
-				<StatTile
-					accentColor={ACCENT_COLOR}
-					detail="Per session"
-					label="Avg visit time"
-					value="4m 22s"
-				/>
+				<StatTile detail="Per session" label="Avg visit time" value="4m 22s" />
 			</section>
 
 			<div className="mt-4 flex flex-col gap-2.5">
 				<AnalyticsCard title="Blog views over time">
-					<ViewsChart accentColor={ACCENT_COLOR} daily={daily} />
+					<ViewsChart daily={daily} />
 				</AnalyticsCard>
 
 				<AnalyticsCard title="Top blog pages">
-					<TopPagesTable
-						accentColor={ACCENT_COLOR}
-						pages={DEMO_ANALYTICS.topPages}
-					/>
+					<TopPagesTable pages={DEMO_ANALYTICS.topPages} />
 				</AnalyticsCard>
 
 				<div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
 					<AnalyticsCard title="Countries">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.countries}
-						/>
+						<BarList items={DEMO_ANALYTICS.countries} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Traffic sources">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.referrers}
-						/>
+						<BarList items={DEMO_ANALYTICS.referrers} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Browsers">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.browsers}
-						/>
+						<BarList items={DEMO_ANALYTICS.browsers} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Operating systems">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.operatingSystems}
-						/>
+						<BarList items={DEMO_ANALYTICS.operatingSystems} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Devices">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.devices}
-						/>
+						<BarList items={DEMO_ANALYTICS.devices} />
 					</AnalyticsCard>
 
 					<AnalyticsCard>

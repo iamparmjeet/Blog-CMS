@@ -20,7 +20,7 @@ export function MediaDetail({ color, item }: MediaDetailProps) {
 	}
 
 	return (
-		<aside className="flex w-60 shrink-0 flex-col overflow-y-auto border-border border-l">
+		<aside className="flex w-full shrink-0 flex-col overflow-y-auto border-border border-t bg-sidebar-bg lg:w-64 lg:border-t-0 lg:border-l">
 			<MediaThumbnail
 				className="h-[208px] w-full shrink-0"
 				color={color}

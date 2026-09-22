@@ -52,7 +52,7 @@ export function UploadZone({ message, onUpload, status }: UploadZoneProps) {
 			<Button
 				aria-busy={isUploading}
 				aria-controls={inputId}
-				className="flex w-full flex-col items-center justify-center rounded-lg border-[1.5px] border-border border-dashed px-5 py-7 text-center transition-colors hover:border-input disabled:cursor-not-allowed disabled:opacity-70"
+				className="flex h-auto w-full flex-col items-center justify-center rounded-xl border-[1.5px] border-border border-dashed bg-flat-surface px-5 py-9 text-center transition-colors hover:border-brand/50 hover:bg-brand/[0.03] disabled:cursor-not-allowed disabled:opacity-70"
 				disabled={isUploading}
 				onClick={openFilePicker}
 				onDragOver={(event) => {
@@ -63,6 +63,7 @@ export function UploadZone({ message, onUpload, status }: UploadZoneProps) {
 					selectFile(event.dataTransfer.files);
 				}}
 				type="button"
+				variant="outline"
 			>
 				<IconUpload aria-hidden="true" className="size-5 text-text-dim" />
 

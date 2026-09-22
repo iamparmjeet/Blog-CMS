@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_protected/settings")({
 });
 
 function SettingsRoute() {
-	const { user } = Route.useRouteContext();
+	const { user, appearance } = Route.useRouteContext();
 
-	return <SettingsPage user={user} />;
+	return <SettingsPage appearance={appearance} user={user} />;
 }

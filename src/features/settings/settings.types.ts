@@ -1,5 +1,21 @@
+export type ThemeMode = "system" | "day" | "night";
+
+export interface AppearanceSettings {
+	themeMode: ThemeMode;
+	accentColor: string;
+	surfaceTint: string;
+}
+
+export const DEFAULT_APPEARANCE: AppearanceSettings = {
+	themeMode: "night",
+	accentColor: "#7c3aed",
+	surfaceTint: "",
+};
+
 export interface SettingsForm {
 	accentColor: string;
+	themeMode: ThemeMode;
+	surfaceTint: string;
 	accountId: string;
 	allowedOrigins: string;
 	bio: string;
@@ -41,6 +57,8 @@ export const MODEL_OPTIONS = [
 
 export const DEFAULT_SETTINGS: SettingsForm = {
 	accentColor: "#7c3aed",
+	themeMode: "night",
+	surfaceTint: "",
 	accountId: "",
 	allowedOrigins: "",
 	bio: "",
