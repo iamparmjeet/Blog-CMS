@@ -61,7 +61,19 @@ Optional: `UMAMI_URL` (and related `UMAMI_*` vars) for analytics. Optional:
 `OPENROUTER_API_KEY` / `OPENROUTER_KEY` for AI features (not required for a
 deployment smoke test).
 
-Never commit `.env` or secret values. `.env.local` is gitignored.
+Never commit `.env` or secret values. `.env.local` is gitignored — and never
+copy it to `.env`. Local files never reach the Worker; instead pipe each value
+straight into Cloudflare (nothing is printed or committed):
+
+```bash
+set -a; . /path/to/.env.local; set +a
+printf '%s' "$BETTER_AUTH_SECRET" | bunx wrangler secret put BETTER_AUTH_SECRET
+printf '%s' "https://<your-worker>.workers.dev" | bunx wrangler secret put BETTER_AUTH_URL
+# …repeat for GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+```
+
+`BETTER_AUTH_URL` must be the deployment origin (not `localhost`) or login
+redirects will point at the wrong host.
 
 ## Environment / binding validation
 
