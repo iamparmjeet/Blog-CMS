@@ -120,7 +120,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Verify dashboard totals, recent posts, continue-writing behavior, and time-zone-aware heatmap against real post activity.
   - Acceptance: all dashboard states have end-to-end coverage and navigation leads to functional post workflows.
 
-- [ ] **M4.3: Implement Umami analytics.**
+- [x] **M4.3: Implement Umami analytics.**
   - Depends on: M4.1.
   - Embed or link the configured owner-only Umami dashboard with a secure setup flow.
   - Acceptance: analytics are unavailable until configured and do not expose credentials or owner-only URLs publicly.
