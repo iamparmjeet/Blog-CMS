@@ -15,7 +15,7 @@ interface PostsPageProps {
 	tab: PostTab;
 }
 
-type PostTab = "all" | "published" | "drafts" | "deleted";
+export type PostTab = "all" | "published" | "drafts" | "deleted";
 
 interface LifecycleActionOption {
 	action: PostLifecycleAction;
@@ -84,7 +84,7 @@ export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
 		setSelectedPostIds([]);
 		setActionError(null);
 		setConfirmAction(null);
-		void navigate({ search: { tab: nextTab } });
+		void navigate({ to: "/posts", search: { tab: nextTab } });
 	}
 
 	async function runLifecycleAction(action: PostLifecycleAction) {
