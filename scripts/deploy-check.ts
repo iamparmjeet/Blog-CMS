@@ -24,7 +24,7 @@ const OPTIONAL_SECRETS = [
 	"OPENROUTER_API_KEY",
 ];
 
-type WranglerConfig = {
+export type WranglerConfig = {
 	d1_databases?: Array<{
 		binding?: string;
 		database_name?: string;
