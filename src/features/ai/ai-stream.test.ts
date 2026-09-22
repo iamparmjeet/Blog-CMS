@@ -56,6 +56,24 @@ describe("createSseParser", () => {
 
 		expect(parser.error).toBe("upstream blew up");
 	});
+
+	it("parses the server-normalized delta shape", () => {
+		const parser = createSseParser();
+
+		parser.feed('data: {"delta":"Hel"}\n\ndata: {"delta":"lo"}\n\n');
+
+		expect(parser.deltas).toEqual(["Hel", "lo"]);
+		expect(parser.text).toBe("Hello");
+		expect(parser.done).toBe(false);
+	});
+
+	it("completes a normalized stream on [DONE] and ignores trailing noise", () => {
+		const result = parseSseStream(
+			'data: {"delta":"Hi"}\n\ndata: [DONE]\n\ndata: {"delta":" ignored"}\n\n',
+		);
+
+		expect(result).toEqual({ text: "Hi", done: true, error: null });
+	});
 });
 
 describe("parseSseStream", () => {

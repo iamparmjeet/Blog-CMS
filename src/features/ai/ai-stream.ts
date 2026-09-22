@@ -12,6 +12,8 @@ export interface SseParser extends ParsedSseStream {
 
 interface OpenRouterDelta {
 	choices?: Array<{ delta?: { content?: unknown; role?: string } }>;
+	/** Server-normalized shape emitted by toNormalizedStream. */
+	delta?: unknown;
 	error?: { message?: unknown };
 }
 
@@ -62,13 +64,17 @@ export function createSseParser(): SseParser {
 			return;
 		}
 
-		for (const choice of parsed.choices ?? []) {
-			const content = choice.delta?.content;
+		appendDelta(parsed.delta);
 
-			if (typeof content === "string" && content.length > 0 && !state.done) {
-				deltas.push(content);
-				state.text += content;
-			}
+		for (const choice of parsed.choices ?? []) {
+			appendDelta(choice.delta?.content);
+		}
+	}
+
+	function appendDelta(content: unknown): void {
+		if (typeof content === "string" && content.length > 0 && !state.done) {
+			deltas.push(content);
+			state.text += content;
 		}
 	}
 
