@@ -1,12 +1,22 @@
 import { getDb } from "#/db";
-import type { AppearanceSettings } from "../settings.types";
+import { env } from "#/env";
+import type { AppearanceSettings, StorageSettings } from "../settings.types";
+import { DEFAULT_STORAGE } from "../settings.types";
 import {
+	type AccountInput,
 	type AppearanceInput,
 	type FeedSettingsInput,
+	type IdentityInput,
+	type OwnerSettingsProfile,
+	type PublishingInput,
 	readAppearance,
 	readFeedSettings,
+	readOwnerProfile,
+	upsertAccount,
 	upsertAppearance,
 	upsertFeedSettings,
+	upsertIdentity,
+	upsertPublishing,
 } from "./settings.query";
 
 export async function readAppearanceForOwner(
@@ -33,4 +43,50 @@ export async function saveFeedSettingsForOwner(
 	input: FeedSettingsInput,
 ): Promise<FeedSettingsInput> {
 	return upsertFeedSettings(getDb(), userId, input);
+}
+
+export async function readOwnerProfileForOwner(
+	userId: string,
+): Promise<OwnerSettingsProfile> {
+	return readOwnerProfile(getDb(), userId);
+}
+
+export async function saveIdentityForOwner(
+	userId: string,
+	input: IdentityInput,
+): Promise<void> {
+	await upsertIdentity(getDb(), userId, input);
+}
+
+export async function saveAccountForOwner(
+	userId: string,
+	input: AccountInput,
+): Promise<void> {
+	await upsertAccount(getDb(), userId, input);
+}
+
+export async function savePublishingForOwner(
+	userId: string,
+	input: PublishingInput,
+): Promise<void> {
+	await upsertPublishing(getDb(), userId, input);
+}
+
+export function readStorageInfo(): StorageSettings {
+	const bucketName = env.R2_BUCKET_NAME ?? "";
+	const publicUrl = env.R2_PUBLIC_URL ?? "";
+	const accountId = env.R2_ACCOUNT_ID ?? "";
+	const connected = Boolean(
+		bucketName &&
+			accountId &&
+			publicUrl &&
+			env.R2_ACCESS_KEY_ID &&
+			env.R2_SECRET_ACCESS_KEY,
+	);
+
+	if (!bucketName && !publicUrl && !accountId) {
+		return { ...DEFAULT_STORAGE };
+	}
+
+	return { accountId, bucketName, publicUrl, connected };
 }

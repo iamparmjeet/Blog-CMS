@@ -16,21 +16,26 @@ export interface SettingsForm {
 	accentColor: string;
 	themeMode: ThemeMode;
 	surfaceTint: string;
-	accountId: string;
 	allowedOrigins: string;
 	bio: string;
 	blogTitle: string;
-	bucket: string;
 	defaultModel: string;
 	displayName: string;
 	domain: string;
-	publicUrl: string;
+	timeZone: string;
 	readingTime: boolean;
 	rssFeed: boolean;
 	seoMeta: boolean;
 	umamiShareUrl: string;
 	writingSample: string;
 	writingStyle: string;
+}
+
+export interface StorageSettings {
+	accountId: string;
+	bucketName: string;
+	publicUrl: string;
+	connected: boolean;
 }
 
 export const ACCENT_SWATCHES = [
@@ -59,19 +64,24 @@ export const DEFAULT_SETTINGS: SettingsForm = {
 	accentColor: "#7c3aed",
 	themeMode: "night",
 	surfaceTint: "",
-	accountId: "",
 	allowedOrigins: "",
 	bio: "",
 	blogTitle: "ContentOS",
-	bucket: "content-os-media",
 	defaultModel: MODEL_OPTIONS[0]?.value ?? "google/gemini-2.5-flash",
 	displayName: "",
 	domain: "",
-	publicUrl: "",
+	timeZone: "Asia/Kolkata",
 	readingTime: false,
 	rssFeed: true,
 	seoMeta: true,
 	umamiShareUrl: "",
 	writingSample: "",
 	writingStyle: "",
+};
+
+export const DEFAULT_STORAGE: StorageSettings = {
+	accountId: "",
+	bucketName: "",
+	publicUrl: "",
+	connected: false,
 };

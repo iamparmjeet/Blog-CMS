@@ -18,14 +18,21 @@ import {
 } from "../components/settings-widgets";
 import {
 	getFeedSettings,
+	getOwnerSettings,
+	getStorageSettings,
+	saveAccountSettings,
 	saveAppearanceSettings,
 	saveFeedSettings,
+	saveIdentitySettings,
+	savePublishingSettings,
 } from "../functions/settings.function";
 import {
 	type AppearanceSettings,
 	DEFAULT_SETTINGS,
+	DEFAULT_STORAGE,
 	MODEL_OPTIONS,
 	type SettingsForm,
+	type StorageSettings,
 } from "../settings.types";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -43,29 +50,57 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 		themeMode: appearance.themeMode,
 		surfaceTint: appearance.surfaceTint,
 	}));
+	const [storage, setStorage] = useState<StorageSettings>(DEFAULT_STORAGE);
+	const [isLoaded, setIsLoaded] = useState(false);
 	const [saveState, setSaveState] = useState<SaveState>("idle");
+	const [identitySaveState, setIdentitySaveState] = useState<SaveState>("idle");
+	const [accountSaveState, setAccountSaveState] = useState<SaveState>("idle");
+	const [publishingSaveState, setPublishingSaveState] =
+		useState<SaveState>("idle");
 	const [isAppearanceDirty, setIsAppearanceDirty] = useState(false);
 	const [isFeedDirty, setIsFeedDirty] = useState(false);
 	const [feedSaveState, setFeedSaveState] = useState<SaveState>("idle");
+	const [isIdentityDirty, setIsIdentityDirty] = useState(false);
+	const [isAccountDirty, setIsAccountDirty] = useState(false);
+	const [isPublishingDirty, setIsPublishingDirty] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
 
-		void (async () => {
+		async function load() {
 			try {
-				const feedSettings = await getFeedSettings();
-
-				if (!cancelled) {
-					setForm((current) => ({
-						...current,
-						allowedOrigins: feedSettings.allowedOrigins,
-					}));
+				const [profile, storageInfo, feedSettings] = await Promise.all([
+					getOwnerSettings(),
+					getStorageSettings(),
+					getFeedSettings(),
+				]);
+				if (cancelled) {
+					return;
 				}
+				setStorage(storageInfo);
+				setForm((current) => ({
+					...current,
+					displayName: profile.displayName || current.displayName,
+					blogTitle: profile.blogTitle,
+					domain: profile.domain,
+					bio: profile.bio,
+					timeZone: profile.timeZone,
+					defaultModel: profile.defaultModel,
+					writingStyle: profile.writingStyle,
+					writingSample: profile.writingSample,
+					umamiShareUrl: profile.umamiShareUrl,
+					allowedOrigins: feedSettings.allowedOrigins,
+				}));
+				setIsLoaded(true);
 			} catch {
-				// Feed settings load failure leaves the default empty allowlist.
+				if (!cancelled) {
+					setIsLoaded(true);
+					setIdentitySaveState("error");
+				}
 			}
-		})();
+		}
 
+		void load();
 		return () => {
 			cancelled = true;
 		};
@@ -81,6 +116,33 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 			setIsFeedDirty(true);
 			setFeedSaveState("idle");
 		}
+	}
+
+	function updateIdentity<TKey extends keyof SettingsForm>(
+		key: TKey,
+		value: SettingsForm[TKey],
+	) {
+		update(key, value);
+		setIsIdentityDirty(true);
+		setIdentitySaveState("idle");
+	}
+
+	function updateAccount<TKey extends keyof SettingsForm>(
+		key: TKey,
+		value: SettingsForm[TKey],
+	) {
+		update(key, value);
+		setIsAccountDirty(true);
+		setAccountSaveState("idle");
+	}
+
+	function updatePublishing<TKey extends keyof SettingsForm>(
+		key: TKey,
+		value: SettingsForm[TKey],
+	) {
+		update(key, value);
+		setIsPublishingDirty(true);
+		setPublishingSaveState("idle");
 	}
 
 	function updateAppearance<TKey extends keyof AppearanceSettings>(
@@ -130,6 +192,57 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 		}
 	}
 
+	async function saveIdentity() {
+		setIdentitySaveState("saving");
+		try {
+			await saveIdentitySettings({
+				data: {
+					blogTitle: form.blogTitle,
+					domain: form.domain,
+					bio: form.bio,
+				},
+			});
+			setIsIdentityDirty(false);
+			setIdentitySaveState("saved");
+		} catch {
+			setIdentitySaveState("error");
+		}
+	}
+
+	async function saveAccount() {
+		setAccountSaveState("saving");
+		try {
+			await saveAccountSettings({
+				data: {
+					displayName: form.displayName,
+					defaultModel: form.defaultModel,
+					writingStyle: form.writingStyle,
+					writingSample: form.writingSample,
+				},
+			});
+			setIsAccountDirty(false);
+			setAccountSaveState("saved");
+		} catch {
+			setAccountSaveState("error");
+		}
+	}
+
+	async function savePublishing() {
+		setPublishingSaveState("saving");
+		try {
+			await savePublishingSettings({
+				data: {
+					timeZone: form.timeZone,
+					umamiShareUrl: form.umamiShareUrl,
+				},
+			});
+			setIsPublishingDirty(false);
+			setPublishingSaveState("saved");
+		} catch {
+			setPublishingSaveState("error");
+		}
+	}
+
 	const feedBase = form.domain
 		? `https://${form.domain.replace(/^https?:\/\//, "")}`
 		: "https://your-domain.com";
@@ -143,7 +256,60 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 					? "Couldn't save appearance"
 					: isAppearanceDirty
 						? "Unsaved appearance changes"
-						: "Other settings storage is not connected yet";
+						: !isLoaded
+							? "Loading settings…"
+							: "All changes saved";
+
+	function sectionStatus(state: SaveState, dirty: boolean): string {
+		return state === "saving"
+			? "Saving…"
+			: state === "saved"
+				? "Saved"
+				: state === "error"
+					? "Couldn't save"
+					: dirty
+						? "Unsaved changes"
+						: "";
+	}
+
+	function statusTone(state: SaveState): string {
+		return state === "error"
+			? "text-danger"
+			: state === "saved"
+				? "text-success"
+				: "text-text-muted";
+	}
+
+	function SaveRow({
+		dirty,
+		disabled,
+		onClick,
+		state,
+	}: {
+		dirty: boolean;
+		disabled?: boolean;
+		onClick: () => void;
+		state: SaveState;
+	}) {
+		return (
+			<div className="flex items-center justify-end gap-3">
+				<span
+					aria-live="polite"
+					className={cn("text-[11px]", statusTone(state))}
+				>
+					{sectionStatus(state, dirty)}
+				</span>
+				<Button
+					disabled={!dirty || state === "saving" || disabled}
+					onClick={onClick}
+					size="sm"
+					type="button"
+				>
+					{state === "saving" ? "Saving…" : "Save"}
+				</Button>
+			</div>
+		);
+	}
 
 	return (
 		<main className="flex h-full min-h-0 flex-col">
@@ -234,7 +400,7 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 								<SettingsInput
 									label="Display name"
 									onChange={(event) =>
-										update("displayName", event.target.value)
+										updateAccount("displayName", event.target.value)
 									}
 									value={form.displayName}
 								/>
@@ -257,7 +423,7 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									<select
 										className="rounded-md border border-border bg-app-bg px-3 py-1.5 text-[13px] text-text-body outline-none transition-colors focus:border-text-dim"
 										onChange={(event) =>
-											update("defaultModel", event.target.value)
+											updateAccount("defaultModel", event.target.value)
 										}
 										value={form.defaultModel}
 									>
@@ -275,7 +441,7 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									description="Describe the voice the AI should match."
 									label="Style guide"
 									onChange={(event) =>
-										update("writingStyle", event.target.value)
+										updateAccount("writingStyle", event.target.value)
 									}
 									placeholder="Direct, conversational, no filler."
 									value={form.writingStyle}
@@ -284,10 +450,16 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									description="Paste a sample you want future drafts to emulate."
 									label="Sample"
 									onChange={(event) =>
-										update("writingSample", event.target.value)
+										updateAccount("writingSample", event.target.value)
 									}
 									placeholder="A paragraph you are happy with."
 									value={form.writingSample}
+								/>
+								<SaveRow
+									dirty={isAccountDirty}
+									disabled={!isLoaded}
+									onClick={() => void saveAccount()}
+									state={accountSaveState}
 								/>
 							</SettingsSection>
 						</div>
@@ -298,23 +470,35 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 							<SettingsSection title="Site">
 								<SettingsInput
 									label="Blog title"
-									onChange={(event) => update("blogTitle", event.target.value)}
+									onChange={(event) =>
+										updateIdentity("blogTitle", event.target.value)
+									}
 									value={form.blogTitle}
 								/>
 								<SettingsInput
 									description="Your public-facing URL. Used in the feed and preview."
 									label="Domain"
 									mono
-									onChange={(event) => update("domain", event.target.value)}
+									onChange={(event) =>
+										updateIdentity("domain", event.target.value)
+									}
 									placeholder="your-domain.com"
 									value={form.domain}
 								/>
 								<SettingsTextarea
 									description="Used in meta tags and the RSS feed description."
 									label="Bio"
-									onChange={(event) => update("bio", event.target.value)}
+									onChange={(event) =>
+										updateIdentity("bio", event.target.value)
+									}
 									placeholder="What this blog is about."
 									value={form.bio}
+								/>
+								<SaveRow
+									dirty={isIdentityDirty}
+									disabled={!isLoaded}
+									onClick={() => void saveIdentity()}
+									state={identitySaveState}
 								/>
 							</SettingsSection>
 
@@ -380,6 +564,22 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 
 					<TabsContent className="flex flex-col gap-10" value="publishing">
 						<div className="mx-auto flex w-full max-w-[560px] flex-col gap-10">
+							<SettingsSection
+								description="Time zone used for writing activity and future scheduling."
+								title="Publishing preferences"
+							>
+								<SettingsInput
+									description="IANA time zone, for example Asia/Kolkata."
+									label="Time zone"
+									mono
+									onChange={(event) =>
+										updatePublishing("timeZone", event.target.value)
+									}
+									placeholder="Asia/Kolkata"
+									value={form.timeZone}
+								/>
+							</SettingsSection>
+
 							<SettingsSection title="Publishing">
 								<SettingsToggleRow
 									checked={form.seoMeta}
@@ -409,10 +609,16 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 									label="Share URL"
 									mono
 									onChange={(event) =>
-										update("umamiShareUrl", event.target.value)
+										updatePublishing("umamiShareUrl", event.target.value)
 									}
 									placeholder="https://umami.example.com/share/…"
 									value={form.umamiShareUrl}
+								/>
+								<SaveRow
+									dirty={isPublishingDirty}
+									disabled={!isLoaded}
+									onClick={() => void savePublishing()}
+									state={publishingSaveState}
 								/>
 							</SettingsSection>
 
@@ -439,33 +645,37 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 					<TabsContent className="flex flex-col gap-10" value="storage">
 						<div className="mx-auto flex w-full max-w-[560px] flex-col gap-10">
 							<SettingsSection
-								description="Cloudflare R2 bucket used for media uploads."
+								description="Cloudflare R2 bucket used for media uploads. Read-only — configured via environment variables."
 								title="Storage"
 							>
 								<IntegrationRow
-									description="Binding declared · uploads are not connected yet"
+									description={
+										storage.connected
+											? "Binding and credentials configured · direct uploads enabled"
+											: "Set R2_* environment variables to enable uploads"
+									}
 									name="Cloudflare R2"
-									tone="disconnected"
+									tone={storage.connected ? "connected" : "disconnected"}
 								/>
 								<SettingsInput
 									label="Bucket name"
 									mono
-									onChange={(event) => update("bucket", event.target.value)}
-									value={form.bucket}
+									readOnly
+									value={storage.bucketName}
 								/>
 								<SettingsInput
 									label="Public URL"
 									mono
-									onChange={(event) => update("publicUrl", event.target.value)}
 									placeholder="https://media.your-domain.com"
-									value={form.publicUrl}
+									readOnly
+									value={storage.publicUrl}
 								/>
 								<SettingsInput
 									label="Account ID"
 									mono
-									onChange={(event) => update("accountId", event.target.value)}
 									placeholder="a1b2c3d4e5f6…"
-									value={form.accountId}
+									readOnly
+									value={storage.accountId}
 								/>
 							</SettingsSection>
 
