@@ -53,6 +53,10 @@ export function countWords(body: PostBodyDocument): number {
 	return text ? text.split(/\s+/u).length : 0;
 }
 
+export function extractPlainText(body: PostBodyDocument): string {
+	return body.content.map((node) => extractText(node).trim()).join("\n");
+}
+
 function parsePostBody(value: unknown): PostBodyDocument {
 	if (!isTipTapNode(value) || value.type !== "doc") {
 		throw new Error("Post body must be a TipTap document");

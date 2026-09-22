@@ -1,0 +1,15 @@
+PASS: success streams the stubbed variant
+PASS: request carries the bearer key
+PASS: system prompt labels the Twitter format
+PASS: user message carries the source text
+PASS: source post unchanged after success
+PASS: empty source maps to empty_source
+PASS: no provider request for empty source
+PASS: outage maps to provider_unavailable
+PASS: source post unchanged after outage
+PASS: missing key maps to not_configured
+PASS: no provider request without a key
+PASS: mid-stream abort surfaces to the reader
+PASS: source post unchanged after abort
+
+E2E complete: stub saw 3 provider request(s). All green.

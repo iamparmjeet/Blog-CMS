@@ -31,6 +31,12 @@ import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import {
+	PLATFORM_LABELS,
+	REPURPOSE_PLATFORMS as REPURPOSE_PLATFORM_IDS,
+	type RepurposePlatform,
+} from "#/features/ai/ai-repurpose";
+import { createSseParser } from "#/features/ai/ai-stream";
 import { GenerateDialog } from "#/features/ai/components/generate-dialog";
 import { MediaPicker } from "#/features/media/components/media-picker";
 import type { MediaItem } from "#/features/media/media.types";
@@ -54,17 +60,13 @@ const AUTOSAVE_DELAY_MS = 700;
 
 type SaveStatus = "saved" | "saving" | "local" | "error";
 type EditorView = "write" | "seo";
-type RepurposePlatform = "twitter" | "linkedin" | "instagram" | "reels";
-
 const REPURPOSE_PLATFORMS: readonly {
 	label: string;
 	value: RepurposePlatform;
-}[] = [
-	{ label: "X / Twitter", value: "twitter" },
-	{ label: "LinkedIn", value: "linkedin" },
-	{ label: "Instagram", value: "instagram" },
-	{ label: "Reels", value: "reels" },
-];
+}[] = REPURPOSE_PLATFORM_IDS.map((platform) => ({
+	label: PLATFORM_LABELS[platform],
+	value: platform,
+}));
 
 const REPURPOSE_PROMPTS: Record<RepurposePlatform, string> = {
 	instagram: "an Instagram caption",
@@ -577,7 +579,10 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 				</div>
 
 				{isRepurposeOpen ? (
-					<RepurposeRail onClose={() => setIsRepurposeOpen(false)} />
+					<RepurposeRail
+						postId={post.id}
+						onClose={() => setIsRepurposeOpen(false)}
+					/>
 				) : null}
 			</div>
 
@@ -857,8 +862,170 @@ function PostPreviewOverlay({
 	);
 }
 
-function RepurposeRail({ onClose }: { onClose: () => void }) {
+function RepurposeRail({
+	postId,
+	onClose,
+}: {
+	postId: number;
+	onClose: () => void;
+}) {
 	const [platform, setPlatform] = useState<RepurposePlatform>("twitter");
+	const [phase, setPhase] = useState<"idle" | "streaming" | "done" | "error">(
+		"idle",
+	);
+	const [variant, setVariant] = useState("");
+	const [model, setModel] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [copied, setCopied] = useState(false);
+	const abortRef = useRef<AbortController | null>(null);
+
+	useEffect(() => {
+		return () => {
+			abortRef.current?.abort();
+		};
+	}, []);
+
+	function selectPlatform(next: RepurposePlatform) {
+		if (next === platform) {
+			return;
+		}
+
+		abortRef.current?.abort();
+		setPlatform(next);
+		setPhase("idle");
+		setVariant("");
+		setModel(null);
+		setError(null);
+		setCopied(false);
+	}
+
+	async function startVariant() {
+		if (phase === "streaming") {
+			return;
+		}
+
+		abortRef.current?.abort();
+
+		const controller = new AbortController();
+		abortRef.current = controller;
+
+		setPhase("streaming");
+		setVariant("");
+		setModel(null);
+		setError(null);
+		setCopied(false);
+
+		let response: Response;
+
+		try {
+			response = await fetch("/api/ai/repurpose", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ postId, platform }),
+				signal: controller.signal,
+			});
+		} catch (requestError) {
+			if (controller.signal.aborted) {
+				setPhase("idle");
+				return;
+			}
+
+			setPhase("error");
+			setError(
+				requestError instanceof Error
+					? requestError.message
+					: "Could not reach the server.",
+			);
+			return;
+		}
+
+		if (!response.ok || !response.body) {
+			let message = `Repurposing failed (HTTP ${response.status}). Your post is unchanged.`;
+
+			try {
+				const payload = (await response.json()) as {
+					error?: { code?: string; message?: string };
+				};
+
+				if (payload.error?.code === "not_configured") {
+					message =
+						"AI repurposing is not configured yet. Set OPENROUTER_API_KEY on the server, then retry. Your post is unchanged.";
+				} else if (payload.error?.message) {
+					message = payload.error.message;
+				}
+			} catch {
+				// Fall back to the status-based message above.
+			}
+
+			setPhase("error");
+			setError(message);
+			return;
+		}
+
+		setModel(response.headers.get("x-ai-model"));
+
+		const parser = createSseParser();
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+
+		try {
+			for (;;) {
+				const { done, value } = await reader.read();
+
+				if (done) {
+					break;
+				}
+
+				parser.feed(decoder.decode(value, { stream: true }));
+				parser.flush();
+				setVariant(parser.text);
+
+				if (parser.error) {
+					setPhase("error");
+					setError(
+						`The provider stream failed (${parser.error}). Anything shown above was kept for review; your post is unchanged.`,
+					);
+					return;
+				}
+
+				if (parser.done) {
+					break;
+				}
+			}
+		} catch (streamError) {
+			if (controller.signal.aborted) {
+				setPhase(parser.text ? "done" : "idle");
+				setVariant(parser.text);
+				return;
+			}
+
+			setPhase("error");
+			setError(
+				streamError instanceof Error
+					? streamError.message
+					: "The stream failed before completing.",
+			);
+			return;
+		} finally {
+			reader.releaseLock();
+		}
+
+		setVariant(parser.text);
+		setPhase(parser.text ? "done" : "idle");
+	}
+
+	async function copyVariant() {
+		if (!variant) {
+			return;
+		}
+
+		try {
+			await window.navigator.clipboard.writeText(variant);
+			setCopied(true);
+		} catch {
+			setError("Copy failed in this browser. Select the text manually.");
+		}
+	}
 
 	return (
 		<aside className="hidden min-h-0 flex-col border-border border-l bg-sidebar-bg xl:flex">
@@ -897,7 +1064,7 @@ function RepurposeRail({ onClose }: { onClose: () => void }) {
 									: "text-text-dim hover:text-text-secondary",
 							)}
 							key={option.value}
-							onClick={() => setPlatform(option.value)}
+							onClick={() => selectPlatform(option.value)}
 							role="tab"
 							type="button"
 						>
@@ -909,44 +1076,81 @@ function RepurposeRail({ onClose }: { onClose: () => void }) {
 
 			<div className="shrink-0 border-border border-b p-4">
 				<div className="flex items-center gap-3">
-					<label
-						className="font-mono text-[10px] text-text-dim"
-						htmlFor="repurpose-model"
-					>
+					<span className="font-mono text-[10px] text-text-dim">
 						openrouter
-					</label>
-					<select
-						aria-describedby="repurpose-unavailable"
-						className="h-8 min-w-0 flex-1 rounded-md border border-border bg-app-bg px-2 text-text-muted text-xs outline-none"
-						disabled
-						id="repurpose-model"
-						title="AI repurposing is planned for Phase 5"
-					>
-						<option>Claude Haiku 3.5 - fast</option>
-					</select>
+					</span>
+					<span className="min-w-0 flex-1 truncate text-text-muted text-xs">
+						{model ?? "Model follows Settings → Account"}
+					</span>
 				</div>
 
-				<Button
-					aria-describedby="repurpose-unavailable"
-					className="mt-4 h-10 w-full disabled:opacity-100"
-					disabled
-					title="AI repurposing is planned for Phase 5"
-					type="button"
-					variant="brand"
-				>
-					<IconSparkles aria-hidden="true" />
-					Generate
-				</Button>
+				{phase === "streaming" ? (
+					<Button
+						className="mt-4 h-10 w-full"
+						onClick={() => abortRef.current?.abort()}
+						type="button"
+						variant="outline"
+					>
+						Cancel
+					</Button>
+				) : (
+					<Button
+						className="mt-4 h-10 w-full"
+						onClick={() => void startVariant()}
+						type="button"
+						variant="brand"
+					>
+						<IconSparkles aria-hidden="true" />
+						Generate
+					</Button>
+				)}
 			</div>
 
-			<div className="flex min-h-0 flex-1 flex-col items-center justify-center px-8 pb-20 text-center">
-				<IconSparkles aria-hidden="true" className="size-6 text-text-faint" />
-				<p className="mt-5 text-text-dim text-xs">
-					Generate {REPURPOSE_PROMPTS[platform]} from this post
-				</p>
-				<p className="sr-only" id="repurpose-unavailable">
-					AI repurposing is planned for Phase 5.
-				</p>
+			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
+				{error ? (
+					<p
+						className="rounded-md bg-danger/5 p-3 text-danger text-xs"
+						role="alert"
+					>
+						{error}
+					</p>
+				) : null}
+
+				{variant ? (
+					<div>
+						<div className="flex items-center justify-between gap-2">
+							<p className="font-medium text-[10px] text-text-dim uppercase tracking-[0.07em]">
+								{PLATFORM_LABELS[platform]} variant
+							</p>
+							<Button
+								onClick={() => void copyVariant()}
+								size="default"
+								type="button"
+								variant="outline"
+							>
+								{copied ? "Copied" : "Copy"}
+							</Button>
+						</div>
+						<p
+							aria-live="polite"
+							className="mt-2 whitespace-pre-wrap text-sm text-text-body"
+						>
+							{variant}
+						</p>
+					</div>
+				) : (
+					<div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 pb-20 text-center">
+						<IconSparkles
+							aria-hidden="true"
+							className="size-6 text-text-faint"
+						/>
+						<p className="mt-5 text-text-dim text-xs">
+							{phase === "streaming"
+								? `Streaming ${REPURPOSE_PROMPTS[platform]}…`
+								: `Generate ${REPURPOSE_PROMPTS[platform]} from this post`}
+						</p>
+					</div>
+				)}
 			</div>
 		</aside>
 	);
