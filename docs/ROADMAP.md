@@ -115,7 +115,7 @@ This roadmap turns the current README commitments into independently verifiable 
   - Add owner-managed blog identity, accent color, timezone, feed origins, model preference, writing profile, and storage/analytics settings.
   - Acceptance: each setting is validated, persists, and is applied by its dependent feature.
 
-- [ ] **M4.2: Complete dashboard behavior.**
+- [x] **M4.2: Complete dashboard behavior.**
 	- Depends on: M2.5, M4.1.
   - Verify dashboard totals, recent posts, continue-writing behavior, and time-zone-aware heatmap against real post activity.
   - Acceptance: all dashboard states have end-to-end coverage and navigation leads to functional post workflows.
