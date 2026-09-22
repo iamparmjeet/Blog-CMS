@@ -6,7 +6,7 @@ This baseline is based on the current tracked source, README commitments, and lo
 
 ## Summary
 
-ContentOS now supports the core owner post workflow, a complete owner media library (direct R2 uploads with verified generated preview variants, search, editor insertion/reuse, and reference-safe deletion), and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Public delivery, deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
+ContentOS now supports the core owner post workflow, a complete owner media library (direct R2 uploads with verified generated preview variants, search, editor insertion/reuse, and reference-safe deletion), a CORS-gated public JSON feed of published posts, and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
 
 | Area | Status | Current state |
 | --- | --- | --- |
@@ -17,12 +17,12 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
 | Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
-| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets with search and optimized previews; `/settings` Appearance is fully wired (theme, accent, card surfaces); `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
+| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets with search and optimized previews; `/settings` Appearance is fully wired (theme, accent, card surfaces) and the Public JSON feed section loads/saves the CORS allowlist; `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
 | Media | Implemented (M3.1 + M3.2) | The owner uploads validated images and videos directly to R2 through five-minute presigned URLs; pending metadata becomes ready only after size/type verification of the original and its generated preview variant. The library supports filename search, kind filters, and previews that prefer generated image thumbnails and video poster variants over full originals. Assets insert and reuse across posts from the editor's media picker, and deletion is reference-scanned: published or scheduled posts block deletion, other references require explicit confirmation, and unreferenced assets remove their R2 objects and row. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Partial (M4.1 in progress) | The `settings` table stores `themeMode` (default `night`) and `surfaceTint`; appearance is loaded on protected routes, applied live from the settings UI, and persisted through owner-scoped server functions. The Appearance tab offers explicit Plain and Tinted card surfaces, while the broader form still has unconnected storage fields (bucket/bucketName mismatch, omitted timeZone). |
 | Analytics | Partial (M4.3 not started) | A reference analytics layout renders demo traffic data and inherits the saved appearance accent. It has no Umami integration yet. |
-| Public API | Not implemented | Only the Better Auth API route exists; published-post feed routes are absent. |
+| Public API | Implemented (M3.3) | `GET /api/posts` and `GET /api/posts/:slug` serve owner-published posts as JSON behind a settings-driven CORS allowlist. Allowed origins receive the documented payload with `Access-Control-Allow-Origin`; disallowed origins get 403 with no publishable content; drafts, scheduled, archived, and soft-deleted posts are excluded. TipTap bodies are sanitized so media/link URLs are http(s) only. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
 | Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. The committed D1 identifier is still a placeholder and no preview deployment exists yet (M1.3). |
@@ -32,16 +32,16 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 126/126, including media validation/key/URL/preview rules, owner-scoped pending/ready metadata transitions, media search and usage scanning, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, and analytics appearance-token use. |
+| `bun run test` | Passes | 151/151, including media validation/key/URL/preview rules, owner-scoped pending/ready metadata transitions, media search and usage scanning, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, analytics appearance-token use, and feed CORS/origin parsing/body sanitization/published-only queries. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 165 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 173 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
 
 ## Immediate Repair Scope
 
-The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remote Studio workflows and application identity are also implemented:
+The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, M3.1, M3.2, and M3.3 are complete. Local/remote Studio workflows and application identity are also implemented:
 
 - The Drizzle journal is a single regenerated baseline from `full-schema.ts` plus additive milestones through `0004_fuzzy_flatman.sql`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
@@ -50,15 +50,19 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remot
 - Post metadata validates title and stable slugs, enforces per-owner uniqueness, persists separate SEO title/description fields, and renders an in-place public preview from the canonical body.
 - Post lifecycle controls are owner-authorized and batch-capable: draft posts publish, published posts unpublish to drafts, posts can be archived or returned to drafts, soft-deleted posts move to a separate trash collection, and only trashed posts can be restored or permanently purged after explicit confirmation. Once a post has been published, its slug stays immutable across later status changes.
 - Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification (original plus generated preview variant), cancellation cleanup, owner-only listing, filename search, optimized grid previews, reference-safe deletion, editor insertion/reuse, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
+- The public JSON feed (`/api/posts`, `/api/posts/:slug`) serves published, non-soft-deleted owner posts only. CORS allowlist entries live in `settings.allowedOrigins` (editable from the Settings → Site → Public JSON feed section); disallowed browser origins receive 403 with no post content, and TipTap bodies are sanitized to safe http(s) asset URLs.
 - Remaining before deployment: M1.3 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
 
 ## Current Handoff
 
-The merged product baseline ends at PR #13 (M4.1 appearance on top of PR #12 / M3.1 `5c730f7`). The M3.2 media library is implemented on `feat/m3.2-media-library` (branched from current `main`) and awaits its PR. Continue each independent concern from its own fresh branch based on current `main`:
+The merged product baseline advances with PR #14 (M3.2 media library) on top of PR #13 / M3.1. Continue each independent concern from its own fresh branch based on current `main`:
 
-- M3.2 (media library) is ready for review on `feat/m3.2-media-library`: filename search, optimized preview variants (image thumbnails and video poster variants), editor insertion/reuse through the media picker, and reference-safe deletion that blocks published/scheduled usage.
+The merged product baseline advances with PR #14 (M3.2 media library) on top of PR #13 / M3.1. Continue each independent concern from its own fresh branch based on current `main`:
+
+- M3.3 (public JSON feed) lands via this branch (`feat/m3.3-public-feed`).
+- M4.1 broad settings form is on `feat/m4.1-settings-form` (PR #16), pending rebase onto the post-M3.2/M3.3 main.
 - M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
-- Keep each independent concern (frontend repair, M1.3, M4.1 remainder) on its own fresh branch.
+- Keep each independent concern (M3.3, M4.1, M1.3, M4.2, M4.3) on its own fresh branch.
 
 ## Local Worker State
 
@@ -66,6 +70,15 @@ The merged product baseline ends at PR #13 (M4.1 appearance on top of PR #12 / M
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
 - `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
 - `bun run db:studio:local` discovers the non-metadata SQLite file in that state directory and opens it with Drizzle Studio. `bun run db:studio:remote` uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and a scoped `CLOUDFLARE_API_TOKEN`.
+
+## Public Feed Pass (2026-09-22)
+
+Branch `feat/m3.3-public-feed` delivers T3.3 / M3.3:
+
+- `src/features/feed/` adds pure CORS/origin utilities (`parseAllowedOrigins`, `evaluateFeedCors`), published-only queries (`selectPublishedFeedPosts`, `selectPublishedFeedPostBySlug`, `selectInstanceOwnerId`, `selectFeedSettings`), body sanitization (`sanitizeFeedBody` drops media with non-http(s) sources and strips unsafe link hrefs), and JSON response helpers with `Cache-Control: public, max-age=60`.
+- Routes `GET`/`OPTIONS /api/posts` and `/api/posts/:slug` return `{ posts: [...] }` or a single `FeedPost` (`slug`, `title`, `description`, `seoTitle`, `publishedAt`, `updatedAt`, `wordCount`, `url`, TipTap `body`). No Origin header (non-browser client) is allowed; a present Origin must match the allowlist or the response is 403 with no post content. Missing/draft slugs return 404.
+- `settings.allowedOrigins` gains a read/write path (`getFeedSettings`/`saveFeedSettings`, owner-scoped, `no-store`) and the Settings → Site → Public JSON feed section loads the allowlist and saves it with an explicit Save origins button.
+- Coverage: `feed.utils.test.ts` (origin parsing, CORS decisions, URL building, body sanitization, serialization) and `feed.query.test.ts` (throwaway DB: owner resolution, published-only collection order, slug visibility, allowlist read). Baseline: 122 tests / 163 Biome-checked files.
 
 ## Settings & Appearance Pass (2026-09-22)
 
