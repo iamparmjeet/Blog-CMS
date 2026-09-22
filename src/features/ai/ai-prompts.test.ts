@@ -82,23 +82,23 @@ describe("resolveModel", () => {
 	it("prefers an explicit override over the saved default", () => {
 		expect(
 			resolveModel(
-				{ ...EMPTY_PROFILE, defaultModel: "google/gemini-2.5-flash" },
-				"openai/gpt-4o-mini",
+				{ ...EMPTY_PROFILE, defaultModel: "z-ai/glm-5.3-flash" },
+				"openai/gpt-5.6-luna",
 			),
-		).toBe("openai/gpt-4o-mini");
+		).toBe("openai/gpt-5.6-luna");
 	});
 
 	it("falls back to the saved profile model", () => {
 		expect(
 			resolveModel({
 				...EMPTY_PROFILE,
-				defaultModel: "anthropic/claude-haiku-3.5",
+				defaultModel: "deepseek/deepseek-v4-flash-0731",
 			}),
-		).toBe("anthropic/claude-haiku-3.5");
+		).toBe("deepseek/deepseek-v4-flash-0731");
 	});
 
 	it("falls back to the built-in default when nothing is configured", () => {
-		expect(resolveModel(EMPTY_PROFILE)).toBe("google/gemini-2.5-flash");
+		expect(resolveModel(EMPTY_PROFILE)).toBe("z-ai/glm-5.3-flash");
 	});
 });
 

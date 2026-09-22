@@ -171,6 +171,13 @@ Branch `feat/t5.1-ai-generation` delivers T5.1 / M5.1:
 - Coverage: `ai-prompts.test.ts`, `ai-stream.test.ts`, `ai.server.test.ts` (throwaway DB: success streams deltas with profile model + bearer key, not-configured/outage/unknown-post/foreign-post never call the provider, abort propagates, draft row unchanged throughout).
 - Deterministic E2E: `scripts/ai-generate-e2e.ts` (run under Node via `tsx` — Bun cannot load `better-sqlite3`) drives the real orchestration against a stub OpenRouter server (success, 503 outage, missing key, mid-stream abort) with the artifact at `docs/e2e/t5.1-ai-generate.log`.
 
+## AI Streaming Fix + Model Lineup (2026-09-23)
+
+Live-bug follow-ups, both verified in the browser on the custom-domain preview:
+
+- SSE contract fix (PR #27): the server normalizes upstream events to `data: {"delta"}`, but the shared client parser only accepted OpenRouter-native `choices[].delta.content` — every event was silently dropped, so Generate/Repurpose streamed bytes that never rendered. `createSseParser` now accepts both shapes (2 new regression cases; both editor surfaces fixed by the one change).
+- Lighter model lineup: Settings → Account offers GLM 5.3 Flash (`z-ai/glm-5.3-flash`, default), GPT-5.6 Luna (`openai/gpt-5.6-luna`), and DeepSeek V4 Flash (`deepseek/deepseek-v4-flash-0731`); Gemini/Haiku/GPT-4o mini/Llama entries removed. Migration `0006` changes only the `settings.default_model` default (table rebuild preserves rows, applied locally + remote and verified). Previously saved preferences are honored unchanged — re-pick the model in Settings → Account to switch.
+
 ## Settings Form Pass (2026-09-22)
 
 Branch `feat/m4.1-settings-form` completes the remaining T4.1 / M4.1 form wiring:

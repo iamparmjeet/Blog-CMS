@@ -49,15 +49,17 @@ export const ACCENT_SWATCHES = [
 
 export const MODEL_OPTIONS = [
 	{
-		label: "Gemini 2.5 Flash · fast, free tier",
-		value: "google/gemini-2.5-flash",
+		label: "GLM 5.3 Flash · cheapest, fast",
+		value: "z-ai/glm-5.3-flash",
 	},
 	{
-		label: "Claude Haiku 3.5 · fast, cheap",
-		value: "anthropic/claude-haiku-3.5",
+		label: "GPT-5.6 Luna · fast, light OpenAI",
+		value: "openai/gpt-5.6-luna",
 	},
-	{ label: "GPT-4o mini · affordable", value: "openai/gpt-4o-mini" },
-	{ label: "Llama 3.3 70B · open weights", value: "meta-llama/llama-3.3-70b" },
+	{
+		label: "DeepSeek V4 Flash · cheapest DeepSeek",
+		value: "deepseek/deepseek-v4-flash-0731",
+	},
 ];
 
 export const DEFAULT_SETTINGS: SettingsForm = {
@@ -67,7 +69,7 @@ export const DEFAULT_SETTINGS: SettingsForm = {
 	allowedOrigins: "",
 	bio: "",
 	blogTitle: "ContentOS",
-	defaultModel: MODEL_OPTIONS[0]?.value ?? "google/gemini-2.5-flash",
+	defaultModel: MODEL_OPTIONS[0]?.value ?? "z-ai/glm-5.3-flash",
 	displayName: "",
 	domain: "",
 	timeZone: "Asia/Kolkata",

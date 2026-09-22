@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const DEFAULT_MODEL = "google/gemini-2.5-flash";
+export const DEFAULT_MODEL = "z-ai/glm-5.3-flash";
 export const MAX_GENERATE_PROMPT_LENGTH = 4000;
 export const MAX_WRITING_SAMPLE_LENGTH = 4000;
 
