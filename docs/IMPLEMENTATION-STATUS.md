@@ -25,7 +25,7 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 | Public API | Implemented (M3.3) | `GET /api/posts` and `GET /api/posts/:slug` serve owner-published posts as JSON behind a settings-driven CORS allowlist. Allowed origins receive the documented payload with `Access-Control-Allow-Origin`; disallowed origins get 403 with no publishable content; drafts, scheduled, archived, and soft-deleted posts are excluded. TipTap bodies are sanitized so media/link URLs are http(s) only. |
 | Comments | Not implemented | No comment model or UI exists. |
 | Scheduling | Schema only | Posts store `scheduledAt`, but no schedule-management UI or Worker promotion exists. |
-| Deployment | Partial | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. The committed D1 identifier is still a placeholder and no preview deployment exists yet (M1.3). |
+| Deployment | Partial (M1.3 in progress) | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. Remote D1 `blog-cms` (`142c33e3-399b-4eea-9164-10995ce4f115`) is provisioned, migrations are applied, `wrangler.jsonc` carries the real id, and `docs/deploy.md` + `bun run deploy:check` document/validate the preview and production flow. Preview deploy + authenticated smoke pending. |
 
 ## Verified Baseline
 
@@ -51,7 +51,7 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, M3.1, M3.2, and M3.3 are complete.
 - Post lifecycle controls are owner-authorized and batch-capable: draft posts publish, published posts unpublish to drafts, posts can be archived or returned to drafts, soft-deleted posts move to a separate trash collection, and only trashed posts can be restored or permanently purged after explicit confirmation. Once a post has been published, its slug stays immutable across later status changes.
 - Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification (original plus generated preview variant), cancellation cleanup, owner-only listing, filename search, optimized grid previews, reference-safe deletion, editor insertion/reuse, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
 - The public JSON feed (`/api/posts`, `/api/posts/:slug`) serves published, non-soft-deleted owner posts only. CORS allowlist entries live in `settings.allowedOrigins` (editable from the Settings → Site → Public JSON feed section); disallowed browser origins receive 403 with no post content, and TipTap bodies are sanitized to safe http(s) asset URLs.
-- Remaining before deployment: M1.3 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
+- M1.3 (this branch): Wrangler OAuth is authenticated; remote D1 `blog-cms` exists with id `142c33e3-399b-4eea-9164-10995ce4f115`; `wrangler.jsonc` now stores that real id; `bun run db:migrate:remote` applied all five migrations (verified via `bunx wrangler d1 info blog-cms`, 9 tables); `docs/deploy.md` and `bun run deploy:check` document and validate bindings/secrets. Remaining: preview deploy + authenticated smoke test (pending this PR).
 
 ## Current Handoff
 
@@ -61,7 +61,7 @@ The merged product baseline advances with PR #14 (M3.2) and PR #15 (M3.3) on top
 
 - M4.1 broad form (identity, timezone, model, writing profile, Umami URL, storage readout) lands via this branch (`feat/m4.1-settings-form`, PR #16). Publishing toggles stay unwired (no consumers; RSS deferred), so M4.1 remains open until dependents apply model/writing values (T5.1).
 - M4.3 Umami analytics lands via `feat/m4.3-umami`: owner-only `/analytics` embeds or links `umamiShareUrl` with an unconfigured setup state; ROADMAP M4.3 is checked.
-- M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
+- M1.3 lands via this branch (`feat/m1.3-deploy`): remote D1 id is real, migrations applied, deploy docs + `deploy:check` added. Commit `c596f3e` on `origin/feat/m1.3-remote-d1` was reviewed for ideas only (not cherry-picked). Preview smoke test completes or is documented as pending in the PR.
 - Keep each independent concern (M4.1, M1.3, M4.2, M4.3) on its own fresh branch. Parallel slices use git worktrees — see `docs/conventions/delivery.md`.
 
 ## Local Worker State
