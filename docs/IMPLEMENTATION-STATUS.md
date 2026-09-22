@@ -6,7 +6,7 @@ This baseline is based on the current tracked source, README commitments, and lo
 
 ## Summary
 
-ContentOS now supports the core owner post workflow, direct managed-media uploads, and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Public delivery, deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
+ContentOS now supports the core owner post workflow, a complete owner media library (direct R2 uploads with verified generated preview variants, search, editor insertion/reuse, and reference-safe deletion), and the settings-backed appearance slice (schema, owner-scoped server functions, client appearance module, and wired Appearance-tab controls for theme, accent, and plain/tinted card surfaces). Public delivery, deployment verification, the broader settings form, live analytics, AI assistance, scheduling, and optional community features remain incomplete.
 
 | Area | Status | Current state |
 | --- | --- | --- |
@@ -17,8 +17,8 @@ ContentOS now supports the core owner post workflow, direct managed-media upload
 | Database model | Partial | Tables exist for settings, posts, media, and writing activity, and server code reaches them through a per-request `drizzle-orm/d1` client. Posts enforce valid lifecycle statuses and per-owner slug uniqueness; local and remote D1 databases can be inspected through Drizzle Studio. |
 | Dashboard | Partial | The dashboard is rebuilt on the ContentOS UI kit: greeting header, four stat cards, continue-writing and writing-rhythm cards derived from real activity, the 12-week heatmap, and recent posts. Stats, streak, and rhythm derivations are unit-tested. |
 | Post editing | Implemented | The owner-scoped posts list creates drafts and opens a TipTap editor at `/posts/$postId`. The editor autosaves canonical JSON with browser-local recovery; it persists validated title, stable slug, SEO metadata, and a full-screen public preview; the server derives word counts and records only positive additions. The toolbar publishes and unpublishes through the lifecycle API, and the sidebar mirrors the open post's status, word count, and read time. Owner-authorized bulk controls publish, unpublish, archive, restore archived drafts, soft-delete, restore from trash, and permanently purge posts after confirmation. |
-| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets; `/settings` Appearance is fully wired (theme, accent, card surfaces); `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
-| Media | Partial (M3.1 complete) | The owner can upload validated images and videos directly to R2 through five-minute presigned URLs. Pending D1 metadata becomes ready only after R2 size/type verification, ready assets survive refreshes and render in the media grid, and immutable object URLs receive long-lived cache metadata. Search, editor insertion, deletion policy, and optimized thumbnail variants remain M3.2. |
+| Page UI shells | In progress | Dashboard and Posts use real data. `/media` uploads to R2 and lists ready owner assets with search and optimized previews; `/settings` Appearance is fully wired (theme, accent, card surfaces); `/settings` other tabs and `/analytics` remain reference layouts over clearly-labelled sample data until M4.1 and M4.3. |
+| Media | Implemented (M3.1 + M3.2) | The owner uploads validated images and videos directly to R2 through five-minute presigned URLs; pending metadata becomes ready only after size/type verification of the original and its generated preview variant. The library supports filename search, kind filters, and previews that prefer generated image thumbnails and video poster variants over full originals. Assets insert and reuse across posts from the editor's media picker, and deletion is reference-scanned: published or scheduled posts block deletion, other references require explicit confirmation, and unreferenced assets remove their R2 objects and row. |
 | AI writing | Not implemented | No OpenRouter configuration or generation/repurposing flow exists. |
 | Settings | Partial (M4.1 in progress) | The `settings` table stores `themeMode` (default `night`) and `surfaceTint`; appearance is loaded on protected routes, applied live from the settings UI, and persisted through owner-scoped server functions. The Appearance tab offers explicit Plain and Tinted card surfaces, while the broader form still has unconnected storage fields (bucket/bucketName mismatch, omitted timeZone). |
 | Analytics | Partial (M4.3 not started) | A reference analytics layout renders demo traffic data and inherits the saved appearance accent. It has no Umami integration yet. |
@@ -32,9 +32,9 @@ ContentOS now supports the core owner post workflow, direct managed-media upload
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 97/97, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, and analytics appearance-token use. |
+| `bun run test` | Passes | 126/126, including media validation/key/URL/preview rules, owner-scoped pending/ready metadata transitions, media search and usage scanning, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, and analytics appearance-token use. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 155 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 165 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
@@ -43,23 +43,22 @@ ContentOS now supports the core owner post workflow, direct managed-media upload
 
 The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remote Studio workflows and application identity are also implemented:
 
-- The Drizzle journal is a single regenerated baseline from `full-schema.ts`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
+- The Drizzle journal is a single regenerated baseline from `full-schema.ts` plus additive milestones through `0004_fuzzy_flatman.sql`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
 - `/posts` lists the owner's non-deleted posts and creates untitled drafts. The posts schema includes description plus publish/schedule timestamps, rejects invalid lifecycle statuses and duplicate owner slugs, and archives invalid legacy statuses during migration.
 - `/posts/$postId` is owner-scoped and renders the TipTap editor. It persists canonical JSON with debounced, serialized autosaves and local recovery; word count is derived server-side and writing activity remains positive-only.
 - Post metadata validates title and stable slugs, enforces per-owner uniqueness, persists separate SEO title/description fields, and renders an in-place public preview from the canonical body.
 - Post lifecycle controls are owner-authorized and batch-capable: draft posts publish, published posts unpublish to drafts, posts can be archived or returned to drafts, soft-deleted posts move to a separate trash collection, and only trashed posts can be restored or permanently purged after explicit confirmation. Once a post has been published, its slug stays immutable across later status changes.
-- Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification, cancellation cleanup, owner-only listing, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
+- Media uploads use server-generated `aws4fetch` signatures, direct browser `PUT` requests, immutable owner-scoped keys, pending-to-ready D1 metadata, remote R2 verification (original plus generated preview variant), cancellation cleanup, owner-only listing, filename search, optimized grid previews, reference-safe deletion, editor insertion/reuse, lazy previews with failure fallbacks, authenticated metadata `no-store`, and one-year immutable object cache metadata.
 - Remaining before deployment: M1.3 deploy verification (authenticate with Wrangler OAuth, provision D1/R2, replace the placeholder database ID, apply remote migrations, preview smoke).
 
 ## Current Handoff
 
-The merged product baseline advances with PR #13, which squash-merges the M4.1 appearance slice on top of `5c730f7` (PR #12 / M3.1). Continue each next concern from a separate fresh branch based on current `main`:
+The merged product baseline ends at PR #13 (M4.1 appearance on top of PR #12 / M3.1 `5c730f7`). The M3.2 media library is implemented on `feat/m3.2-media-library` (branched from current `main`) and awaits its PR. Continue each independent concern from its own fresh branch based on current `main`:
 
-- The appearance/settings slice (M4.1 partial) landed via PR #13: schema columns, migration `0003_acoustic_karnak.sql`, the appearance module and owner-scoped server functions, root no-flash bootstrap, protected-route appearance load, tabbed settings controls, explicit plain/tinted card surfaces, flat-surface CSS tokens, and dashboard/editor/login token swaps. Analytics uses the same `--brand` token instead of a hardcoded violet. The broad settings form (blog identity, timezone, storage fields) remains unwired, so M4.1 stays open.
-- The next unstarted product slice is M3.2: media search, editor insertion and reuse, safe deletion, and generated image/video thumbnail variants.
+- M3.2 (media library) is ready for review on `feat/m3.2-media-library`: filename search, optimized preview variants (image thumbnails and video poster variants), editor insertion/reuse through the media picker, and reference-safe deletion that blocks published/scheduled usage.
 - M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
-- Keep each independent concern (frontend repair, M3.2, M1.3, M4.1 remainder) on its own fresh branch.
+- Keep each independent concern (frontend repair, M1.3, M4.1 remainder) on its own fresh branch.
 
 ## Local Worker State
 
@@ -102,6 +101,18 @@ PR #12 (`5c730f7`) completes the M3.1 storage slice and starts the visible ready
 - `/media` loads only the signed-in owner's non-deleted ready rows, inserts a completed upload immediately, and preserves it across refreshes. Images and muted video previews lazy-load from the configured public R2 URL and fall back to type icons on load failure.
 - Authenticated list responses use `Cache-Control: no-store` and vary by cookie/authorization. New immutable R2 objects carry `Cache-Control: public, max-age=31536000, immutable`; a production custom domain and cache rule are still required for managed Cloudflare edge caching.
 - M3.2 remains responsible for search, editor insertion/reuse, safe deletion behavior, and generated thumbnail/poster variants so the grid does not depend on full-size originals.
+
+## Media Library Pass (2026-09-22)
+
+`feat/m3.2-media-library` completes M3.2 on top of the PR #13 baseline:
+
+- Schema: migration `0004_fuzzy_flatman.sql` adds `preview_key`, `preview_url`, `preview_type`, and `preview_size` to `media`. Preview variants live beside the original at `media/{ownerId}/{uuid}-{name}.preview.{webp|jpg|png}` under the same immutable owner-scoped prefix.
+- Upload flow: the browser generates an optimized still before initiation — image thumbnails via canvas (WebP with JPEG fallback, max 640 px) and video posters via a seeked frame capture (JPEG). Initiate presigns both objects; completion verifies the original *and* the declared variant against stored size/type before `ready`; cancellation or failed verification deletes both objects and the pending row. Uploads also record intrinsic dimensions and video duration for the grid/detail badge.
+- The media grid and detail panel prefer `previewUrl` (variant) and fall back to the original, then a type icon, so the library no longer downloads full originals for browsing. Legacy M3.1 assets without variants keep the previous behavior.
+- Search: case-insensitive filename search combines with the existing All/Images/Videos filters; header counts reflect the filtered view.
+- Deletion: `getMediaUsage` scans every owner post body (TipTap JSON `mediaAsset` nodes by `mediaId`/`src`, plus exact URL matches for legacy text) and `deleteMedia` hard-deletes only after policy checks — references from `published`/`scheduled` posts always throw with the post titles, other references require `acknowledgeUsage: true`, and unreferenced assets delete their R2 original + preview then the D1 row. The detail panel surfaces blocked/confirm states before the request.
+- Editor insertion: a `mediaAsset` TipTap atom node (`data-media-id`) stores the library id, source URL, and poster; the editor header's Media button opens a searchable picker that inserts ready assets for reuse across posts. The full-screen preview registers the same node so embedded media renders there.
+- M3.1 guarantees are unchanged: owner authorization, five-minute presigned direct uploads, server-only credentials, pending-to-ready R2 verification, immutable keys, and `no-store` authenticated metadata responses.
 
 ## Marketing Page Pass (2026-09-19)
 
