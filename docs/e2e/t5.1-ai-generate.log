@@ -1,0 +1,14 @@
+PASS: success streams stubbed deltas end-to-end
+PASS: model header reports the profile default
+PASS: request carries the bearer key
+PASS: system prompt carries writing style
+PASS: system prompt carries writing sample
+PASS: draft row unchanged after success
+PASS: outage maps to provider_unavailable
+PASS: draft row unchanged after outage
+PASS: missing key maps to not_configured
+PASS: no provider request without a key
+PASS: mid-stream abort surfaces to the reader
+PASS: draft row unchanged after abort
+
+E2E complete: stub saw 3 provider request(s). All green.

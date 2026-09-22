@@ -31,6 +31,7 @@ import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import { GenerateDialog } from "#/features/ai/components/generate-dialog";
 import { MediaPicker } from "#/features/media/components/media-picker";
 import type { MediaItem } from "#/features/media/media.types";
 import { cn } from "#/lib/utils";
@@ -105,6 +106,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 	const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 	const [isRepurposeOpen, setIsRepurposeOpen] = useState(true);
+	const [isGenerateOpen, setIsGenerateOpen] = useState(false);
 	const [isPublished, setIsPublished] = useState(post.status === "published");
 	const [isPublishing, setIsPublishing] = useState(false);
 	const [publishError, setPublishError] = useState<string | null>(null);
@@ -310,6 +312,28 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
+	function insertGeneratedText(text: string) {
+		if (!editor) {
+			return;
+		}
+
+		const blocks = text
+			.split(/\n\s*\n/)
+			.map((paragraph) => paragraph.trim())
+			.filter((paragraph) => paragraph.length > 0)
+			.map((paragraph) => ({
+				type: "paragraph",
+				content: [{ type: "text", text: paragraph }],
+			}));
+
+		if (blocks.length === 0) {
+			return;
+		}
+
+		editor.chain().focus().insertContent(blocks).run();
+		setIsGenerateOpen(false);
+	}
+
 	async function togglePublish(nextPublished: boolean) {
 		if (isPublishing || nextPublished === isPublished) {
 			return;
@@ -425,6 +449,16 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 							Repurpose
 						</Button>
 					)}
+
+					<Button
+						onClick={() => setIsGenerateOpen(true)}
+						size="default"
+						type="button"
+						variant="ghost"
+					>
+						<IconSparkles aria-hidden="true" className="text-brand" />
+						Generate
+					</Button>
 
 					<Button
 						onClick={() => setIsMediaPickerOpen(true)}
@@ -553,6 +587,14 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 					isPublished={isPublished}
 					metadata={metadata}
 					onClose={() => setIsPreviewOpen(false)}
+				/>
+			) : null}
+
+			{isGenerateOpen ? (
+				<GenerateDialog
+					postId={post.id}
+					onClose={() => setIsGenerateOpen(false)}
+					onInsert={insertGeneratedText}
 				/>
 			) : null}
 
