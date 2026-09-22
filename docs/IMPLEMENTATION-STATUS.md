@@ -32,9 +32,9 @@ ContentOS now supports the core owner post workflow, direct managed-media upload
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 84/84, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, and owner-claim cases. |
+| `bun run test` | Passes | 95/95, including media validation/key/URL rules, owner-scoped pending/ready metadata transitions, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, and surface-tint input cases. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 148 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 154 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
@@ -56,7 +56,7 @@ The T0 baseline repair, M1.1-M1.2, M2.1-M2.6, and M3.1 are complete. Local/remot
 
 The merged product baseline is `5c730f7`, where PR #12 squash-merged M3.1. Continue each next concern from a separate fresh branch based on current `main`:
 
-- An in-progress appearance/settings slice (M4.1 partial) is uncommitted on `fix/dashboard-visual-refresh`: the `settings` schema columns, the `0003_acoustic_karnak.sql` migration, `src/features/settings/appearance.ts`, and `src/features/settings/functions/*`. Route/UI wiring (root no-flash theme bootstrap, protected-route appearance load, tabbed settings controls, flat-surface CSS tokens, dashboard/editor/login token swaps) is not done. See the appearance pass section below.
+- The appearance/settings slice (M4.1 partial) is committed on `fix/dashboard-visual-refresh` as `f321fa5` plus follow-up test/fix commits: schema columns, migration `0003_acoustic_karnak.sql`, the appearance module and owner-scoped server functions, root no-flash bootstrap, protected-route appearance load, tabbed settings controls, flat-surface CSS tokens, and dashboard/editor/login token swaps. The broad settings form (blog identity, timezone, storage fields) remains unwired, so M4.1 stays open.
 - The next unstarted product slice is M3.2: media search, editor insertion and reuse, safe deletion, and generated image/video thumbnail variants.
 - M1.3 remains incomplete on `main`. Commit `c596f3e` is preserved on `origin/feat/m1.3-remote-d1`; review it by cherry-picking it onto a fresh branch, then complete documentation cleanup and an authenticated preview-deployment smoke test.
 - Keep each independent concern (appearance/settings, frontend repair, M3.2, M1.3) on its own fresh branch. Do not absorb M3.2 scope into the appearance branch.
@@ -79,7 +79,7 @@ Branch `fix/dashboard-visual-refresh` completes the M4.1 appearance slice wiring
 - `__root.tsx` drops the hardcoded `<html className="dark">` and injects the bootstrap script before first paint (`suppressHydrationWarning` on `<html>`). `_protected.tsx` loads appearance in `beforeLoad` and applies it in an effect; `_protected/settings.tsx` passes it into the page.
 - The settings page is tabbed (Appearance, Account, Site, Publishing, Storage). Appearance controls (theme segmented control, AccentPicker, surface-tint picker) apply live via `setAppearance` and persist through `saveAppearanceSettings`; the header Save button is scoped to that appearance slice.
 - `styles.css` adds `--surface-tint`, `--flat-surface` (`color-mix` of card + 8% tint), and editor code tokens; dashboard and shared `bg-card` surfaces swap to `bg-flat-surface`; editor ProseMirror/editor-content and login hardcoded hexes swap to theme tokens for day mode.
-- Unit coverage: `src/features/settings/appearance.test.ts` (normalize, cache round-trip, bootstrap script shape).
+- Unit coverage: `src/features/settings/appearance.test.ts` (normalize, cache round-trip, bootstrap script shape) and `src/features/settings/components/settings-widgets.test.tsx` (surface-tint hex field accepts partial keystrokes, reverts an invalid draft on blur, and clears through the Clear button).
 
 ## UI Shell Pass (2026-09-20)
 
