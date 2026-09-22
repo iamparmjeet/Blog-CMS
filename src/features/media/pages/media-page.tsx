@@ -1,6 +1,7 @@
-import { IconCloud } from "@tabler/icons-react";
+import { IconCloud, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { PageHeader, SegmentedControl } from "#/components/content-os/ui";
+import { Input } from "#/components/ui/input";
 import { MediaCard } from "../components/media-card";
 import { MediaDetail } from "../components/media-detail";
 import { UploadZone } from "../components/upload-zone";
@@ -11,7 +12,11 @@ import {
 	initiateMediaUpload,
 } from "../functions/media-upload.function";
 import type { MediaFilter, MediaItem } from "../media.types";
-import { formatMediaSize, getMediaItemColor } from "../media.utils";
+import {
+	filterMediaItems,
+	formatMediaSize,
+	getMediaItemColor,
+} from "../media.utils";
 import { generateMediaPreview } from "../media-preview";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
@@ -24,24 +29,15 @@ const FILTERS: { label: string; value: MediaFilter }[] = [
 
 export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 	const [filter, setFilter] = useState<MediaFilter>("all");
+	const [query, setQuery] = useState("");
 	const [items, setItems] = useState(initialItems);
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
 
-	const visibleItems = getVisibleItems(filter, items);
+	const visibleItems = filterMediaItems(items, { filter, query });
 	const selectedItem = items.find((item) => item.id === selectedId) ?? null;
-	const totalKb = items.reduce((sum, item) => sum + item.sizeKb, 0);
-
-	function changeFilter(nextFilter: MediaFilter) {
-		setFilter(nextFilter);
-
-		const nextVisibleItems = getVisibleItems(nextFilter, items);
-
-		if (!nextVisibleItems.some((item) => item.id === selectedId)) {
-			setSelectedId(null);
-		}
-	}
+	const totalKb = visibleItems.reduce((sum, item) => sum + item.sizeKb, 0);
 
 	function removeItem(mediaId: number) {
 		setItems((current) => current.filter((item) => item.id !== mediaId));
@@ -143,11 +139,30 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 	return (
 		<main className="flex h-full min-h-0 flex-col">
 			<PageHeader
-				meta={`${items.length} files · ${formatMediaSize(totalKb)}`}
+				meta={
+					visibleItems.length === items.length
+						? `${items.length} files · ${formatMediaSize(totalKb)}`
+						: `${visibleItems.length} of ${items.length} files · ${formatMediaSize(totalKb)}`
+				}
 				title="Media"
 			>
+				<div className="relative">
+					<IconSearch
+						aria-hidden="true"
+						className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-text-dim"
+					/>
+					<Input
+						aria-label="Search media"
+						className="w-36 pl-7 sm:w-44"
+						onChange={(event) => setQuery(event.target.value)}
+						placeholder="Search files..."
+						type="search"
+						value={query}
+					/>
+				</div>
+
 				<SegmentedControl
-					onChange={changeFilter}
+					onChange={setFilter}
 					options={FILTERS}
 					value={filter}
 				/>
@@ -168,7 +183,9 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 
 					{visibleItems.length === 0 ? (
 						<p className="mt-10 text-center text-text-muted text-xs">
-							No assets in this view yet.
+							{query.trim()
+								? "No assets match your search."
+								: "No assets in this view yet."}
 						</p>
 					) : (
 						<div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
@@ -199,16 +216,4 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 			</div>
 		</main>
 	);
-}
-
-function getVisibleItems(filter: MediaFilter, items: MediaItem[]): MediaItem[] {
-	if (filter === "images") {
-		return items.filter((item) => item.kind === "image");
-	}
-
-	if (filter === "videos") {
-		return items.filter((item) => item.kind === "video");
-	}
-
-	return items;
 }
