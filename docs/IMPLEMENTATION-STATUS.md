@@ -23,7 +23,7 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 | Settings | Implemented (M4.1) | The `settings` table stores appearance, identity, timezone, model, writing profile, publishing toggles, Umami URL, and CORS origins; each group has validated owner-scoped read/write server functions and per-section Save buttons in the settings UI. Appearance loads on protected routes and applies live. Storage config is read-only from `R2_*` env (source of truth for media uploads). Publishing toggles persist and are consumed: `seoMeta` gates SEO fields in the JSON feed, `readingTime` adds `readingTimeMinutes` to feed posts, and `rssFeed` gates the `/rss` endpoint. Model/writing profile are consumed by T5.1 generation. Umami share URL is consumed by M4.3. |
 | Analytics | Implemented (M4.3) | The owner-only `/analytics` route loads `settings.umamiShareUrl` (plus optional server `UMAMI_URL` fallback) through a `no-store` session-scoped server function. Unconfigured instances get a setup empty state linking to Settings → Publishing → Umami analytics; an https share URL embeds in an iframe with an external-link fallback (frame errors degrade to a new-tab link); non-https or env-only configs render an external link only. No demo data remains, no public analytics route exists, and API credentials never leave the server (the share-URL path is used, not the Umami API). |
 | Public API | Implemented (M3.3 + M4.1) | `GET /api/posts` and `GET /api/posts/:slug` serve owner-published posts as JSON behind a settings-driven CORS allowlist. Allowed origins receive the documented payload with `Access-Control-Allow-Origin`; disallowed origins get 403 with no publishable content; drafts, scheduled, archived, and soft-deleted posts are excluded. TipTap bodies are sanitized so media/link URLs are http(s) only. The publishing toggles shape the payload: `seoMeta` off empties `seoTitle`/`description`, `readingTime` on adds `readingTimeMinutes`. `GET /rss` serves the same published posts as RSS 2.0 (XML-escaped, cached 5 minutes) and answers 404 while the `rssFeed` toggle is off. |
-| Comments | Not implemented | No comment model or UI exists. |
+| Comments | Policy decided, not built (M6.1) | ADR 0002 keeps comments out of v1: no table, no endpoints, no UI. Readers comment on the consuming site or through an external provider the owner embeds there. Any future implementation must satisfy the recorded actors, moderation states (`pending` → `approved`/`rejected`/`spam`), bot-defense + rate-limiting, and 90-day purge rules before adding a table. M6.2 stays open behind a D8 revisit. |
 | Scheduling | Implemented (T5.3) | The sidebar Schedule picker persists per post: datetime-local interpreted in the owner's settings timezone, future-only, valid metadata required, unschedule returns to draft. `POST` schedule server function is owner-scoped; the Worker runs `promoteDueScheduledPosts` on a `*/5 * * * *` cron via the custom `src/server.ts` entry, flipping due `scheduled` rows to `published` exactly once (status-guarded UPDATE, coalesced `publishedAt`). |
 | Deployment | Implemented (M1.3) | D1 (`DB`) and R2 (`MEDIA`) bindings are declared; local development uses local D1 and the remote `contentos` R2 bucket for the direct-upload verification path. Remote D1 `blog-cms` (`142c33e3-399b-4eea-9164-10995ce4f115`) is provisioned with all migrations applied, `wrangler.jsonc` carries the real id, and `docs/deploy.md` + `bun run deploy:check` document/validate the preview and production flow. Preview is live at `https://blog-cms.parmjeetmishra.workers.dev`: `/` serves 200, `/dashboard` 307-redirects to login when signed out, `/api/posts` returns the documented payload from live D1 (empty on a fresh DB) and 403s disallowed origins. Worker boots with no native SQLite dependencies. |
 
@@ -69,6 +69,23 @@ The T0 baseline repair and M0 through M5 are complete, including the M4.1 publis
 - `vite.config.ts` uses the plugin's supported `persistState.path` option to store local Worker state under `$XDG_RUNTIME_DIR/contentos-wrangler-state`, falling back to `/tmp/contentos-wrangler-state`. Set `CLOUDFLARE_LOCAL_STATE_PATH` to override the location.
 - `bun run db:migrate` uses the same state path as Vite. The runtime directory is cleared after reboot, so run the migration command before starting the dev server in a new session.
 - `bun run db:studio:local` discovers the non-metadata SQLite file in that state directory and opens it with Drizzle Studio. `bun run db:studio:remote` uses the D1 HTTP API with `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and a scoped `CLOUDFLARE_API_TOKEN`.
+
+## Comments Policy Pass (2026-09-22)
+
+Branch `feat/t6.1-comments-policy` delivers T6.1 / M6.1 as a decision record,
+no code:
+
+- `docs/decisions/0002-comments-policy.md` keeps comments out of v1 (no
+  table, endpoints, or UI): readers live on consuming sites, the instance
+  has no reader identity, and an open submission endpoint would need bot
+  defense, a moderation queue, and PII retention for a single-owner blog.
+- The record still binds any future implementation: actors (anonymous
+  reader, owner-moderator), states (`pending` → `approved`/`rejected`/
+  `spam`, owner-only transitions), abuse handling (bot defense + rate
+  limiting, quarantined spam), and deletion (owner hard-delete, 90-day
+  purge, cascade with post purge).
+- D8 is settled accordingly; M6.2 stays open behind a revisit with
+  demonstrated demand, provider-backed first.
 
 ## Publishing Toggles Pass (2026-09-22)
 

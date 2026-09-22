@@ -23,7 +23,7 @@
 | D5 | Media object keys | Immutable `media/<userId>/<uuid>-<sanitized-name>`; DB stores key + public URL; deletes remove the object then the row. | Phase 3 |
 | D6 | Scheduled publishing mechanism | `posts.scheduledAt` + **Workers Cron Trigger** promoting due `scheduled` → `published`. | Phase 5 |
 | D7 | AI provider | OpenRouter chat completions, streamed; model default from `settings.defaultModel`; repurpose formats fixed to Twitter/LinkedIn/Instagram/Reels. | Phase 5 |
-| D8 | Comments in v1 | **Defer** — no table, no UI. Revisit only after the public feed is stable (Phase 6 stays optional). | Now (default) |
+| D8 | Comments in v1 | **Settled (T6.1): no table, no UI** — readers comment on the consuming site or via an external provider. See `docs/decisions/0002-comments-policy.md`. Revisit only with demonstrated demand, provider-backed first. | Now (decided) |
 
 If any recommendation is rejected, update this table and the affected tickets before starting that phase.
 
