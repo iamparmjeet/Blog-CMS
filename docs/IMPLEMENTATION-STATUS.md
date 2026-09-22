@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Assessed:** 2026-09-22
+**Assessed:** 2026-09-23
 
 This baseline is based on the current tracked source, README commitments, and local verification. It is not a product specification; `docs/ROADMAP.md` is the implementation plan.
 
@@ -32,9 +32,9 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 | Check | Result | Notes |
 | --- | --- | --- |
 | `bun run build` | Passes | Generates a client and Worker bundle; the runtime resolves the D1 binding instead of native SQLite. |
-| `bun run test` | Passes | 279/279, including post full-text search (title/slug/description/markup-free body, wildcard-literal, scoping), deploy binding/placeholder checks, media validation/key/URL/preview rules, owner-scoped pending/ready metadata transitions, media search and usage scanning, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, week-aligned heatmap + activity levels, dashboard owner-scoped post rows, dashboard page states (empty, tab-filtered links, time-zone greeting), post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, analytics Umami config resolution + page states, feed CORS/origin parsing/body sanitization/published-only queries, AI prompt building/model resolution/input validation, OpenRouter SSE parsing/error mapping, AI generation owner-scoping/not-configured/outage/abort with draft-intact guarantees, repurpose format instructions/message building, repurpose empty-source/foreign-post/outage handling with source-intact guarantees, schedule timezone conversion, schedule save/unschedule validation, idempotent due-post promotion, fixed-window rate-limit budgets/rollover/isolation plus 429 wiring on feed/RSS/AI surfaces, and settings profile schema/upsert coverage. |
+| `bun run test` | Passes | 290/290, including post full-text search (title/slug/description/markup-free body, wildcard-literal, scoping), deploy binding/placeholder checks, media validation/key/URL/preview rules, owner-scoped pending/ready metadata transitions, media search and usage scanning, canonical-body, metadata validation, positive-only writing activity, lifecycle actions, dashboard derivations, week-aligned heatmap + activity levels, dashboard owner-scoped post rows, dashboard page states (empty, tab-filtered links, time-zone greeting), post-editor owner-scoping, post-status, slug-constraint, owner-claim, appearance normalize/cache/bootstrap, card-surface controls, analytics Umami config resolution + page states, feed CORS/origin parsing/body sanitization/published-only queries, AI prompt building/model resolution/input validation, OpenRouter SSE parsing (native + normalized shapes)/error mapping, AI generation owner-scoping/not-configured/outage/abort with draft-intact guarantees, repurpose format instructions/message building, repurpose empty-source/foreign-post/outage handling with source-intact guarantees, schedule timezone conversion, schedule save/unschedule validation plus no-settings default-zone fallback, idempotent due-post promotion, fixed-window rate-limit budgets/rollover/isolation plus 429 wiring on feed/RSS/AI surfaces, settings profile schema/upsert coverage, and backup bundle assembly/collection/download with owner scoping and missing-object tolerance. |
 | `bun run check-types` | Passes | 0 errors. |
-| `bun run check` | Passes | Biome 2.4.5 clean on 202 files; config migrated, 5 suppressions with written reasons. |
+| `bun run check` | Passes | Biome 2.4.5 clean on 207 files; config migrated, 5 suppressions with written reasons. |
 | `bunx wrangler types --check` | Passes | `worker-configuration.d.ts` matches the declared `DB` and `MEDIA` bindings. |
 | pre-push hooks | Enforcing | lefthook: `biome-changed` ✔, `typecheck` ✔, and `production-build` ✔ on main pushes. No bypass needed since T0.3. |
 | CI (main-only) | Green | `push→main` + `pull_request→main`; first green run (`35377014193`) after the T0 stack merged and `lefthook` was declared as a devDependency. |
@@ -43,7 +43,7 @@ ContentOS now supports the core owner post workflow, a complete owner media libr
 
 The T0 baseline repair and M0 through M5 are complete, including the M4.1 publishing-toggles closeout. Local/remote Studio workflows and application identity are also implemented:
 
-- The Drizzle journal is a single regenerated baseline from `full-schema.ts` plus additive milestones through `0004_fuzzy_flatman.sql`; the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
+- The Drizzle journal is a single regenerated baseline from `full-schema.ts` plus additive milestones through `0006_certain_mongoose.sql` (0005 rate limits, 0006 default-model default); the `todos` scaffold table is gone and the baseline applies from an empty local D1 (`0000_small_scourge.sql`).
 - `bun run db:migrate` now applies through Wrangler (`wrangler d1 migrations apply`); `drizzle-kit` generates SQL only.
 - `/posts` lists the owner's non-deleted posts and creates untitled drafts. The posts schema includes description plus publish/schedule timestamps, rejects invalid lifecycle statuses and duplicate owner slugs, and archives invalid legacy statuses during migration.
 - `/posts/$postId` is owner-scoped and renders the TipTap editor. It persists canonical JSON with debounced, serialized autosaves and local recovery; word count is derived server-side and writing activity remains positive-only.
@@ -55,7 +55,7 @@ The T0 baseline repair and M0 through M5 are complete, including the M4.1 publis
 
 ## Current Handoff
 
-`origin/main` is past PR #26 (post search); M0–M6.1 are all checked. Each ticket landed as one slice PR from a fresh branch based on current `main`:
+`origin/main` is past PR #31 (backup export); M0–M6.1 are all checked. Each ticket landed as one slice PR from a fresh branch based on current `main`:
 
 - T5.1 AI generation (`feat/t5.1-ai-generation`, PR #20): streamed OpenRouter drafting from the writing profile with explicit insert; nothing auto-publishes.
 - T5.2 social repurposing (`feat/t5.2-repurpose`, PR #21): read-only per-format variants with explicit copy; source posts never mutated.
@@ -64,7 +64,12 @@ The T0 baseline repair and M0 through M5 are complete, including the M4.1 publis
 - T6.1 comments policy (`feat/t6.1-comments-policy`, PR #24, docs-only): ADR 0002 keeps comments out of v1; M6.2 stays gated behind a D8 revisit.
 - Rate limiting (`feat/rate-limiting`, PR #25): per-key fixed windows over D1 (migration 0005, applied locally + remote) — feed 100/min/IP, RSS 60/min/IP, AI 10/min/user, shared 429s with `Retry-After`.
 - Post search (`feat/full-text-search`, PR #26): server-filtered title/slug/description/markup-free body matching from the toolbar `q` param.
-- Standing follow-ups: register the preview origin as an OAuth callback URL at GitHub/Google, then one browser sign-in to claim the instance; verify one live cron promotion on the next deploy.
+- SSE streaming fix (`fix/ai-stream-contract`, PR #27): client parser accepts the server-normalized `{"delta"}` shape; Generate + Repurpose render visibly.
+- Model lineup (`feat/model-lineup`, PR #28): GLM 5.3 Flash (default), GPT-5.6 Luna, DeepSeek V4 Flash; migration 0006 retargets the model default (locally + remote).
+- Schedule zone fallback (`fix/schedule-tz-fallback`, PR #29): no-settings-row saves use the app default zone; live cron promotion verified on preview.
+- Custom-domain docs (`docs/custom-domain`, PR #30, docs-only): canonical origin + single-origin login + per-provider callbacks recorded.
+- Backup export (`feat/backup-export`, PR #31): versioned JSON download with R2 file bytes; import/restore is the pending follow-up.
+- Standing follow-ups: redeploy preview for #27–#31; backup import/restore slice; Workers PR-branch builds fail (bun-only repo, dashboard-side fix); M6.2 stays gated behind a D8 revisit.
 
 ## Local Worker State
 
