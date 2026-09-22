@@ -54,7 +54,7 @@ export function Kbd({
 	return (
 		<kbd
 			className={cn(
-				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-input bg-card px-1 font-mono text-[10px] text-text-muted",
+				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-input bg-flat-surface px-1 font-mono text-[10px] text-text-muted",
 				className,
 			)}
 		>
@@ -91,18 +91,20 @@ export function SegmentedControl<TValue extends string>({
 	value,
 	options,
 	onChange,
+	ariaLabel = "View options",
 	className,
 }: {
 	value: TValue;
 	options: readonly SegmentedOption<TValue>[];
 	onChange: (value: TValue) => void;
+	ariaLabel?: string;
 	className?: string;
 }) {
 	return (
 		<div
-			aria-label="View options"
+			aria-label={ariaLabel}
 			className={cn(
-				"inline-flex items-center gap-0.5 rounded-md border border-border bg-card p-0.5",
+				"inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-flat-surface p-0.5",
 				className,
 			)}
 			role="tablist"
@@ -114,7 +116,7 @@ export function SegmentedControl<TValue extends string>({
 					<button
 						aria-selected={isActive}
 						className={cn(
-							"rounded px-2.5 py-1 font-medium text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+							"min-h-7 shrink-0 rounded-md px-2.5 py-1 font-medium text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 							isActive
 								? "bg-muted text-text-body"
 								: "text-text-muted hover:text-text-secondary",
@@ -197,12 +199,12 @@ export function PageHeader({
 	return (
 		<header
 			className={cn(
-				"flex shrink-0 items-center justify-between gap-4 border-border border-b px-8 py-3.5",
+				"flex shrink-0 flex-col items-stretch justify-between gap-3 border-border border-b px-5 py-4 sm:flex-row sm:items-center sm:px-8",
 				className,
 			)}
 		>
 			<div className="flex min-w-0 items-baseline gap-3">
-				<h1 className="font-semibold text-[15px] text-text-primary tracking-[-0.01em]">
+				<h1 className="font-semibold text-base text-text-primary tracking-[-0.02em]">
 					{title}
 				</h1>
 				{meta ? (
@@ -211,7 +213,9 @@ export function PageHeader({
 			</div>
 
 			{children ? (
-				<div className="flex shrink-0 items-center gap-2">{children}</div>
+				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0">
+					{children}
+				</div>
 			) : null}
 		</header>
 	);
@@ -237,7 +241,7 @@ export function EmptyState({
 				className,
 			)}
 		>
-			<div className="flex size-12 items-center justify-center rounded-[10px] border border-border bg-card text-text-dim">
+			<div className="flex size-12 items-center justify-center rounded-[10px] border border-border bg-flat-surface text-text-dim">
 				{icon}
 			</div>
 			<p className="mt-4 font-medium text-sm text-text-primary">{title}</p>

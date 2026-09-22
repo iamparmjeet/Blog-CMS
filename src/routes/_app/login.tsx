@@ -43,17 +43,17 @@ function OwnerReturnComponent({
 	instanceClaimed: boolean;
 }) {
 	return (
-		<div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
+		<div className="flex h-screen items-center justify-center bg-app-bg">
 			<div className="flex w-85 flex-col">
 				<BrandHeader />
-				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
+				<div className="flex flex-col gap-2.5 rounded-[10px] border border-border bg-card p-6">
 					<div className="mb-1.5">
-						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
+						<div className="mb-1 font-semibold text-sm text-text-body">
 							{instanceClaimed
 								? "This account isn't the owner"
 								: "Welcome back"}
 						</div>
-						<div className="text-[#525252] text-xs">
+						<div className="text-text-muted text-xs">
 							{instanceClaimed
 								? "Sign in with the owner account to continue."
 								: "Sign in with your owner account to manage this instance."}
@@ -62,12 +62,12 @@ function OwnerReturnComponent({
 
 					<SocialButtons useDifferentAccount={instanceClaimed} />
 
-					<div className="mt-1 text-center text-[#404040] text-[11px]">
+					<div className="mt-1 text-center text-[11px] text-text-dim">
 						Single-user · Self-hosted · No subscription
 					</div>
 				</div>
 
-				<div className="mt-5 text-center text-[#333] text-[11px]">
+				<div className="mt-5 text-center text-[11px] text-text-ghost">
 					content.os v0.1 — self-hosted
 				</div>
 			</div>
@@ -77,29 +77,29 @@ function OwnerReturnComponent({
 
 function FirstClaimComponent() {
 	return (
-		<div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
+		<div className="flex h-screen items-center justify-center bg-app-bg">
 			<div className="flex w-85 flex-col">
 				<BrandHeader />
 
 				{/* Card */}
-				<div className="flex flex-col gap-2.5 rounded-[10px] border border-[#1f1f1f] bg-[#111111] p-6">
+				<div className="flex flex-col gap-2.5 rounded-[10px] border border-border bg-card p-6">
 					<div className="mb-1.5">
-						<div className="mb-1 font-semibold text-[#d4d4d4] text-sm">
+						<div className="mb-1 font-semibold text-sm text-text-body">
 							Claim this instance
 						</div>
-						<div className="text-[#525252] text-xs">
+						<div className="text-text-muted text-xs">
 							Sign in once to become the owner. No one else can join after.
 						</div>
 					</div>
 
 					<SocialButtons />
 
-					<div className="mt-1 text-center text-[#404040] text-[11px]">
+					<div className="mt-1 text-center text-[11px] text-text-dim">
 						Single-user · Self-hosted · No subscription
 					</div>
 				</div>
 
-				<div className="mt-5 text-center text-[#333] text-[11px]">
+				<div className="mt-5 text-center text-[11px] text-text-ghost">
 					content.os v0.1 — built in public
 				</div>
 			</div>
@@ -129,10 +129,10 @@ function BrandHeader() {
 				</svg>
 			</div>
 			<div className="text-center">
-				<div className="font-semibold text-[#e5e5e5] text-[17px] tracking-[-0.02em]">
-					content<span className="font-normal text-[#525252]">.os</span>
+				<div className="font-semibold text-[17px] text-text-primary tracking-[-0.02em]">
+					content<span className="font-normal text-text-muted">.os</span>
 				</div>
-				<div className="mt-1 text-[#525252] text-[13px]">
+				<div className="mt-1 text-[13px] text-text-muted">
 					Your writing stack. Nothing else.
 				</div>
 			</div>
@@ -154,7 +154,7 @@ function SocialButtons({ useDifferentAccount = false }) {
 				size="lg"
 				type="button"
 				onClick={() => handleSocial("github")}
-				className="flex items-center justify-center gap-2 border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+				className="flex items-center justify-center gap-2 border border-border bg-secondary font-medium text-[13px] text-text-body transition-colors hover:border-text-dim hover:bg-muted"
 			>
 				<IconBrandGithub size={16} />
 				{useDifferentAccount ? "Use GitHub instead" : "Continue with GitHub"}
@@ -163,7 +163,7 @@ function SocialButtons({ useDifferentAccount = false }) {
 				size="lg"
 				type="button"
 				onClick={() => handleSocial("google")}
-				className="flex items-center justify-center gap-2 border border-[#222] bg-[#141414] font-medium text-[#d4d4d4] text-[13px] transition-colors hover:border-[#333] hover:bg-[#1a1a1a]"
+				className="flex items-center justify-center gap-2 border border-border bg-secondary font-medium text-[13px] text-text-body transition-colors hover:border-text-dim hover:bg-muted"
 			>
 				<IconBrandGoogle size={16} />
 				{useDifferentAccount ? "Use Google instead" : "Continue with Google"}

@@ -1,9 +1,9 @@
 import { IconCheck } from "@tabler/icons-react";
 import { useState } from "react";
-import { AccentSwitch } from "#/components/content-os/ui";
+import { AccentSwitch, SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
-import { ACCENT_SWATCHES } from "../settings.types";
+import { ACCENT_SWATCHES, type ThemeMode } from "../settings.types";
 
 export function SettingsSection({
 	children,
@@ -94,6 +94,84 @@ export function SettingsToggleRow({
 				<p className="mt-0.5 text-[11px] text-text-muted">{description}</p>
 			</div>
 			<AccentSwitch checked={checked} onChange={onChange} />
+		</div>
+	);
+}
+
+const THEME_OPTIONS: readonly { label: string; value: ThemeMode }[] = [
+	{ label: "System", value: "system" },
+	{ label: "Day", value: "day" },
+	{ label: "Night", value: "night" },
+];
+
+export function ThemeModeControl({
+	onChange,
+	value,
+}: {
+	onChange: (value: ThemeMode) => void;
+	value: ThemeMode;
+}) {
+	return (
+		<div className="flex flex-col gap-1.5">
+			<span className="font-medium text-text-secondary text-xs">Theme</span>
+			<SegmentedControl
+				ariaLabel="Theme mode"
+				onChange={onChange}
+				options={THEME_OPTIONS}
+				value={value}
+			/>
+		</div>
+	);
+}
+
+export function SurfaceTintPicker({
+	onChange,
+	value,
+}: {
+	onChange: (value: string) => void;
+	value: string;
+}) {
+	return (
+		<div className="flex flex-col gap-1.5">
+			<span className="font-medium text-text-secondary text-xs">
+				Surface tint
+			</span>
+			<div className="flex items-center gap-2">
+				<input
+					aria-label="Surface tint color"
+					className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+					onChange={(event) => onChange(event.target.value)}
+					type="color"
+					value={value || "#7c3aed"}
+				/>
+				<input
+					aria-label="Surface tint hex"
+					className="w-28 rounded-md border border-border bg-app-bg px-2 py-1.5 font-mono text-text-body text-xs outline-none transition-colors placeholder:text-text-ghost focus:border-text-dim"
+					inputMode="text"
+					maxLength={7}
+					onChange={(event) => {
+						const next = event.target.value;
+						if (next === "" || /^#[0-9a-fA-F]{6}$/.test(next)) {
+							onChange(next);
+						}
+					}}
+					placeholder="#rrggbb"
+					value={value}
+				/>
+				<Button
+					disabled={!value}
+					onClick={() => onChange("")}
+					size="sm"
+					type="button"
+					variant="outline"
+				>
+					Clear
+				</Button>
+			</div>
+			<span className="text-[11px] text-text-muted">
+				Optional wash applied to flat dashboard surfaces. Leave empty for the
+				default card color.
+			</span>
 		</div>
 	);
 }

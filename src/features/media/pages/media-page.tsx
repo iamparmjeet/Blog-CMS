@@ -125,14 +125,14 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 					value={filter}
 				/>
 
-				<span className="flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[11px] text-text-secondary">
+				<span className="flex items-center gap-1.5 rounded border border-border bg-flat-surface px-2 py-1 text-[11px] text-text-secondary">
 					<IconCloud aria-hidden="true" className="size-3.5" />
 					Cloudflare R2
 				</span>
 			</PageHeader>
 
-			<div className="flex min-h-0 flex-1">
-				<div className="min-h-0 flex-1 overflow-y-auto p-8">
+			<div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+				<div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
 					<UploadZone
 						message={uploadMessage}
 						onUpload={uploadFile}
@@ -144,7 +144,7 @@ export function MediaPage({ initialItems }: { initialItems: MediaItem[] }) {
 							No assets in this view yet.
 						</p>
 					) : (
-						<div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
+						<div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
 							{visibleItems.map((item) => (
 								<MediaCard
 									color={getItemColor(items, item)}

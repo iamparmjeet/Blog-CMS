@@ -13,6 +13,8 @@ import {
 import { AppBrand, Sidebar } from "#/components/content-os/sidebar";
 import { SidebarPostProvider } from "#/components/content-os/sidebar-context";
 import { Button } from "#/components/ui/button";
+import { setAppearance } from "#/features/settings/appearance";
+import { getAppearanceSettings } from "#/features/settings/functions/settings.function";
 import { getSession } from "#/lib/auth/auth.functions";
 
 export const Route = createFileRoute("/_protected")({
@@ -29,7 +31,9 @@ export const Route = createFileRoute("/_protected")({
 			});
 		}
 
-		return { user: session.user };
+		const appearance = await getAppearanceSettings();
+
+		return { user: session.user, appearance };
 	},
 	component: ProtectedLayout,
 });
@@ -45,11 +49,15 @@ const GO_DESTINATIONS: Record<
 };
 
 function ProtectedLayout() {
-	const { user } = Route.useRouteContext();
+	const { user, appearance } = Route.useRouteContext();
 	const router = useRouter();
 	const [paletteOpen, setPaletteOpen] = useState(false);
 	const [shortcutsOpen, setShortcutsOpen] = useState(false);
 	const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+	useEffect(() => {
+		setAppearance(appearance);
+	}, [appearance]);
 
 	useEffect(() => {
 		let chordActive = false;
@@ -130,7 +138,7 @@ function ProtectedLayout() {
 
 	return (
 		<SidebarPostProvider>
-			<div className="flex h-screen overflow-hidden bg-app-bg text-text-primary">
+			<div className="flex h-dvh overflow-hidden bg-app-bg text-text-primary">
 				<Sidebar className="hidden lg:flex" user={user} />
 
 				{mobileNavOpen ? (
@@ -150,7 +158,7 @@ function ProtectedLayout() {
 				) : null}
 
 				<div className="flex min-w-0 flex-1 flex-col">
-					<header className="flex shrink-0 items-center gap-3 border-border border-b bg-sidebar-bg px-4 py-2.5 lg:hidden">
+					<header className="flex h-14 shrink-0 items-center gap-3 border-border border-b bg-sidebar-bg px-4 lg:hidden">
 						<Button
 							aria-label="Open navigation"
 							onClick={() => setMobileNavOpen(true)}
@@ -163,7 +171,7 @@ function ProtectedLayout() {
 						<AppBrand />
 					</header>
 
-					<div className="min-w-0 flex-1 overflow-y-auto">
+					<div className="min-w-0 flex-1 overflow-y-auto bg-app-bg">
 						<Outlet />
 					</div>
 				</div>

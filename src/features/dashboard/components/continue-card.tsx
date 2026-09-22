@@ -20,11 +20,11 @@ export function ContinueCard({
 	return (
 		<section
 			className={cn(
-				"flex flex-col rounded-lg border border-border bg-card p-4",
+				"flex min-h-48 flex-col rounded-xl border border-border bg-flat-surface p-5",
 				className,
 			)}
 		>
-			<p className="font-semibold text-[10px] text-text-ghost uppercase tracking-[0.07em]">
+			<p className="font-semibold text-[10px] text-text-muted uppercase tracking-[0.08em]">
 				Continue writing
 			</p>
 
@@ -63,9 +63,7 @@ export function ContinueCard({
 				</>
 			) : (
 				<>
-					<p className="mt-2.5 text-[13px] text-text-body">
-						No draft to continue.
-					</p>
+					<p className="mt-5 text-sm text-text-body">No draft to continue.</p>
 					<p className="mt-1 text-[11px] text-text-muted">
 						Your next draft will appear here.
 					</p>

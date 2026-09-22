@@ -21,6 +21,8 @@ export const settings = sqliteTable(
 		domain: text("domain"),
 		bio: text("bio"),
 		accentColor: text("accent_color").notNull().default("#7c3aed"),
+		themeMode: text("theme_mode").notNull().default("night"),
+		surfaceTint: text("surface_tint"),
 		defaultModel: text("default_model")
 			.notNull()
 			.default("google/gemini-2.5-flash"),

@@ -110,9 +110,9 @@ export function PostsPage({ deletedPosts, posts }: PostsPageProps) {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col">
-			<header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-border border-b px-8 py-3.5">
-				<div className="flex items-center gap-4">
-					<h1 className="font-semibold text-[15px] text-text-primary tracking-[-0.01em]">
+			<header className="flex shrink-0 flex-col items-stretch justify-between gap-3 border-border border-b px-5 py-4 sm:flex-row sm:items-center sm:px-8">
+				<div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+					<h1 className="font-semibold text-base text-text-primary tracking-[-0.02em]">
 						Posts
 					</h1>
 					<SegmentedControl onChange={changeTab} options={tabs} value={tab} />
@@ -209,7 +209,7 @@ export function PostsPage({ deletedPosts, posts }: PostsPageProps) {
 				selectedPostIds={new Set(selectedPostIds)}
 			/>
 
-			<footer className="shrink-0 border-border border-t px-8 py-2.5 text-[11px] text-text-muted">
+			<footer className="shrink-0 border-border border-t px-5 py-2.5 text-[11px] text-text-muted sm:px-8">
 				{publishedCount} published · {draftCount} drafts ·{" "}
 				{formatNumber(totalWords)} total words
 			</footer>

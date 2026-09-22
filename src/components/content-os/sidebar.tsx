@@ -17,7 +17,7 @@ import { type SidebarPostContext, useSidebarPost } from "./sidebar-context";
 import { AccentSwitch, SectionLabel, UserAvatar } from "./ui";
 
 const NAV_ITEMS = [
-	{ icon: IconLayoutDashboard, label: "Dashboard", to: "/dashboard" },
+	{ icon: IconLayoutDashboard, label: "Home", to: "/dashboard" },
 	{ icon: IconFileText, label: "Posts", to: "/posts" },
 	{ icon: IconPhoto, label: "Media", to: "/media" },
 	{ icon: IconChartBar, label: "Analytics", to: "/analytics" },
@@ -38,11 +38,11 @@ export function Sidebar({ className, onClose, post, user }: SidebarProps) {
 	return (
 		<aside
 			className={cn(
-				"flex h-full w-60 shrink-0 flex-col border-border border-r bg-sidebar-bg",
+				"flex h-full w-[286px] shrink-0 flex-col border-border border-r bg-sidebar-bg",
 				className,
 			)}
 		>
-			<div className="flex items-center justify-between border-border border-b px-3 py-3">
+			<div className="flex h-14 items-center justify-between border-border border-b px-4">
 				<AppBrand />
 
 				{onClose ? (
@@ -59,13 +59,14 @@ export function Sidebar({ className, onClose, post, user }: SidebarProps) {
 				) : null}
 			</div>
 
-			<nav aria-label="Main" className="flex flex-1 flex-col gap-1 p-2">
+			<nav aria-label="Main" className="flex flex-col gap-0.5 px-2 py-3">
 				{NAV_ITEMS.map((item) => (
 					<SidebarNavItem item={item} key={item.to} onNavigate={onClose} />
 				))}
 			</nav>
 
 			{resolvedPost ? <SidebarPostDetails post={resolvedPost} /> : null}
+			<div className="flex-1" />
 
 			<SidebarUserFooter user={user} />
 		</aside>
@@ -74,8 +75,8 @@ export function Sidebar({ className, onClose, post, user }: SidebarProps) {
 
 export function AppBrand() {
 	return (
-		<Link className="flex items-center gap-2" to="/dashboard">
-			<span className="flex size-[22px] shrink-0 items-center justify-center rounded-md bg-linear-to-br from-brand to-indigo-600">
+		<Link className="flex items-center gap-2.5" to="/dashboard">
+			<span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
 				<svg
 					aria-hidden="true"
 					fill="none"
@@ -91,7 +92,7 @@ export function AppBrand() {
 					/>
 				</svg>
 			</span>
-			<span className="font-semibold text-[13px] text-text-primary tracking-[-0.01em]">
+			<span className="font-semibold text-sm text-text-primary tracking-[-0.02em]">
 				content<span className="font-normal text-text-soft">.os</span>
 			</span>
 		</Link>
@@ -107,11 +108,14 @@ function SidebarNavItem({
 }) {
 	return (
 		<Link
-			activeProps={{ className: "bg-white/[0.06] text-text-primary" }}
-			className="flex items-center gap-2 rounded-md px-2 py-[5px] font-medium text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+			activeProps={{
+				className:
+					"before:bg-brand bg-white/[0.06] text-text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full",
+			}}
+			className="relative flex min-h-8 items-center gap-3 rounded-md px-3 font-medium text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 			inactiveProps={{
 				className:
-					"text-text-soft hover:bg-white/[0.04] hover:text-text-secondary",
+					"text-text-soft hover:bg-white/[0.04] hover:text-text-primary",
 			}}
 			onClick={onNavigate}
 			to={item.to}
@@ -133,19 +137,21 @@ function SidebarPostDetails({ post }: { post: SidebarPostContext }) {
 	const readMinutes = Math.max(1, Math.ceil(post.wordCount / 200));
 
 	return (
-		<div className="border-border border-t px-2 pt-3 pb-2">
-			<SectionLabel className="px-2 pb-1">This post</SectionLabel>
+		<div className="border-border border-t px-2 pt-3 pb-3">
+			<SectionLabel className="border-border-subtle border-b px-2 pb-2">
+				This post
+			</SectionLabel>
 
-			<div className="px-2 pb-2">
-				<p className="line-clamp-2 font-medium text-text-body text-xs leading-[1.4]">
+			<div className="px-2 py-4">
+				<p className="line-clamp-2 font-medium text-sm text-text-body leading-[1.4]">
 					{post.title}
 				</p>
-				<p className="mt-0.5 truncate font-mono text-[11px] text-text-muted">
+				<p className="mt-2 break-all font-mono text-[11px] text-text-muted leading-relaxed">
 					/{post.slug}
 				</p>
 			</div>
 
-			<div className="mb-1.5 flex items-center justify-between gap-3 rounded-md border border-border bg-card px-2.5 py-2">
+			<div className="mb-3 flex items-center justify-between gap-3 rounded-md border border-border bg-flat-surface px-3 py-2.5">
 				<div className="min-w-0">
 					<p className="font-medium text-text-secondary text-xs">
 						{post.isPublished ? "Published" : "Draft"}
@@ -163,7 +169,7 @@ function SidebarPostDetails({ post }: { post: SidebarPostContext }) {
 
 			{post.isPublished ? null : <SchedulePicker />}
 
-			<dl className="px-2 pt-1">
+			<dl className="px-2 pt-2">
 				<PostMetaRow label="Words" value={post.wordCount.toLocaleString()} />
 				<PostMetaRow label="Read time" value={`${readMinutes} min`} />
 				<PostMetaRow label="Updated" value={post.updatedAt || "just now"} />
@@ -230,7 +236,7 @@ function SidebarUserFooter({ user }: { user: AuthenticatedUser }) {
 	}
 
 	return (
-		<div className="flex items-center gap-2.5 border-border border-t px-3 py-2.5">
+		<div className="flex items-center gap-2.5 border-border border-t px-4 py-3">
 			<UserAvatar image={user.image} name={user.name} />
 
 			<div className="min-w-0 flex-1">

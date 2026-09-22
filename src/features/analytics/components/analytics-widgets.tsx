@@ -12,7 +12,7 @@ export function AnalyticsCard({
 	title?: string;
 }) {
 	return (
-		<section className="rounded-lg border border-border bg-card p-4">
+		<section className="rounded-lg border border-border bg-flat-surface p-4">
 			{title || action ? (
 				<div className="mb-3 flex items-center justify-between gap-3">
 					{title ? (
@@ -40,7 +40,7 @@ export function StatTile({
 	value: string;
 }) {
 	return (
-		<article className="rounded-lg border border-border bg-card px-4.5 py-4">
+		<article className="rounded-lg border border-border bg-flat-surface px-4.5 py-4">
 			<p className="text-[11px] text-text-soft">{label}</p>
 			<p className="mt-1.5 font-semibold text-[22px] text-text-primary tabular-nums tracking-[-0.02em]">
 				{value}

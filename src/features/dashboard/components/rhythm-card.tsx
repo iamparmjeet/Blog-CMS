@@ -33,20 +33,23 @@ export function RhythmCard({
 
 	return (
 		<section
-			className={cn("rounded-lg border border-border bg-card p-4", className)}
+			className={cn(
+				"rounded-xl border border-border bg-flat-surface p-5",
+				className,
+			)}
 		>
-			<p className="font-semibold text-[10px] text-text-ghost uppercase tracking-[0.07em]">
+			<p className="font-semibold text-[10px] text-text-muted uppercase tracking-[0.08em]">
 				Writing rhythm
 			</p>
 
 			<div className="mt-2.5 flex items-baseline gap-2">
-				<p className="font-semibold text-[22px] text-text-primary tabular-nums tracking-[-0.02em]">
+				<p className="font-semibold text-[28px] text-text-primary tabular-nums tracking-[-0.035em]">
 					{formatNumber(summary.thisWeek)}
 				</p>
 				<p className="text-text-muted text-xs">words this week</p>
 			</div>
 
-			<div className="mt-3 h-1.5 overflow-hidden rounded-full bg-border-dim">
+			<div className="mt-4 h-1.5 overflow-hidden rounded-full bg-border-subtle">
 				<div
 					className="h-full rounded-full transition-[width] duration-500"
 					style={{ background: accentColor, width: `${progress}%` }}

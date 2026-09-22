@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ErrorPage, NotFoundPage } from "#/components/feedback";
+import { APPEARANCE_BOOTSTRAP_SCRIPT } from "#/features/settings/appearance";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -51,8 +52,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="dark">
+		<html suppressHydrationWarning lang="en">
 			<head>
+				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: static bootstrap script, no user input
+					dangerouslySetInnerHTML={{ __html: APPEARANCE_BOOTSTRAP_SCRIPT }}
+				/>
 				<HeadContent />
 			</head>
 			<body className="wrap-anywhere font-sans antialiased">

@@ -28,7 +28,7 @@ export function PostList({
 	if (posts.length === 0) {
 		return (
 			<div className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
-				<div className="flex size-12 items-center justify-center rounded-[10px] border border-border bg-card text-text-dim">
+				<div className="flex size-12 items-center justify-center rounded-[10px] border border-border bg-flat-surface text-text-dim">
 					<IconFileText aria-hidden="true" className="size-5" />
 				</div>
 				<p className="mt-4 font-medium text-sm text-text-primary">
@@ -110,7 +110,7 @@ function PostRow({
 }) {
 	const summary = (
 		<>
-			<span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-card text-text-muted">
+			<span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-flat-surface text-text-muted">
 				<IconFileText aria-hidden="true" className="size-3.5" />
 			</span>
 			<span className="min-w-0">
