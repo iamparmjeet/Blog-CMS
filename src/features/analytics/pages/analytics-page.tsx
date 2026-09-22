@@ -11,8 +11,6 @@ import {
 	ViewsChart,
 } from "../components/analytics-widgets";
 
-const ACCENT_COLOR = "#7c3aed";
-
 const RANGES: { label: string; value: AnalyticsRange }[] = [
 	{ label: "7d", value: "7d" },
 	{ label: "30d", value: "30d" },
@@ -62,73 +60,47 @@ export function AnalyticsPage() {
 				className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
 			>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail={`Last ${dayCount} days`}
 					label="Blog views"
 					value={formatNumber(totalViews)}
 				/>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail="Unique readers"
 					label="Visitors"
 					value={formatNumber(Math.round(totalViews * 0.6))}
 				/>
 				<StatTile
-					accentColor={ACCENT_COLOR}
 					detail="Single-page sessions"
 					label="Bounce rate"
 					value="74%"
 				/>
-				<StatTile
-					accentColor={ACCENT_COLOR}
-					detail="Per session"
-					label="Avg visit time"
-					value="4m 22s"
-				/>
+				<StatTile detail="Per session" label="Avg visit time" value="4m 22s" />
 			</section>
 
 			<div className="mt-4 flex flex-col gap-2.5">
 				<AnalyticsCard title="Blog views over time">
-					<ViewsChart accentColor={ACCENT_COLOR} daily={daily} />
+					<ViewsChart daily={daily} />
 				</AnalyticsCard>
 
 				<AnalyticsCard title="Top blog pages">
-					<TopPagesTable
-						accentColor={ACCENT_COLOR}
-						pages={DEMO_ANALYTICS.topPages}
-					/>
+					<TopPagesTable pages={DEMO_ANALYTICS.topPages} />
 				</AnalyticsCard>
 
 				<div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
 					<AnalyticsCard title="Countries">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.countries}
-						/>
+						<BarList items={DEMO_ANALYTICS.countries} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Traffic sources">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.referrers}
-						/>
+						<BarList items={DEMO_ANALYTICS.referrers} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Browsers">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.browsers}
-						/>
+						<BarList items={DEMO_ANALYTICS.browsers} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Operating systems">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.operatingSystems}
-						/>
+						<BarList items={DEMO_ANALYTICS.operatingSystems} />
 					</AnalyticsCard>
 					<AnalyticsCard title="Devices">
-						<BarList
-							accentColor={ACCENT_COLOR}
-							items={DEMO_ANALYTICS.devices}
-						/>
+						<BarList items={DEMO_ANALYTICS.devices} />
 					</AnalyticsCard>
 
 					<AnalyticsCard>
