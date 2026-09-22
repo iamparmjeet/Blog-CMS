@@ -1,7 +1,8 @@
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import { formatNumber } from "#/lib/number";
 import { NewDraftButton } from "../components/new-draft-button";
 import { PostList } from "../components/post-list";
@@ -12,6 +13,7 @@ import type { PostListItem } from "../functions/posts.types";
 interface PostsPageProps {
 	deletedPosts: PostListItem[];
 	posts: PostListItem[];
+	query: string;
 	tab: PostTab;
 }
 
@@ -43,7 +45,7 @@ const EMPTY_STATES: Record<PostTab, { description: string; title: string }> = {
 	},
 };
 
-export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
+export function PostsPage({ deletedPosts, posts, query, tab }: PostsPageProps) {
 	const router = useRouter();
 	const navigate = useNavigate();
 	const [selectedPostIds, setSelectedPostIds] = useState<number[]>([]);
@@ -51,6 +53,45 @@ export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
 	const [actionError, setActionError] = useState<string | null>(null);
 	const [confirmAction, setConfirmAction] =
 		useState<PostLifecycleAction | null>(null);
+	const [draftQuery, setDraftQuery] = useState(query);
+	const searchTimeoutRef = useRef<number | null>(null);
+
+	useEffect(() => {
+		setDraftQuery(query);
+	}, [query]);
+
+	useEffect(() => {
+		return () => {
+			if (searchTimeoutRef.current !== null) {
+				window.clearTimeout(searchTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	function submitQuery(nextQuery: string) {
+		const trimmed = nextQuery.trim();
+
+		void navigate({
+			to: "/posts",
+			search: (previous) => ({
+				...previous,
+				...(trimmed ? { q: trimmed } : { q: undefined }),
+			}),
+		});
+	}
+
+	function changeQuery(nextQuery: string) {
+		setDraftQuery(nextQuery);
+
+		if (searchTimeoutRef.current !== null) {
+			window.clearTimeout(searchTimeoutRef.current);
+		}
+
+		searchTimeoutRef.current = window.setTimeout(() => {
+			searchTimeoutRef.current = null;
+			submitQuery(nextQuery);
+		}, 300);
+	}
 
 	const visiblePosts = getVisiblePosts(tab, posts, deletedPosts);
 	const selectedPosts = visiblePosts.filter((post) =>
@@ -84,7 +125,10 @@ export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
 		setSelectedPostIds([]);
 		setActionError(null);
 		setConfirmAction(null);
-		void navigate({ to: "/posts", search: { tab: nextTab } });
+		void navigate({
+			to: "/posts",
+			search: (previous) => ({ ...previous, tab: nextTab }),
+		});
 	}
 
 	async function runLifecycleAction(action: PostLifecycleAction) {
@@ -119,7 +163,32 @@ export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
 					<SegmentedControl onChange={changeTab} options={tabs} value={tab} />
 				</div>
 
-				<NewDraftButton />
+				<div className="flex items-center gap-2">
+					<Input
+						aria-label="Search posts"
+						className="h-9 w-full sm:w-56"
+						maxLength={64}
+						onChange={(event) => changeQuery(event.target.value)}
+						placeholder="Search title, slug, or text…"
+						type="search"
+						value={draftQuery}
+					/>
+					{draftQuery ? (
+						<Button
+							aria-label="Clear search"
+							onClick={() => {
+								setDraftQuery("");
+								submitQuery("");
+							}}
+							size="sm"
+							type="button"
+							variant="ghost"
+						>
+							Clear
+						</Button>
+					) : null}
+					<NewDraftButton />
+				</div>
 			</header>
 
 			{actionError ? (

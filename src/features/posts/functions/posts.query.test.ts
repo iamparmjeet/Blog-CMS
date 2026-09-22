@@ -84,6 +84,109 @@ describe("selectPostRowsByOwner", () => {
 	});
 });
 
+describe("selectPostRowsByOwner search", () => {
+	let db: Db;
+
+	const BODY_WITH_COMPOST = JSON.stringify({
+		type: "doc",
+		content: [
+			{
+				type: "paragraph",
+				content: [{ type: "text", text: "Compost happens fast." }],
+			},
+		],
+	});
+
+	beforeEach(async () => {
+		db = createThrowawayDb();
+		await db.insert(posts).values([
+			{
+				userId: OWNER,
+				title: "Compost guide",
+				slug: "compost-guide",
+				description: "Rot everything",
+				body: BODY_WITH_COMPOST,
+				updatedAt: new Date("2026-07-01T00:00:00.000Z"),
+			},
+			{
+				userId: OWNER,
+				title: "Bread notes",
+				slug: "bread",
+				description: "Sourdough log",
+				body: null,
+				updatedAt: new Date("2026-07-10T00:00:00.000Z"),
+			},
+			{
+				userId: OWNER,
+				title: "100% real",
+				slug: "percent",
+				description: "",
+				body: null,
+				updatedAt: new Date("2026-07-15T00:00:00.000Z"),
+			},
+			{
+				userId: OTHER_OWNER,
+				title: "Foreign compost",
+				slug: "foreign-compost",
+				description: "",
+				body: null,
+				updatedAt: new Date("2026-07-20T00:00:00.000Z"),
+			},
+		]);
+	});
+
+	it("matches titles case-insensitively", async () => {
+		const rows = await selectPostRowsByOwner(db, OWNER, { query: "COMPOST" });
+
+		expect(rows.map((row) => row.slug)).toEqual(["compost-guide"]);
+	});
+
+	it("matches slugs and descriptions", async () => {
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "bread" })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["bread"]);
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "sourdough" })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["bread"]);
+	});
+
+	it("matches body text but never TipTap markup", async () => {
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "happens fast" })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["compost-guide"]);
+		expect(
+			await selectPostRowsByOwner(db, OWNER, { query: "paragraph" }),
+		).toEqual([]);
+	});
+
+	it("treats wildcards as literal text", async () => {
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "100%" })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["percent"]);
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "%" })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["percent"]);
+	});
+
+	it("returns everything for an empty query", async () => {
+		expect(
+			(await selectPostRowsByOwner(db, OWNER, { query: "   " })).map(
+				(row) => row.slug,
+			),
+		).toEqual(["percent", "bread", "compost-guide"]);
+	});
+});
+
 describe("selectPostEditorRowByOwner", () => {
 	let db: Db;
 

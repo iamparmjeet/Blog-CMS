@@ -158,11 +158,12 @@ This roadmap turns the current README commitments into independently verifiable 
   - Deliver the chosen end-to-end comment submission and moderation behavior.
   - Acceptance: comments comply with the policy and are protected against unauthorized moderation and common abuse paths.
 
+- [x] **Full-text post search.** Owner-scoped title/slug/description/body matching from the posts toolbar (server-filtered, markup-free), covered by query tests and a deterministic E2E.
+
 ## Deferred Enhancements
 
 - Command palette and keyboard shortcuts.
 - RSS feed generation, if the existing setting is retained.
-- Full-text post/media search.
 - Import/export and instance backup/restore.
 - Observability, error reporting, and security hardening beyond baseline authorization and rate limiting.
 - Accessibility and responsive-design audit after the functional workflows stabilize. (The landing page had an initial pass on 2026-09-19; the full audit is still pending.)
