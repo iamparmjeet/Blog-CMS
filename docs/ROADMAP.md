@@ -163,6 +163,6 @@ This roadmap turns the current README commitments into independently verifiable 
 ## Deferred Enhancements
 
 - Command palette and keyboard shortcuts.
-- Import/export and instance backup/restore.
+- Import/export and instance backup/restore. (Export shipped: versioned JSON download with R2 file bytes; import pending.)
 - Observability, error reporting, and security hardening beyond baseline authorization and rate limiting.
 - Accessibility and responsive-design audit after the functional workflows stabilize. (The landing page had an initial pass on 2026-09-19; the full audit is still pending.)

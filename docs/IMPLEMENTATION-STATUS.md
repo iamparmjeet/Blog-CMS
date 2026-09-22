@@ -178,6 +178,16 @@ Live-bug follow-ups, both verified in the browser on the custom-domain preview:
 - SSE contract fix (PR #27): the server normalizes upstream events to `data: {"delta"}`, but the shared client parser only accepted OpenRouter-native `choices[].delta.content` — every event was silently dropped, so Generate/Repurpose streamed bytes that never rendered. `createSseParser` now accepts both shapes (2 new regression cases; both editor surfaces fixed by the one change).
 - Lighter model lineup: Settings → Account offers GLM 5.3 Flash (`z-ai/glm-5.3-flash`, default), GPT-5.6 Luna (`openai/gpt-5.6-luna`), and DeepSeek V4 Flash (`deepseek/deepseek-v4-flash-0731`); Gemini/Haiku/GPT-4o mini/Llama entries removed. Migration `0006` changes only the `settings.default_model` default (table rebuild preserves rows, applied locally + remote and verified). Previously saved preferences are honored unchanged — re-pick the model in Settings → Account to switch.
 
+## Backup Export Pass (2026-09-23)
+
+Branch `feat/backup-export` delivers the export half of backup/restore:
+
+- `GET /api/backup/export` (owner session, 401 otherwise) returns a versioned (`version: 1`) JSON download (`content-disposition: attachment`). The bundle carries all owner posts including soft-deleted rows with statuses and ISO timestamps, the settings row without the owner binding, all media rows with original + preview objects base64-encoded, and writing-activity days.
+- Missing R2 objects degrade to `{ missing: true }` entries instead of failing; an empty instance exports a valid empty bundle. The Danger zone's dead Export placeholder is now a working Download backup link.
+- Coverage: `backup-export.test.ts` (empty/status/base64/missing/settings passthrough) and `backup-export.server.test.ts` (throwaway DB: owner scoping, null settings, download headers, byte round-trip, missing tolerance).
+- Deterministic E2E: `scripts/backup-export-e2e.ts` (Node via `tsx`) with the artifact at `docs/e2e/backup-export.log`.
+- Import (restore with slug/key remapping) is the follow-up slice.
+
 ## Settings Form Pass (2026-09-22)
 
 Branch `feat/m4.1-settings-form` completes the remaining T4.1 / M4.1 form wiring:
