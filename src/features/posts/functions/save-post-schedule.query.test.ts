@@ -23,7 +23,7 @@ function createThrowawayDb(): Db {
 			accent_color TEXT DEFAULT '#7c3aed' NOT NULL,
 			theme_mode TEXT DEFAULT 'night' NOT NULL,
 			surface_tint TEXT,
-			default_model TEXT DEFAULT 'google/gemini-2.5-flash' NOT NULL,
+			default_model TEXT DEFAULT 'z-ai/glm-5.3-flash' NOT NULL,
 			seo_meta INTEGER DEFAULT 1 NOT NULL,
 			rss_feed INTEGER DEFAULT 1 NOT NULL,
 			time_zone TEXT DEFAULT 'Asia/Kolkata' NOT NULL,
@@ -124,6 +124,24 @@ describe("savePostSchedule", () => {
 			status: "scheduled",
 			scheduledAt: "2026-09-23T04:30:00.000Z",
 		});
+		expect(await readSchedule(db, postId)).toEqual({
+			status: "scheduled",
+			scheduledAt: new Date("2026-09-23T04:30:00.000Z"),
+		});
+	});
+
+	it("uses the app default zone when no settings row exists", async () => {
+		await db.delete(settings);
+		const postId = await insertPost(db);
+
+		const result = await savePostSchedule(db, {
+			userId: OWNER,
+			postId,
+			dateTimeLocal: "2026-09-23T10:00",
+			now: NOW,
+		});
+
+		expect(result.scheduledAt).toBe("2026-09-23T04:30:00.000Z");
 		expect(await readSchedule(db, postId)).toEqual({
 			status: "scheduled",
 			scheduledAt: new Date("2026-09-23T04:30:00.000Z"),
