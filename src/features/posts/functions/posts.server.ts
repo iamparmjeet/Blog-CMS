@@ -4,6 +4,7 @@ import { settings } from "#/db/schema";
 import { resolveTimeZone } from "#/features/dashboard/writing-activity/writing.utils";
 import {
 	insertPostDraft,
+	type PostSearchOptions,
 	selectDeletedPostRowsByOwner,
 	selectPostEditorRowByOwner,
 	selectPostRowsByOwner,
@@ -17,20 +18,25 @@ import { toPostEditorData, toPostListItem } from "./posts.utils";
 
 interface ReadPostsByOwnerInput {
 	userId: string;
+	query?: string;
 }
 
 export async function readPostsByOwner({
 	userId,
+	query,
 }: ReadPostsByOwnerInput): Promise<PostListItem[]> {
-	const rows = await selectPostRowsByOwner(getDb(), userId);
+	const options: PostSearchOptions = query ? { query } : {};
+	const rows = await selectPostRowsByOwner(getDb(), userId, options);
 
 	return rows.map(toPostListItem);
 }
 
 export async function readDeletedPostsByOwner({
 	userId,
+	query,
 }: ReadPostsByOwnerInput): Promise<PostListItem[]> {
-	const rows = await selectDeletedPostRowsByOwner(getDb(), userId);
+	const options: PostSearchOptions = query ? { query } : {};
+	const rows = await selectDeletedPostRowsByOwner(getDb(), userId, options);
 
 	return rows.map(toPostListItem);
 }

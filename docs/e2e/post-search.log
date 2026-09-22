@@ -1,0 +1,11 @@
+PASS: title match
+PASS: slug match
+PASS: description match
+PASS: body-text match
+PASS: markup never matches
+PASS: trashed posts excluded
+PASS: other owners excluded
+PASS: empty query returns all
+PASS: overlong query rejected
+
+E2E complete. All green.
