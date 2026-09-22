@@ -1,0 +1,11 @@
+PASS: export answers 200 JSON download
+PASS: download is an attachment
+PASS: bundle carries version 1
+PASS: all owner posts included with statuses
+PASS: settings carried without user binding
+PASS: R2 bytes survive base64 round-trip
+PASS: activity days included
+PASS: missing object marked, export still 200
+PASS: empty instance exports an empty versioned bundle
+
+E2E complete. All green.

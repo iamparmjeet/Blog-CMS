@@ -25,6 +25,7 @@ import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/po
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai/generate'
 import { Route as ApiAiRepurposeRouteImport } from './routes/api/ai/repurpose'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiBackupExportRouteImport } from './routes/api/backup/export'
 import { Route as ApiPostsIndexRouteImport } from './routes/api/posts/index'
 import { Route as ApiPostsSlugRouteImport } from './routes/api/posts/$slug'
 
@@ -105,6 +106,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBackupExportRoute = ApiBackupExportRouteImport.update({
+  id: '/api/backup/export',
+  path: '/api/backup/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPostsIndexRoute = ApiPostsIndexRouteImport.update({
   id: '/api/posts/',
   path: '/api/posts/',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/backup/export': typeof ApiBackupExportRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts/': typeof ProtectedPostsIndexRoute
   '/api/posts/': typeof ApiPostsIndexRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/backup/export': typeof ApiBackupExportRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts': typeof ProtectedPostsIndexRoute
   '/api/posts': typeof ApiPostsIndexRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/backup/export': typeof ApiBackupExportRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/_protected/posts/': typeof ProtectedPostsIndexRoute
   '/api/posts/': typeof ApiPostsIndexRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/api/ai/generate'
     | '/api/ai/repurpose'
     | '/api/auth/$'
+    | '/api/backup/export'
     | '/api/posts/$slug'
     | '/posts/'
     | '/api/posts/'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/api/ai/generate'
     | '/api/ai/repurpose'
     | '/api/auth/$'
+    | '/api/backup/export'
     | '/api/posts/$slug'
     | '/posts'
     | '/api/posts'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/api/ai/generate'
     | '/api/ai/repurpose'
     | '/api/auth/$'
+    | '/api/backup/export'
     | '/api/posts/$slug'
     | '/_protected/posts/'
     | '/api/posts/'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiAiRepurposeRoute: typeof ApiAiRepurposeRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiBackupExportRoute: typeof ApiBackupExportRoute
   ApiPostsSlugRoute: typeof ApiPostsSlugRoute
   ApiPostsIndexRoute: typeof ApiPostsIndexRoute
 }
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/backup/export': {
+      id: '/api/backup/export'
+      path: '/api/backup/export'
+      fullPath: '/api/backup/export'
+      preLoaderRoute: typeof ApiBackupExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/posts/': {
       id: '/api/posts/'
       path: '/api/posts'
@@ -432,6 +452,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiAiRepurposeRoute: ApiAiRepurposeRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiBackupExportRoute: ApiBackupExportRoute,
   ApiPostsSlugRoute: ApiPostsSlugRoute,
   ApiPostsIndexRoute: ApiPostsIndexRoute,
 }
