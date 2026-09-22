@@ -28,7 +28,7 @@ function createThrowawayDb(): Db {
 			accent_color text DEFAULT '#7c3aed' NOT NULL,
 			theme_mode text DEFAULT 'night' NOT NULL,
 			surface_tint text,
-			default_model text DEFAULT 'google/gemini-2.5-flash' NOT NULL,
+			default_model text DEFAULT 'z-ai/glm-5.3-flash' NOT NULL,
 			seo_meta integer DEFAULT 1 NOT NULL,
 			rss_feed integer DEFAULT 1 NOT NULL,
 			time_zone text DEFAULT 'Asia/Kolkata' NOT NULL,

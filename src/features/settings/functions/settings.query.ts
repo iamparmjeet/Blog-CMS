@@ -230,7 +230,7 @@ export const DEFAULT_PROFILE: OwnerSettingsProfile = {
 	domain: "",
 	bio: "",
 	timeZone: "Asia/Kolkata",
-	defaultModel: "google/gemini-2.5-flash",
+	defaultModel: "z-ai/glm-5.3-flash",
 	writingStyle: "",
 	writingSample: "",
 	umamiShareUrl: "",

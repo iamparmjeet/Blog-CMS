@@ -23,9 +23,7 @@ export const settings = sqliteTable(
 		accentColor: text("accent_color").notNull().default("#7c3aed"),
 		themeMode: text("theme_mode").notNull().default("night"),
 		surfaceTint: text("surface_tint"),
-		defaultModel: text("default_model")
-			.notNull()
-			.default("google/gemini-2.5-flash"),
+		defaultModel: text("default_model").notNull().default("z-ai/glm-5.3-flash"),
 		seoMeta: integer("seo_meta", { mode: "boolean" }).notNull().default(true),
 		rssFeed: integer("rss_feed", { mode: "boolean" }).notNull().default(true),
 		timeZone: text("time_zone").notNull().default("Asia/Kolkata"),

@@ -43,6 +43,13 @@
       "when": 1790090111389,
       "tag": "0005_smiling_joseph",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1790097014259,
+      "tag": "0006_certain_mongoose",
+      "breakpoints": true
     }
   ]
 }
