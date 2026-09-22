@@ -148,7 +148,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 **Goal:** Add comments only after the core single-owner publishing system is stable.
 
-- [ ] **M6.1: Define the comments policy.**
+- [x] **M6.1: Define the comments policy.**
   - Depends on: M3.3.
   - Decide whether comments are public, authenticated, moderated, or external-provider-backed; document spam, privacy, and retention rules before adding a table.
   - Acceptance: a decision record identifies actors, moderation states, abuse handling, and deletion behavior.
