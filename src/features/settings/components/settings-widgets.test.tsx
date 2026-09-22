@@ -21,9 +21,10 @@ describe("SurfaceTintPicker", () => {
 	it("accepts partial hex keystrokes and propagates a complete value", () => {
 		const onChange = vi.fn();
 		const { container } = render(
-			<SurfaceTintPicker onChange={onChange} value="" />,
+			<SurfaceTintPicker onChange={onChange} value="#7c3aed" />,
 		);
 		const input = getHexInput(container);
+		fireEvent.change(input, { target: { value: "" } });
 
 		for (const char of "#f43f5e") {
 			fireEvent.change(input, { target: { value: input.value + char } });
@@ -48,13 +49,23 @@ describe("SurfaceTintPicker", () => {
 		expect(input.value).toBe("#2563eb");
 	});
 
-	it("clears through the Clear button", () => {
+	it("uses plain card surfaces when Plain is selected", () => {
 		const onChange = vi.fn();
 		const { getByRole } = render(
 			<SurfaceTintPicker onChange={onChange} value="#2563eb" />,
 		);
 
-		fireEvent.click(getByRole("button", { name: "Clear" }));
+		fireEvent.click(getByRole("button", { name: "Plain" }));
 		expect(onChange).toHaveBeenCalledWith("");
+	});
+
+	it("uses the default tint when Tinted is selected from plain surfaces", () => {
+		const onChange = vi.fn();
+		const { getByRole } = render(
+			<SurfaceTintPicker onChange={onChange} value="" />,
+		);
+
+		fireEvent.click(getByRole("button", { name: "Tinted" }));
+		expect(onChange).toHaveBeenCalledWith("#7c3aed");
 	});
 });

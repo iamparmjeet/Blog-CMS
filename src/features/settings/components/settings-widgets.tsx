@@ -125,6 +125,7 @@ export function ThemeModeControl({
 }
 
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const DEFAULT_SURFACE_TINT = "#7c3aed";
 
 export function SurfaceTintPicker({
 	onChange,
@@ -144,49 +145,66 @@ export function SurfaceTintPicker({
 	return (
 		<div className="flex flex-col gap-1.5">
 			<span className="font-medium text-text-secondary text-xs">
-				Surface tint
+				Card surfaces
 			</span>
-			<div className="flex items-center gap-2">
-				<input
-					aria-label="Surface tint color"
-					className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
-					onChange={(event) => onChange(event.target.value)}
-					type="color"
-					value={value || "#7c3aed"}
-				/>
-				<input
-					aria-label="Surface tint hex"
-					className="w-28 rounded-md border border-border bg-app-bg px-2 py-1.5 font-mono text-text-body text-xs outline-none transition-colors placeholder:text-text-ghost focus:border-text-dim"
-					inputMode="text"
-					maxLength={7}
-					onBlur={() => {
-						if (draft !== value && !(draft === "" || HEX_PATTERN.test(draft))) {
-							setDraft(value);
-						}
-					}}
-					onChange={(event) => {
-						const next = event.target.value;
-						setDraft(next);
-						if (next === "" || HEX_PATTERN.test(next)) {
-							onChange(next);
-						}
-					}}
-					placeholder="#rrggbb"
-					value={draft}
-				/>
+			<div className="flex gap-2">
 				<Button
-					disabled={!value}
+					aria-pressed={!value}
 					onClick={() => onChange("")}
 					size="sm"
 					type="button"
-					variant="outline"
+					variant={!value ? "default" : "outline"}
 				>
-					Clear
+					Plain
+				</Button>
+				<Button
+					aria-pressed={Boolean(value)}
+					onClick={() => onChange(value || DEFAULT_SURFACE_TINT)}
+					size="sm"
+					type="button"
+					variant={value ? "default" : "outline"}
+				>
+					Tinted
 				</Button>
 			</div>
+			{value ? (
+				<div className="flex items-center gap-2">
+					<input
+						aria-label="Surface tint color"
+						className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+						onChange={(event) => onChange(event.target.value)}
+						type="color"
+						value={value}
+					/>
+					<input
+						aria-label="Surface tint hex"
+						className="w-28 rounded-md border border-border bg-app-bg px-2 py-1.5 font-mono text-text-body text-xs outline-none transition-colors placeholder:text-text-ghost focus:border-text-dim"
+						inputMode="text"
+						maxLength={7}
+						onBlur={() => {
+							if (
+								draft !== value &&
+								!(draft === "" || HEX_PATTERN.test(draft))
+							) {
+								setDraft(value);
+							}
+						}}
+						onChange={(event) => {
+							const next = event.target.value;
+							setDraft(next);
+							if (HEX_PATTERN.test(next)) {
+								onChange(next);
+							}
+						}}
+						placeholder="#rrggbb"
+						value={draft}
+					/>
+				</div>
+			) : null}
 			<span className="text-[11px] text-text-muted">
-				Optional wash applied to flat dashboard surfaces. Leave empty for the
-				default card color.
+				{value
+					? "Optional wash applied to flat dashboard surfaces."
+					: "Cards use the default background with no color wash."}
 			</span>
 		</div>
 	);
