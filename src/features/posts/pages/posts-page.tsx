@@ -1,4 +1,4 @@
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { SegmentedControl } from "#/components/content-os/ui";
 import { Button } from "#/components/ui/button";
@@ -12,9 +12,10 @@ import type { PostListItem } from "../functions/posts.types";
 interface PostsPageProps {
 	deletedPosts: PostListItem[];
 	posts: PostListItem[];
+	tab: PostTab;
 }
 
-type PostTab = "all" | "published" | "drafts" | "deleted";
+export type PostTab = "all" | "published" | "drafts" | "deleted";
 
 interface LifecycleActionOption {
 	action: PostLifecycleAction;
@@ -42,9 +43,9 @@ const EMPTY_STATES: Record<PostTab, { description: string; title: string }> = {
 	},
 };
 
-export function PostsPage({ deletedPosts, posts }: PostsPageProps) {
+export function PostsPage({ deletedPosts, posts, tab }: PostsPageProps) {
 	const router = useRouter();
-	const [tab, setTab] = useState<PostTab>("all");
+	const navigate = useNavigate();
 	const [selectedPostIds, setSelectedPostIds] = useState<number[]>([]);
 	const [isApplyingAction, setIsApplyingAction] = useState(false);
 	const [actionError, setActionError] = useState<string | null>(null);
@@ -80,10 +81,10 @@ export function PostsPage({ deletedPosts, posts }: PostsPageProps) {
 	];
 
 	function changeTab(nextTab: PostTab) {
-		setTab(nextTab);
 		setSelectedPostIds([]);
 		setActionError(null);
 		setConfirmAction(null);
+		void navigate({ to: "/posts", search: { tab: nextTab } });
 	}
 
 	async function runLifecycleAction(action: PostLifecycleAction) {

@@ -20,7 +20,10 @@ export function DashBoardPage({ data, user }: DashBoardPageProps) {
 
 	return (
 		<main className="mx-auto flex w-full max-w-[1080px] flex-col px-4 pt-7 pb-16 sm:px-8 sm:pt-10 lg:px-12">
-			<DashboardHeader firstName={firstName} />
+			<DashboardHeader
+				firstName={firstName}
+				timeZone={data.activity.timeZone}
+			/>
 
 			<section
 				aria-label="Writing statistics"
@@ -36,18 +39,21 @@ export function DashBoardPage({ data, user }: DashBoardPageProps) {
 					accentColor={data.accentColor}
 					detail={`${data.stats.publishedPosts} published · ${data.stats.draftPosts} drafts`}
 					label="Posts total"
+					search={{ tab: "all" }}
 					value={formatNumber(data.stats.totalPosts)}
 				/>
 				<StatCard
 					accentColor={data.accentColor}
 					detail="Live in the public feed"
 					label="Published"
+					search={{ tab: "published" }}
 					value={formatNumber(data.stats.publishedPosts)}
 				/>
 				<StatCard
 					accentColor={data.accentColor}
 					detail="Ready to continue"
 					label="Drafts"
+					search={{ tab: "drafts" }}
 					value={formatNumber(data.stats.draftPosts)}
 				/>
 			</section>
