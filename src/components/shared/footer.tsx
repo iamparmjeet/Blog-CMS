@@ -10,23 +10,24 @@ export function Footer() {
 
 	return (
 		<footer className="border-border/50 border-t bg-background">
-			<div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pt-8 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
 				{/* Row -1 */}
-				<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
 					{/* Logo */}
 					<div ref={brandRef}>
 						<Logo animated={brandIsVisible} loop markClassName="size-11" />
-						<p className="mt-2 text-muted-foreground text-sm">
+						<p className="mt-3 max-w-xs text-muted-foreground text-sm">
 							Write once. Ship everywhere.
 						</p>
 					</div>
 
 					{/* Navigation */}
 
-					<NavLinks className="flex-wrap gap-x-5 gap-y-2.5 sm:gap-6" />
+					<NavLinks className="flex-wrap gap-x-6 gap-y-3 sm:pt-3" />
 				</div>
+
 				{/* Row-2*/}
-				<div className="flex flex-col gap-3 border-border border-t py-8 text-muted-foreground text-sm sm:flex-row sm:items-center sm:justify-between">
+				<div className="mt-10 flex flex-col gap-3 border-border border-t py-6 text-muted-foreground text-sm sm:flex-row sm:items-center sm:justify-between sm:py-8">
 					<p>
 						&copy; {Year()} PageOwl. All rights reserved. | Made by{" "}
 						<a
