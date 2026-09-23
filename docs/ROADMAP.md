@@ -164,11 +164,11 @@ This roadmap turns the current README commitments into independently verifiable 
 
 ## Final Testing / Go-Live
 
-The backup restore slice is merged, but its new schema and Worker code have not yet been verified together on the canonical live instance. Complete these in order:
+The backup restore slice is merged and its new schema and Worker code have been verified together on the canonical live instance. The remaining build-check investigation is separate from the live smoke test:
 
-- [ ] Apply `0007_optimal_switch.sql` to remote D1 with `bun run db:migrate:remote`; verify `bunx wrangler d1 migrations list blog-cms --remote` reports no pending migrations and `backup_restores` exists. Do this **before** deploying the Worker.
-- [ ] Redeploy `main` with `bun run deploy:preview` after checking the target account and bindings. Preview and production use the same Worker (`docs/deploy.md`).
-- [ ] On `https://contentos.parmjeetmishra.com`, verify owner sign-in, visible AI Generate/Repurpose streams, saved model selection, a live scheduled-post promotion, backup download, and a small **Merge** restore. Do not use Replace on the live owner instance solely as a smoke test.
+- [x] Apply `0007_optimal_switch.sql` to remote D1 with `bun run db:migrate:remote`; verify `bunx wrangler d1 migrations list blog-cms --remote` reports no pending migrations and `backup_restores` exists. Completed before deployment on 2026-09-23.
+- [x] Redeploy `main` with `bun run deploy:preview` after checking the target account and bindings. Preview and production use the same Worker (`docs/deploy.md`). Deployed version `866a4766-89d5-451d-b658-ea24b28c3a6d` on 2026-09-23.
+- [x] On `https://contentos.parmjeetmishra.com`, verify owner sign-in, visible AI Generate/Repurpose streams, saved model selection, a live scheduled-post promotion, backup download, and a small **Merge** restore. Completed on 2026-09-23; the two temporary posts were purged afterward and the original post remains. Do not use Replace on the live owner instance solely as a smoke test.
 - [ ] Investigate the failing Cloudflare Workers Builds PR-branch check (the repo's GitHub CI passed on PR #33; the separate dashboard build is still red). Record the confirmed build failure and fix its configuration before treating it as a release gate.
 
 ## Deferred Enhancements
