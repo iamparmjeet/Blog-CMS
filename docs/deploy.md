@@ -1,6 +1,6 @@
 # Deployment
 
-ContentOS deploys to Cloudflare Workers. The repo's manual `deploy:preview`
+PageOwl deploys to Cloudflare Workers. The repo's manual `deploy:preview`
 and `deploy` scripts use the same live `wrangler.jsonc` bindings; secrets stay
 out of the config file. Cloudflare Workers Builds PR previews are separate and
 not configured yet.
@@ -42,7 +42,7 @@ Required for a working authenticated deploy:
 | Secret | Purpose |
 | --- | --- |
 | `BETTER_AUTH_SECRET` | Session signing secret (long random string) |
-| `BETTER_AUTH_URL` | Canonical public origin, e.g. `https://contentos.example.com` (login only works on this origin) |
+| `BETTER_AUTH_URL` | Canonical public origin, e.g. `https://pageowl.example.com` (login only works on this origin) |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth |
 
@@ -74,7 +74,7 @@ printf '%s' "https://<your-canonical-domain>" | bunx wrangler secret put BETTER_
 # …repeat for GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 ```
 
-`BETTER_AUTH_URL` must be the canonical origin (not `localhost`) or login
+For the hosted PageOwl instance, the canonical origin is `https://pageowl.parmjeetmishra.com`. `BETTER_AUTH_URL` must be the canonical origin (not `localhost`) or login
 redirects will point at the wrong host. better-auth trusts exactly one
 origin, so sign in only on that domain: the `workers.dev` URL stays up but
 rejects logins once the secret points at the custom domain. Register the

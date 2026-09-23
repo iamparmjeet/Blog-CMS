@@ -1,6 +1,6 @@
-# PageOwl (formerly ContentOS)
+# <img src="./public/favicon.svg" alt="PageOwl logo" width="40" height="40"> PageOwl
 
-A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare Workers. PageOwl pairs a TipTap editor with optional OpenRouter-assisted drafting and social repurposing, R2-backed media, a CORS-gated public feed, and owner-only analytics. The GitHub repository is [PageOwl](https://github.com/iamparmjeet/PageOwl); the Worker, backup format, and some internal identifiers still use legacy names.
+A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare Workers. PageOwl pairs a TipTap editor with optional OpenRouter-assisted drafting and social repurposing, R2-backed media, a CORS-gated public feed, and owner-only analytics. [Explore the live demo](https://pageowl.parmjeetmishra.com/demo).
 
 ## Features
 
@@ -17,6 +17,8 @@ A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare 
 - **Live demo** — a no-signup sandbox at `/demo` with sample data, an interactive editor, simulated repurposing, a sample analytics view, and the full settings form; nothing is saved.
 
 ## Branding and appearance
+
+The GitHub repository is [PageOwl](https://github.com/iamparmjeet/PageOwl). The Worker, backup format, and some internal identifiers retain legacy names for compatibility.
 
 The shared PageOwl mark is `src/components/shared/page-owl-logo.tsx`. Marketing, login, and owner navigation use it through the shared logo components. The public favicon is `public/favicon.svg`, with PNG, ICO, and Apple/PWA fallbacks in `public/`; update all of them when changing the mark. The footer animation starts when its logo enters the viewport and respects reduced-motion preferences.
 

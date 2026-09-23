@@ -1,4 +1,4 @@
-# ContentOS Roadmap
+# PageOwl Roadmap
 
 This roadmap turns the current README commitments into independently verifiable implementation slices. Complete each milestone in order unless its dependencies have been explicitly reconsidered.
 
@@ -179,7 +179,7 @@ The backup restore slice is merged and its new schema and Worker code have been 
 - [x] On `https://contentos.parmjeetmishra.com`, verify owner sign-in, visible AI Generate/Repurpose streams, saved model selection, a live scheduled-post promotion, backup download, and a small **Merge** restore. Completed on 2026-09-23; the two temporary posts were purged afterward and the original post remains. Do not use Replace on the live owner instance solely as a smoke test.
 - [x] Investigate the failing Cloudflare Workers Builds PR-branch check. The branch build completes installation and compilation, then its `npx wrangler preview` deploy command fails because `wrangler.jsonc` has no `previews` block. Production `main` builds and the live smoke test pass. Branch previews are deferred and are not a go-live gate; see `docs/e2e/go-live-20260923.md`.
 - [x] Apply `0008_sad_roland_deschain.sql` to remote D1 and redeploy `main` with the PageOwl identity and marketing follow-up (version `14132947-55dd-40f6-ae7a-06a1b45bbf0c`) on 2026-09-23. The migration preserved the saved night-mode choice and backfilled the violet accent to blue; the live smoke test passed and mobile menu/contrast/preview were verified at 390px. See `docs/e2e/go-live-20260923.md`.
-- [ ] Redeploy `main` with the title-following slugs, live demo sandbox, and responsive fixes (commits `d290c1c`–`73a1d54`). The commits are pushed; no migrations are pending. Run `bun run deploy` and smoke-test `/demo` plus the owner flows.
+- [ ] Confirm owner sign-in at the new `https://pageowl.parmjeetmishra.com` origin. The owner reports both OAuth provider callback URLs updated, and the Worker generates the new callback URLs. The title-following slug and demo commits are pushed and `/demo`, `/`, `/dashboard` (signed-out redirect), and `/api/posts` pass public smoke checks at the new origin; no migrations are pending. The old domain no longer resolves.
 
 ## Deferred Enhancements
 
