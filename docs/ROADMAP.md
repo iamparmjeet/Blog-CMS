@@ -169,10 +169,11 @@ The backup restore slice is merged and its new schema and Worker code have been 
 - [x] Apply `0007_optimal_switch.sql` to remote D1 with `bun run db:migrate:remote`; verify `bunx wrangler d1 migrations list blog-cms --remote` reports no pending migrations and `backup_restores` exists. Completed before deployment on 2026-09-23.
 - [x] Redeploy `main` with `bun run deploy:preview` after checking the target account and bindings. Preview and production use the same Worker (`docs/deploy.md`). Deployed version `866a4766-89d5-451d-b658-ea24b28c3a6d` on 2026-09-23.
 - [x] On `https://contentos.parmjeetmishra.com`, verify owner sign-in, visible AI Generate/Repurpose streams, saved model selection, a live scheduled-post promotion, backup download, and a small **Merge** restore. Completed on 2026-09-23; the two temporary posts were purged afterward and the original post remains. Do not use Replace on the live owner instance solely as a smoke test.
-- [ ] Investigate the failing Cloudflare Workers Builds PR-branch check (the repo's GitHub CI passed on PR #33; the separate dashboard build is still red). Record the confirmed build failure and fix its configuration before treating it as a release gate.
+- [x] Investigate the failing Cloudflare Workers Builds PR-branch check. The branch build completes installation and compilation, then its `npx wrangler preview` deploy command fails because `wrangler.jsonc` has no `previews` block. Production `main` builds and the live smoke test pass. Branch previews are deferred and are not a go-live gate; see `docs/e2e/go-live-20260923.md`.
 
 ## Deferred Enhancements
 
+- Configure isolated Cloudflare Workers PR previews with a `previews` block, staging D1/R2 bindings, and Preview-specific secrets before making the branch-build check a release gate. Retrying the unchanged build does not fix its missing configuration.
 - Command palette and keyboard shortcuts.
 - Streaming JSON parsing for very large backup files on memory-constrained browsers, and automated cleanup of staging objects after abandoned uploads.
 - Observability, error reporting, and security hardening beyond baseline authorization and rate limiting.
