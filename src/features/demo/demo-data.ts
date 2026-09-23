@@ -133,6 +133,34 @@ export function buildDemoActivityRows(today: string): WritingActivityRow[] {
 	return rows;
 }
 
+export interface DemoAnalytics {
+	visitors: number;
+	pageviews: number;
+	avgVisitSeconds: number;
+	bounceRate: number;
+	last14Days: { day: number; views: number }[];
+	topPages: { path: string; views: number }[];
+}
+
+export function buildDemoAnalytics(): DemoAnalytics {
+	return {
+		avgVisitSeconds: 102,
+		bounceRate: 0.38,
+		last14Days: Array.from({ length: 14 }, (_, index) => ({
+			day: index + 1,
+			views: 180 + ((index * 53) % 260),
+		})),
+		pageviews: 3905,
+		topPages: [
+			{ path: "/why-i-ditched-notion", views: 812 },
+			{ path: "/owning-your-writing-stack", views: 604 },
+			{ path: "/repurpose-one-post-into-five", views: 431 },
+			{ path: "/", views: 388 },
+		],
+		visitors: 1248,
+	};
+}
+
 export function buildDemoDashboard(
 	posts: readonly DemoPost[],
 	today: string,

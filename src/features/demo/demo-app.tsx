@@ -8,7 +8,13 @@ import {
 	IconSettings,
 } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
-import { type ElementType, useMemo, useState } from "react";
+import {
+	type CSSProperties,
+	type ElementType,
+	useEffect,
+	useMemo,
+	useState,
+} from "react";
 import {
 	EmptyState,
 	SegmentedControl,
@@ -20,10 +26,13 @@ import { Input } from "#/components/ui/input";
 import { DashBoardPage } from "#/features/dashboard/dashboard-page";
 import { getDateKeyInTimeZone } from "#/features/dashboard/writing-activity/writing.utils";
 import { slugForTitle } from "#/features/posts/functions/posts.utils";
+import { brandForegroundFor } from "#/features/settings/appearance";
+import type { AppearanceSettings } from "#/features/settings/settings.types";
 import type { AuthenticatedUser } from "#/lib/auth/auth.types";
 import { formatDate } from "#/lib/date";
 import { formatNumber } from "#/lib/number";
 import { cn } from "#/lib/utils";
+import { DemoAnalytics } from "./demo-analytics";
 import {
 	buildDemoDashboard,
 	buildDemoPosts,
@@ -31,6 +40,7 @@ import {
 	type DemoPost,
 } from "./demo-data";
 import { DemoEditor } from "./demo-editor";
+import { DemoSettings, type DemoSettingsTab } from "./demo-settings";
 
 type DemoView =
 	| "dashboard"
@@ -41,7 +51,7 @@ type DemoView =
 	| "settings";
 
 type PostFilter = "all" | "drafts" | "published" | "scheduled";
-type PlaceholderView = "media" | "analytics" | "settings";
+type PlaceholderView = "media";
 
 const NAV_ITEMS: readonly {
 	icon: ElementType;
@@ -72,18 +82,12 @@ const PLACEHOLDERS: Record<
 		icon: IconPhoto,
 		title: "Media library",
 	},
-	analytics: {
-		description:
-			"The owner dashboard embeds your Umami share URL. Self-host to connect your own.",
-		icon: IconChartBar,
-		title: "Analytics",
-	},
-	settings: {
-		description:
-			"Appearance, identity, publishing toggles, and the CORS allowlist live here in a real instance.",
-		icon: IconSettings,
-		title: "Settings",
-	},
+};
+
+const DEFAULT_DEMO_APPEARANCE: AppearanceSettings = {
+	accentColor: "#0867f2",
+	surfaceTint: "",
+	themeMode: "day",
 };
 
 const DEMO_USER: AuthenticatedUser = {
@@ -102,6 +106,39 @@ export function DemoApp() {
 	const [openPostId, setOpenPostId] = useState<number | null>(null);
 	const [filter, setFilter] = useState<PostFilter>("all");
 	const [search, setSearch] = useState("");
+	const [appearance, setAppearance] = useState<AppearanceSettings>(
+		DEFAULT_DEMO_APPEARANCE,
+	);
+	const [systemDark, setSystemDark] = useState(false);
+	const [settingsTab, setSettingsTab] = useState<DemoSettingsTab>("appearance");
+
+	useEffect(() => {
+		const media = window.matchMedia("(prefers-color-scheme: dark)");
+		const update = () => setSystemDark(media.matches);
+
+		update();
+		media.addEventListener("change", update);
+
+		return () => media.removeEventListener("change", update);
+	}, []);
+
+	const frameDark =
+		appearance.themeMode === "night" ||
+		(appearance.themeMode === "system" && systemDark);
+	const frameStyle = {
+		"--brand": appearance.accentColor,
+		"--brand-foreground": brandForegroundFor(appearance.accentColor),
+		"--flat-surface": appearance.surfaceTint
+			? `color-mix(in oklab, var(--card), ${appearance.surfaceTint} 8%)`
+			: "var(--card)",
+		"--pageowl-accent": appearance.accentColor,
+		"--primary": "var(--brand)",
+		"--primary-foreground": "var(--brand-foreground)",
+		"--ring": "var(--brand)",
+		...(appearance.surfaceTint
+			? { "--surface-tint": appearance.surfaceTint }
+			: {}),
+	} as CSSProperties;
 
 	const today = useMemo(
 		() => getDateKeyInTimeZone(new Date(), DEMO_TIME_ZONE),
@@ -230,7 +267,13 @@ export function DemoApp() {
 				</div>
 			</div>
 
-			<div className="pageowl-demo mt-8 overflow-hidden rounded-xl border border-border bg-app-bg shadow-[0_18px_60px_rgba(7,29,85,0.12)]">
+			<div
+				className={cn(
+					"pageowl-demo mt-8 overflow-hidden rounded-xl border border-border bg-app-bg shadow-[0_18px_60px_rgba(7,29,85,0.12)]",
+					frameDark && "dark",
+				)}
+				style={frameStyle}
+			>
 				<div className="flex h-[72vh] min-h-[560px] flex-col lg:flex-row">
 					<aside className="hidden w-52 shrink-0 flex-col border-border border-r bg-sidebar-bg lg:flex">
 						<div className="flex h-14 items-center gap-2 border-border border-b px-4">
@@ -345,10 +388,25 @@ export function DemoApp() {
 								/>
 							) : null}
 
-							{view === "media" ||
-							view === "analytics" ||
-							view === "settings" ? (
-								<DemoPlaceholder view={view} />
+							{view === "media" ? <DemoPlaceholder view="media" /> : null}
+
+							{view === "analytics" ? (
+								<DemoAnalytics
+									onOpenSettings={() => {
+										setSettingsTab("publishing");
+										setView("settings");
+									}}
+								/>
+							) : null}
+
+							{view === "settings" ? (
+								<DemoSettings
+									appearance={appearance}
+									onAppearanceChange={setAppearance}
+									onTabChange={setSettingsTab}
+									tab={settingsTab}
+									user={DEMO_USER}
+								/>
 							) : null}
 						</div>
 					</div>

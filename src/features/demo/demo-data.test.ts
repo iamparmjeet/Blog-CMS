@@ -5,6 +5,7 @@ import {
 } from "#/features/dashboard/writing-activity/writing.utils";
 import {
 	buildDemoActivityRows,
+	buildDemoAnalytics,
 	buildDemoDashboard,
 	buildDemoPosts,
 	countWordsInHtml,
@@ -100,6 +101,36 @@ describe("buildDemoActivityRows", () => {
 		expect(buildDemoActivityRows(addDays(TODAY, -1))).not.toEqual(
 			buildDemoActivityRows(TODAY),
 		);
+	});
+});
+
+describe("buildDemoAnalytics", () => {
+	it("is deterministic", () => {
+		expect(buildDemoAnalytics()).toEqual(buildDemoAnalytics());
+	});
+
+	it("covers fourteen days of positive traffic with unique days", () => {
+		const data = buildDemoAnalytics();
+
+		expect(data.last14Days).toHaveLength(14);
+		expect(data.last14Days.every((entry) => entry.views > 0)).toBe(true);
+		expect(new Set(data.last14Days.map((entry) => entry.day)).size).toBe(14);
+	});
+
+	it("keeps pageviews above visitors and top pages ranked", () => {
+		const data = buildDemoAnalytics();
+
+		expect(data.pageviews).toBeGreaterThan(data.visitors);
+		expect(data.visitors).toBeGreaterThan(0);
+		expect(new Set(data.topPages.map((page) => page.path)).size).toBe(
+			data.topPages.length,
+		);
+
+		for (let index = 1; index < data.topPages.length; index += 1) {
+			expect(data.topPages[index - 1]?.views).toBeGreaterThanOrEqual(
+				data.topPages[index]?.views ?? 0,
+			);
+		}
 	});
 });
 
