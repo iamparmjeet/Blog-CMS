@@ -21,7 +21,7 @@ The shared PageOwl mark is `src/components/shared/page-owl-logo.tsx`. Marketing,
 
 The palette lives in `src/styles.css` (`--pageowl-*`, `--brand`, and semantic surface/text tokens). Day is the default for new appearances; the public header can switch between day and night, and an owner can set the theme, accent, and card tint in Settings. Saved choices persist. The marketing product preview intentionally keeps PageOwl's blue brand palette even when an owner selects another dashboard accent.
 
-Migration `0008_sad_roland_deschain.sql` changes the accent and theme database defaults and updates the former violet accent to blue. It preserves existing saved theme choices, including night mode; owners who deliberately chose the old violet swatch can select it again in Settings. Run local or remote migrations through the documented D1 commands before deploying this version; pushing code does not migrate the live database.
+Migration `0008_sad_roland_deschain.sql` changes the accent and theme database defaults and updates the former violet accent to blue. It preserves existing saved theme choices, including night mode; owners who deliberately chose the old violet swatch can select it again in Settings. It was applied to remote D1 on 2026-09-23; run local or remote migrations through the documented D1 commands before deploying a version that depends on them, since pushing code does not migrate the live database.
 
 ## Tech Stack
 
@@ -204,7 +204,7 @@ These remain open or require manual setup:
 
 - **Deployment** — provision D1/R2 and secrets as described in [docs/deploy.md](./docs/deploy.md); run `bun run deploy:check` before deploying and apply pending migrations separately.
 - **Comments** — no comments table or UI; [the policy](./docs/decisions/0002-comments-policy.md) keeps them out of v1.
-- **Marketing follow-ups** — mobile navigation, color contrast for custom accents, and accurate self-host setup/CTA copy need another pass; see [implementation status](./docs/IMPLEMENTATION-STATUS.md).
+- **Accessibility audit** — the landing page had an initial pass and the 2026-09-23 marketing follow-up fixed mobile navigation, contrast, setup copy, and the mobile product preview; a full accessibility and responsive-design audit is still pending.
 
 ## License
 

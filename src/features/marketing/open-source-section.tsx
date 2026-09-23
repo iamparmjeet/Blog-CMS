@@ -1,5 +1,6 @@
 import {
 	IconBrandGithub,
+	IconFileText,
 	IconGitFork,
 	IconLicense,
 	IconServer,
@@ -18,11 +19,16 @@ const meta = [
 ];
 
 const installSteps = [
-	{ prompt: "$", command: "git clone github.com/iamparmjeet/blog-cms" },
+	{
+		prompt: "$",
+		command: "git clone https://github.com/iamparmjeet/blog-cms.git",
+	},
 	{ prompt: "$", command: "cd blog-cms && bun install" },
-	{ prompt: "$", command: "bun run db:push" },
+	{ prompt: "$", command: "bun run db:migrate:remote" },
 	{ prompt: "$", command: "bun run deploy" },
 ];
+
+const DEPLOY_GUIDE_URL = `${REPO_URL}/blob/main/docs/deploy.md`;
 
 export function OpenSourceSection() {
 	return (
@@ -31,7 +37,7 @@ export function OpenSourceSection() {
 			className="border-border border-b bg-muted/30 py-24"
 		>
 			<div className="mx-auto grid max-w-275 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16">
-				<AnimateOnScroll>
+				<AnimateOnScroll className="min-w-0">
 					<div className="flex flex-col items-start">
 						<h2 className="text-balance font-semibold text-3xl text-foreground tracking-[-0.03em] sm:text-4xl">
 							Open source. Self-hosted. Yours.
@@ -68,7 +74,7 @@ export function OpenSourceSection() {
 					</div>
 				</AnimateOnScroll>
 
-				<AnimateOnScroll delay={100}>
+				<AnimateOnScroll className="min-w-0" delay={100}>
 					<div className="overflow-hidden rounded-xl border border-border bg-card">
 						<div className="flex items-center gap-3 border-border border-b px-4 py-3.5">
 							<div className="flex gap-1.5">
@@ -80,7 +86,7 @@ export function OpenSourceSection() {
 								terminal
 							</span>
 						</div>
-						<pre className="overflow-x-auto px-5 py-5 font-mono text-[12px] leading-7">
+						<pre className="overflow-x-auto px-5 py-5 font-mono text-[12px] leading-7 max-sm:whitespace-pre-wrap max-sm:break-all">
 							<code>
 								{installSteps.map((step) => (
 									<span key={step.command} className="block">
@@ -88,22 +94,33 @@ export function OpenSourceSection() {
 										<span className="text-foreground">{step.command}</span>
 									</span>
 								))}
-								<span className="mt-1 block text-emerald-500">
+								<span className="mt-1 block text-emerald-700 dark:text-emerald-400">
 									✓ Deployed to your-domain.com
 								</span>
 							</code>
 						</pre>
 					</div>
 
-					<a
-						href={REPO_URL}
-						target="_blank"
-						rel="noreferrer"
-						className="mt-4 inline-flex items-center gap-1.5 text-muted-foreground text-xs transition-colors hover:text-brand"
-					>
-						<IconBrandGithub className="size-3.5" />
-						Browse the source
-					</a>
+					<div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+						<a
+							href={REPO_URL}
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex items-center gap-1.5 text-muted-foreground text-xs transition-colors hover:text-brand"
+						>
+							<IconBrandGithub className="size-3.5" />
+							Browse the source
+						</a>
+						<a
+							href={DEPLOY_GUIDE_URL}
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex items-center gap-1.5 text-muted-foreground text-xs transition-colors hover:text-brand"
+						>
+							<IconFileText className="size-3.5" />
+							Deploy guide
+						</a>
+					</div>
 				</AnimateOnScroll>
 			</div>
 		</section>

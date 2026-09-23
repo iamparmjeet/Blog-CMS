@@ -12,16 +12,18 @@ export function Editor() {
 	return (
 		<div className="flex h-full flex-col bg-background">
 			{/* title */}
-			<div className="flex h-10 items-center justify-between border-border border-b px-6">
-				<span className="text-muted-foreground text-xs">
+			<div className="flex h-10 items-center justify-between gap-3 border-border border-b px-4 sm:px-6">
+				<span className="truncate text-muted-foreground text-xs">
 					← Posts / Why I Ditched Notion for a Custom CMS
 				</span>
-				<span className="font-medium text-emerald-500 text-xs">✓ Saved</span>
+				<span className="shrink-0 font-medium text-emerald-500 text-xs">
+					✓ Saved
+				</span>
 			</div>
 
 			{/* Content */}
 			<div className="flex-1 overflow-hidden">
-				<div className="mx-auto max-w-2xl px-10 py-10">
+				<div className="mx-auto max-w-2xl px-6 py-6 sm:px-10 sm:py-10">
 					<h1 className="font-semibold text-foreground text-xl leading-snug tracking-[-0.02em]">
 						Why I Ditched Notion
 						<br />
@@ -30,10 +32,10 @@ export function Editor() {
 					<p className="mt-2 font-mono text-[10px] text-muted-foreground">
 						/why-i-ditched-notion
 					</p>
-					<Separator className="my-7 bg-border" />
+					<Separator className="my-6 bg-border sm:my-7" />
 
 					{/* Floating toolbar*/}
-					<div className="mb-8 inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-1">
+					<div className="mb-6 inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-1 sm:mb-8">
 						<ToolButton>
 							<IconBold className="h-4 w-4" />
 						</ToolButton>
@@ -63,16 +65,16 @@ export function Editor() {
 							&ldquo;It started with the sluggishness.&rdquo;
 						</blockquote>
 
-						<p>
+						<p className="hidden sm:block">
 							Not performance sluggishness. I mean the mental cost of managing a
 							system when all I wanted to do was write.
 						</p>
 
-						<h2 className="pt-2 font-semibold text-foreground text-sm">
+						<h2 className="hidden pt-2 font-semibold text-foreground text-sm sm:block">
 							So I built something
 						</h2>
 
-						<p>
+						<p className="hidden sm:block">
 							Three weeks, one GitHub repo, a lot of late nights. The result is
 							a CMS shaped exactly to how I think, with zero features I did not
 							personally need.

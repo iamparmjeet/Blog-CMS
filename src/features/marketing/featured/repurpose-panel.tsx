@@ -59,10 +59,7 @@ export function RepurposePanel({ className }: { className?: string }) {
 
 	return (
 		<aside
-			className={cn(
-				"flex h-full flex-col border-border border-l bg-sidebar",
-				className,
-			)}
+			className={cn("flex h-full flex-col border-border bg-sidebar", className)}
 		>
 			{/* Button*/}
 			<div className="flex items-center gap-2 border-border border-b px-4 py-3">
@@ -97,6 +94,8 @@ export function RepurposePanel({ className }: { className?: string }) {
 						<p
 							key={line.id}
 							className={`text-[11px] leading-6 ${
+								i >= 7 ? "hidden sm:block" : ""
+							} ${
 								line.text.startsWith("#") || line.text.startsWith("→")
 									? "text-brand"
 									: i === 0

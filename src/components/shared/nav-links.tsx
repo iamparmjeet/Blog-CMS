@@ -24,8 +24,15 @@ const LINKS: NavLink[] = [
 interface NavLinksProps {
 	activeSection?: string;
 	className?: string;
+	itemClassName?: string;
+	onNavigate?: () => void;
 }
-export function NavLinks({ activeSection, className }: NavLinksProps) {
+export function NavLinks({
+	activeSection,
+	className,
+	itemClassName,
+	onNavigate,
+}: NavLinksProps) {
 	return (
 		<nav className={cn("flex items-center gap-8 text-sm", className)}>
 			{LINKS.map((link) => {
@@ -36,9 +43,11 @@ export function NavLinks({ activeSection, className }: NavLinksProps) {
 						key={link.href}
 						href={link.href}
 						target={link.external ? "_blank" : undefined}
+						onClick={onNavigate}
 						className={cn(
 							"relative inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-brand",
 							isActive && "text-brand",
+							itemClassName,
 						)}
 					>
 						{link.icon && <link.icon className="size-4" />}

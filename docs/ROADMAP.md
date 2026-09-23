@@ -164,6 +164,8 @@ This roadmap turns the current README commitments into independently verifiable 
 
 - [x] **PageOwl identity refresh.** Replace the public/owner brand marks and icon assets, use the blue token palette across both themes, default new appearances to day, and preserve existing saved theme choices when changing the database default. This is a UI-brand change; legacy ContentOS backup/runtime identifiers remain compatible.
 
+- [x] **Marketing follow-up pass.** The public mobile menu opens with a 40px target and closes on Escape, after a nav link is tapped, and when the viewport grows past the desktop breakpoint; brand buttons derive a readable white/ink foreground for every saved accent; day-mode muted text and the hero gradient meet contrast; the setup snippet uses real clone/migrate/deploy commands with a deploy-guide link; the hero and final CTAs self-host instead of implying open signup; and the mobile product preview shows the repurpose panel.
+
 ## Final Testing / Go-Live
 
 The backup restore slice is merged and its new schema and Worker code have been verified together on the canonical live instance. The separate PR-preview build failure has been diagnosed and deferred:
@@ -175,7 +177,6 @@ The backup restore slice is merged and its new schema and Worker code have been 
 
 ## Deferred Enhancements
 
-- Complete the marketing follow-up: working mobile navigation, contrast-safe custom accent buttons and muted text, accurate self-host commands and owner-only CTA copy, and a more legible mobile product preview.
 - Configure isolated Cloudflare Workers PR previews with a `previews` block, staging D1/R2 bindings, and Preview-specific secrets before making the branch-build check a release gate. Retrying the unchanged build does not fix its missing configuration.
 - Command palette and keyboard shortcuts.
 - Streaming JSON parsing for very large backup files on memory-constrained browsers, and automated cleanup of staging objects after abandoned uploads.

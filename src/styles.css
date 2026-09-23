@@ -366,11 +366,11 @@
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.153 0.006 107.1);
 	--primary: var(--brand);
-	--primary-foreground: #ffffff;
+	--primary-foreground: var(--brand-foreground);
 	--secondary: oklch(0.967 0.001 286.375);
 	--secondary-foreground: oklch(0.21 0.006 285.885);
 	--muted: oklch(0.966 0.005 106.5);
-	--muted-foreground: oklch(0.58 0.031 107.3);
+	--muted-foreground: oklch(0.53 0.031 107.3);
 	--accent: oklch(0.966 0.005 106.5);
 	--accent-foreground: oklch(0.228 0.013 107.4);
 	--destructive: oklch(0.577 0.245 27.325);
@@ -386,7 +386,7 @@
 	--sidebar: oklch(0.988 0.003 106.5);
 	--sidebar-foreground: oklch(0.153 0.006 107.1);
 	--sidebar-primary: var(--brand);
-	--sidebar-primary-foreground: #ffffff;
+	--sidebar-primary-foreground: var(--brand-foreground);
 	--sidebar-accent: oklch(0.966 0.005 106.5);
 	--sidebar-accent-foreground: oklch(0.228 0.013 107.4);
 	--sidebar-border: oklch(0.93 0.007 106.5);
@@ -405,8 +405,8 @@
 	--text-dim: oklch(0.6 0 0);
 	--text-ghost: oklch(0.7 0 0);
 	--text-faint: oklch(0.78 0 0);
-	--pageowl-accent: #0b82f6;
-	--pageowl-brand: #0b82f6;
+	--pageowl-accent: #0867f2;
+	--pageowl-brand: #0867f2;
 	--pageowl-cyan: #12b8f4;
 	--pageowl-ink: #07152e;
 	--pageowl-navy: #071d55;
@@ -433,7 +433,7 @@
 	--popover: #151a22;
 	--popover-foreground: #f4f5f7;
 	--primary: var(--brand);
-	--primary-foreground: #ffffff;
+	--primary-foreground: var(--brand-foreground);
 	--secondary: #1a2029;
 	--secondary-foreground: #d8dce3;
 	--muted: #1a2029;
@@ -452,7 +452,7 @@
 	--sidebar: #0d1015;
 	--sidebar-foreground: #edf0f4;
 	--sidebar-primary: var(--brand);
-	--sidebar-primary-foreground: #ffffff;
+	--sidebar-primary-foreground: var(--brand-foreground);
 	--sidebar-accent: #1a2029;
 	--sidebar-accent-foreground: #edf0f4;
 	--sidebar-border: #252b35;
@@ -489,6 +489,7 @@
 /* Marketing product preview uses the PageOwl brand palette, not an owner override. */
 .pageowl-demo {
 	--brand: var(--pageowl-brand);
+	--brand-foreground: #ffffff;
 	--pageowl-accent: var(--pageowl-brand);
 }
 

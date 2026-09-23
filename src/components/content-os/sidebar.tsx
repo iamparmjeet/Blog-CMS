@@ -304,7 +304,7 @@ function SchedulePicker({
 					) : null}
 					<div className="mt-2 flex items-center gap-2">
 						<button
-							className="flex-1 rounded-md bg-brand px-2 py-1.5 font-medium text-[11px] text-white transition-opacity disabled:opacity-50"
+							className="flex-1 rounded-md bg-brand px-2 py-1.5 font-medium text-[11px] text-brand-foreground transition-opacity disabled:opacity-50"
 							disabled={!date || isSaving}
 							onClick={() => void persist(date || null)}
 							type="button"

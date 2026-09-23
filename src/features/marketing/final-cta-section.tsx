@@ -1,5 +1,4 @@
 import { IconArrowRight, IconBrandGithub } from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
 import { AnimateOnScroll } from "#/components/motion/animate-on-scroll";
 import { buttonVariants } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
@@ -22,13 +21,13 @@ export function FinalCTASection() {
 						</p>
 
 						<div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-							<Link
-								to="/dashboard"
+							<a
+								href="#open-source"
 								className={cn(buttonVariants({ size: "lg" }), "gap-2")}
 							>
-								Get started free
+								Self-host it free
 								<IconArrowRight className="size-4" />
-							</Link>
+							</a>
 							<a
 								href="https://github.com/iamparmjeet/blog-cms"
 								target="_blank"

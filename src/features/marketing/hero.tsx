@@ -1,5 +1,4 @@
 import { IconArrowRight, IconBrandGithub } from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { PageOwlLogo } from "#/components/shared/page-owl-logo";
 import { Badge } from "#/components/ui/badge";
@@ -60,7 +59,7 @@ export function Hero() {
 						className="mt-10 text-balance font-bold text-5xl tracking-[-0.04em] sm:text-7xl"
 					>
 						Write Once. <br />{" "}
-						<span className="bg-linear-to-r from-[#12b8f4] via-[#0b82f6] to-[#1746c8] bg-clip-text text-transparent">
+						<span className="bg-linear-to-r from-[#0b82f6] via-[#0867f2] to-[#1746c8] bg-clip-text text-transparent dark:from-[#12b8f4] dark:via-[#0b82f6] dark:to-[#2563eb]">
 							Ship everywhere.
 						</span>
 					</motion.h1>
@@ -104,16 +103,16 @@ export function Hero() {
 						{...itemProps}
 						className="mt-8 flex flex-col gap-3 sm:flex-row"
 					>
-						<Link
-							to="/login"
+						<a
+							href="#open-source"
 							className={cn(
 								buttonVariants({ variant: "purple", size: "lg" }),
 								"group gap-2",
 							)}
 						>
-							Get started free
+							Self-host it free
 							<IconArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-						</Link>
+						</a>
 						<a
 							href="https://github.com/iamparmjeet/blog-cms"
 							target="_blank"

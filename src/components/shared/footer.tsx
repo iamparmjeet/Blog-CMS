@@ -10,9 +10,9 @@ export function Footer() {
 
 	return (
 		<footer className="border-border/50 border-t bg-background">
-			<div className="mx-auto flex max-w-7xl flex-col gap-8 pt-8">
+			<div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pt-8 sm:px-6 lg:px-8">
 				{/* Row -1 */}
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 					{/* Logo */}
 					<div ref={brandRef}>
 						<Logo animated={brandIsVisible} loop markClassName="size-11" />
@@ -23,28 +23,25 @@ export function Footer() {
 
 					{/* Navigation */}
 
-					<NavLinks className="gap-6" />
+					<NavLinks className="flex-wrap gap-x-5 gap-y-2.5 sm:gap-6" />
 				</div>
 				{/* Row-2*/}
-				<div className="flex items-center justify-between border-neutral-800 border-t py-8">
-					<div className="text-center text-muted-foreground text-sm">
-						<p>
-							&copy; {Year()} PageOwl. All rights reserved. | Made by{" "}
-							<a
-								target="_blank"
-								href={"https://parmjeetmishra.com"}
-								rel="noopener"
-							>
-								Parm
-							</a>
-						</p>
-					</div>
+				<div className="flex flex-col gap-3 border-border border-t py-8 text-muted-foreground text-sm sm:flex-row sm:items-center sm:justify-between">
+					<p>
+						&copy; {Year()} PageOwl. All rights reserved. | Made by{" "}
+						<a
+							target="_blank"
+							href={"https://parmjeetmishra.com"}
+							rel="noopener"
+						>
+							Parm
+						</a>
+					</p>
 					{/* Copyright */}
-					<div className="text-muted-foreground text-sm">
-						<span className="mx-2">•</span>
-						Built in public
-						<span className="mx-2">•</span>
-						MIT License
+					<div className="flex items-center gap-2">
+						<span>Built in public</span>
+						<span aria-hidden="true">•</span>
+						<span>MIT License</span>
 					</div>
 				</div>
 			</div>

@@ -20,10 +20,10 @@ export function DashMock() {
 			className="pageowl-demo relative mx-auto w-full select-none overflow-hidden rounded-xl border border-border bg-card shadow-[0_18px_60px_rgba(7,29,85,0.12)]"
 		>
 			<BrowserHeader />
-			<div className="grid h-100 grid-cols-1 sm:grid-cols-[1fr_260px] lg:h-155 lg:grid-cols-[200px_1fr_280px]">
+			<div className="grid grid-cols-1 sm:h-100 sm:grid-cols-[1fr_260px] lg:h-155 lg:grid-cols-[200px_1fr_280px]">
 				<Sidebar className="hidden lg:flex" />
 				<Editor />
-				<RepurposePanel className="hidden sm:flex" />
+				<RepurposePanel className="border-t sm:border-t-0 sm:border-l" />
 			</div>
 		</motion.div>
 	);
