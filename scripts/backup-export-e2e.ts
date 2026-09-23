@@ -44,7 +44,7 @@ function check(name: string, condition: boolean, detail = ""): void {
 	log(`PASS: ${name}`);
 }
 
-function createThrowawayDb(): Db {
+export function createThrowawayDb(): Db {
 	const sqlite = new Database(":memory:");
 
 	sqlite.exec(`
@@ -124,9 +124,20 @@ function createThrowawayDb(): Db {
 			updated_at integer DEFAULT 0 NOT NULL,
 			PRIMARY KEY (user_id, activity_date)
 		);
+		CREATE TABLE backup_restores (
+			id TEXT PRIMARY KEY NOT NULL,
+			user_id TEXT NOT NULL,
+			created_at INTEGER NOT NULL
+		);
 	`);
 
-	return drizzle(sqlite) as unknown as Db;
+	const db = drizzle(sqlite);
+	// Model D1's atomic batch using the underlying SQLite transaction.
+	Object.assign(db, {
+		batch: async (queries: Array<{ run(): unknown }>) =>
+			sqlite.transaction(() => queries.map((query) => query.run()))(),
+	});
+	return db as unknown as Db;
 }
 
 interface Bundle {

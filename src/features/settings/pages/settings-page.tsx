@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { UserAvatar } from "#/components/content-os/ui";
 import { Button, buttonVariants } from "#/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
+import { RestoreBackup } from "#/features/backup/restore-backup";
 import type { AuthenticatedUser } from "#/lib/auth/auth.types";
 import { cn } from "#/lib/utils";
 import { setAppearance } from "../appearance";
@@ -715,6 +716,8 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 											Download backup
 										</a>
 									</div>
+
+									<RestoreBackup />
 
 									<div className="flex items-center justify-between gap-4 border-danger/10 border-t pt-3">
 										<div>

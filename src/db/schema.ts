@@ -156,3 +156,12 @@ export const rateLimits = sqliteTable("rate_limits", {
 	windowStart: integer("window_start").notNull(),
 	count: integer("count").notNull().default(1),
 });
+
+// A committed restore ID makes retries safe after the response is lost.
+export const backupRestores = sqliteTable("backup_restores", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});

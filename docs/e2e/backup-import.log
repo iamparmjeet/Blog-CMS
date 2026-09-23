@@ -1,0 +1,14 @@
+PASS: merge returns success
+PASS: slug collision retains existing post and imports renamed copy
+PASS: post body remaps media ID and URL
+PASS: media post link and bytes point at new owner
+PASS: merge keeps destination settings and activity
+PASS: replace requires explicit confirmation
+PASS: R2 failure leaves existing rows and objects intact
+PASS: unsupported version rejected before any writes
+PASS: cross-site restore rejected
+PASS: DB failure cleans staged R2 objects without changing content
+PASS: replace restores source content and settings without source storage/owner
+PASS: replace cleans previously owned R2 objects
+PASS: older v1 backups without IDs restore media references by URL
+E2E complete. All green.

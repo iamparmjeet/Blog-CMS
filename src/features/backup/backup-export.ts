@@ -1,6 +1,8 @@
 export const BACKUP_VERSION = 1;
+export const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
 
 export interface BackupPost {
+	id?: number;
 	title: string;
 	slug: string;
 	seoTitle: string;
@@ -22,6 +24,8 @@ export interface BackupStoredObject {
 }
 
 export interface BackupMediaEntry {
+	id?: number;
+	postId?: number | null;
 	name: string;
 	type: string;
 	size: string;
@@ -55,6 +59,7 @@ export interface BackupBundle {
 }
 
 export interface BackupPostInput {
+	id: number;
 	title: string;
 	slug: string;
 	seoTitle: string;
@@ -77,6 +82,8 @@ export interface BackupObjectInput {
 
 export interface BackupMediaInput {
 	row: {
+		id: number;
+		postId: number | null;
 		name: string;
 		type: string;
 		size: string;
@@ -140,6 +147,7 @@ export function buildBackupBundle(input: BuildBackupBundleInput): BackupBundle {
 		version: BACKUP_VERSION,
 		exportedAt: input.exportedAt,
 		posts: input.posts.map((post) => ({
+			id: post.id,
 			title: post.title,
 			slug: post.slug,
 			seoTitle: post.seoTitle,
@@ -156,6 +164,8 @@ export function buildBackupBundle(input: BuildBackupBundleInput): BackupBundle {
 		})),
 		settings: input.settings,
 		media: input.media.map((entry) => ({
+			id: entry.row.id,
+			postId: entry.row.postId,
 			name: entry.row.name,
 			type: entry.row.type,
 			size: entry.row.size,

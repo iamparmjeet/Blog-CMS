@@ -1,0 +1,13 @@
+PASS: real export exceeds the one-shot 16 MiB limit
+PASS: missing upload does not replace existing rows
+PASS: large raw object streams to R2 binding
+PASS: lost upload response can be retried without overwriting bytes
+PASS: preview required before final commit
+PASS: preview uploads independently
+PASS: metadata-only commit replaces rows with remapped owner media
+PASS: lost-response retry is idempotent
+PASS: D1 commit marker recorded once
+PASS: cancel cannot remove committed media
+PASS: cancel removes staged media before commit
+PASS: failed commit removes staged bytes without deleting restored content
+E2E complete. All green.

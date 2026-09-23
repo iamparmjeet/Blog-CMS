@@ -29,6 +29,7 @@ describe("buildBackupBundle", () => {
 			exportedAt: EXPORTED_AT,
 			posts: [
 				{
+					id: 1,
 					title: "Live post",
 					slug: "live-post",
 					seoTitle: "",
@@ -44,6 +45,7 @@ describe("buildBackupBundle", () => {
 					updatedAt: new Date("2026-09-20T00:00:00.000Z"),
 				},
 				{
+					id: 2,
 					title: "Trashed post",
 					slug: "trashed-post",
 					seoTitle: "",
@@ -85,6 +87,8 @@ describe("buildBackupBundle", () => {
 			media: [
 				{
 					row: {
+						id: 1,
+						postId: null,
 						name: "photo.png",
 						type: "image/png",
 						size: "12",
