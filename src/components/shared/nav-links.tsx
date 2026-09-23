@@ -37,8 +37,8 @@ export function NavLinks({ activeSection, className }: NavLinksProps) {
 						href={link.href}
 						target={link.external ? "_blank" : undefined}
 						className={cn(
-							"relative inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-violet-400",
-							isActive && "text-violet-400",
+							"relative inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-brand",
+							isActive && "text-brand",
 						)}
 					>
 						{link.icon && <link.icon className="size-4" />}

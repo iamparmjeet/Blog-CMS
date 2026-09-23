@@ -1,6 +1,7 @@
 import { IconArrowRight, IconBrandGithub } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
+import { PageOwlLogo } from "#/components/shared/page-owl-logo";
 import { Badge } from "#/components/ui/badge";
 import { buttonVariants } from "#/components/ui/button";
 import { usePlatformRotation } from "#/hooks/motion/use-platform-rotation";
@@ -23,16 +24,16 @@ export function Hero() {
 	return (
 		<section
 			id="features"
-			className="relative isolate flex min-h-dvh flex-col items-center justify-center pt-14"
+			className="relative isolate flex min-h-dvh flex-col items-center justify-center pt-16"
 		>
-			{/* Background*/}
-			<div className="absolute inset-0 -z-30 bg-black" />
+			{/* Background */}
+			<div className="absolute inset-0 -z-30 bg-background" />
 
 			{/* Subtle radial glow */}
-			<div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(124,58,237,0.08),transparent_70%)]" />
+			<div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(11,130,246,0.08),transparent_70%)]" />
 
 			{/* Grid overlay */}
-			<div className="mask-[radial-gradient(circle_at_50%_0%,black_30%,transparent_70%)] absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-size-[56px_56px]" />
+			<div className="mask-[radial-gradient(circle_at_50%_0%,black_30%,transparent_70%)] absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(8,103,242,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(8,103,242,0.035)_1px,transparent_1px)] bg-size-[56px_56px]" />
 
 			<div className="container mx-auto max-w-6xl px-6 py-12">
 				<div className="mx-auto flex max-w-280 flex-col items-center text-center">
@@ -40,9 +41,16 @@ export function Hero() {
 					<motion.div {...itemProps}>
 						<Badge
 							variant="outline"
-							className="border-white/10 bg-white/4 px-4 py-3 text-white/80 text-xs"
+							className="gap-2 border-brand/20 bg-card/80 px-4 py-3 text-foreground text-xs"
 						>
-							✨ Open Source • Self Hosted • No Subscription
+							<PageOwlLogo
+								animated={false}
+								aria-hidden="true"
+								className="size-5"
+								showWordmark={false}
+								title=""
+							/>
+							Open Source · Self-hosted · No subscription
 						</Badge>
 					</motion.div>
 
@@ -52,7 +60,7 @@ export function Hero() {
 						className="mt-10 text-balance font-bold text-5xl tracking-[-0.04em] sm:text-7xl"
 					>
 						Write Once. <br />{" "}
-						<span className="bg-linear-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+						<span className="bg-linear-to-r from-[#12b8f4] via-[#0b82f6] to-[#1746c8] bg-clip-text text-transparent">
 							Ship everywhere.
 						</span>
 					</motion.h1>
@@ -60,10 +68,10 @@ export function Hero() {
 					{/* Subtitle*/}
 					<motion.p
 						{...itemProps}
-						className="mt-8 max-w-lg text-base text-zinc-400 leading-7"
+						className="mt-8 max-w-lg text-base text-muted-foreground leading-7"
 					>
 						A distraction-free CMS with{" "}
-						<span className="font-medium text-zinc-300">
+						<span className="font-medium text-foreground">
 							AI-powered repurposing
 						</span>{" "}
 						built in. Write once and instantly generate platform-ready content
@@ -73,7 +81,7 @@ export function Hero() {
 					{/* Platform Rotation*/}
 					<motion.div
 						{...itemProps}
-						className="mt-6 flex items-center gap-1.5 text-sm text-zinc-500"
+						className="mt-6 flex items-center gap-1.5 text-muted-foreground text-sm"
 					>
 						<span>Generate your next</span>
 						<AnimatePresence mode="wait" initial={false}>
@@ -83,7 +91,7 @@ export function Hero() {
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -6 }}
 								transition={{ duration: 0.35, ease: "easeOut" }}
-								className="font-semibold text-violet-400"
+								className="font-semibold text-brand"
 							>
 								{platform}
 							</motion.span>

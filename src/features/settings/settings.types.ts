@@ -7,8 +7,8 @@ export interface AppearanceSettings {
 }
 
 export const DEFAULT_APPEARANCE: AppearanceSettings = {
-	themeMode: "night",
-	accentColor: "#7c3aed",
+	themeMode: "day",
+	accentColor: "#0867f2",
 	surfaceTint: "",
 };
 
@@ -39,7 +39,7 @@ export interface StorageSettings {
 }
 
 export const ACCENT_SWATCHES = [
-	"#7c3aed",
+	"#0867f2",
 	"#2563eb",
 	"#059669",
 	"#e11d48",
@@ -63,8 +63,8 @@ export const MODEL_OPTIONS = [
 ];
 
 export const DEFAULT_SETTINGS: SettingsForm = {
-	accentColor: "#7c3aed",
-	themeMode: "night",
+	accentColor: "#0867f2",
+	themeMode: "day",
 	surfaceTint: "",
 	allowedOrigins: "",
 	bio: "",

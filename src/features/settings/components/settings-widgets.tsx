@@ -125,7 +125,7 @@ export function ThemeModeControl({
 }
 
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
-const DEFAULT_SURFACE_TINT = "#7c3aed";
+const DEFAULT_SURFACE_TINT = "#0867f2";
 
 export function SurfaceTintPicker({
 	onChange,

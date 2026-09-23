@@ -5,7 +5,7 @@ import { AnalyticsPage } from "#/features/analytics/pages/analytics-page";
 export const Route = createFileRoute("/_protected/analytics")({
 	loader: () => getAnalyticsDisplay(),
 	head: () => ({
-		meta: [{ title: "Analytics · ContentOS" }],
+		meta: [{ title: "Analytics · PageOwl" }],
 	}),
 	component: AnalyticsRoute,
 });

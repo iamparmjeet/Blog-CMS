@@ -57,6 +57,13 @@
       "when": 1790143636134,
       "tag": "0007_optimal_switch",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1790170924466,
+      "tag": "0008_sad_roland_deschain",
+      "breakpoints": true
     }
   ]
 }

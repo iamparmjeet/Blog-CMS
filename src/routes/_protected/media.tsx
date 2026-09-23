@@ -5,7 +5,7 @@ import { MediaPage } from "#/features/media/pages/media-page";
 export const Route = createFileRoute("/_protected/media")({
 	loader: () => listMedia(),
 	head: () => ({
-		meta: [{ title: "Media · ContentOS" }],
+		meta: [{ title: "Media · PageOwl" }],
 	}),
 	component: MediaRoute,
 });

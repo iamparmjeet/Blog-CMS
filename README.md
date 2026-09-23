@@ -1,31 +1,39 @@
-# Blog-CMS (ContentOS)
+# PageOwl (formerly ContentOS)
 
-A single-user, self-hosted blog content management system built on **TanStack Start**. It pairs a rich **TipTap** editor with AI-assisted writing (generation + social repurposing via OpenRouter), R2-backed media storage, and Umami analytics — all behind an OAuth-only, claim-once auth model.
+A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare Workers. PageOwl pairs a TipTap editor with optional OpenRouter-assisted drafting and social repurposing, R2-backed media, a CORS-gated public feed, and owner-only analytics. The repository, Worker, backup format, and some internal identifiers still use the ContentOS name.
 
 ## Features
 
-- **Rich editor** — TipTap v3 with slash commands, code blocks (lowlight highlighting + language picker), inline image/video upload to R2, bubble menu, SEO tab with live Google preview, autosave, and live preview overlay.
+- **Rich editor** — TipTap v3 with formatting, media insertion from the library, SEO metadata, autosave, and a public-preview overlay.
 - **Post management** — create, edit, soft-delete / restore / purge, bulk operations, draft ↔ published toggle.
 - **AI writing** — streamed post generation from your saved writing style, and repurposing into Twitter / LinkedIn / Instagram / Reels copy.
-- **Media library** — R2 presigned uploads with IndexedDB caching and blur-up placeholders.
-- **Settings** — accent color, default model, writing style/sample, CORS allowlist for the public feed, Umami analytics, R2 bucket config.
+- **Media library** — direct presigned R2 uploads, optimized image/video previews, search, reuse in posts, and reference-safe deletion.
+- **Settings** — day/night/system appearance, accent and card tint, model and writing profile, CORS allowlist, publishing toggles, and Umami share URL. Storage bindings are read from the environment.
 - **Analytics** — Umami share-URL dashboard.
-- **Dashboard** — at-a-glance home with real writing stats (total words, post/Publish counts, monthly goal progress), a 12-week **writing-activity heatmap** derived from actual per-day word counts, and recent/continue-writing shortcuts.
+- **Dashboard** — writing stats, a 12-week activity heatmap, writing rhythm, and recent/continue-writing shortcuts.
 - **Public JSON API** — CORS-gated published-post feed at `/api/posts` and `/api/posts/$slug`.
-- **Auth** — OAuth (GitHub + Google) only, single-owner "claim once" model. The first person to sign in becomes the permanent owner; later sign-in attempts are blocked.
+- **Auth** — OAuth (GitHub + Google) only. The first person to sign in claims ownership; that owner may return, but a different user cannot join.
 - **Command palette** + keyboard shortcuts in the authenticated shell.
+
+## Branding and appearance
+
+The shared PageOwl mark is `src/components/shared/page-owl-logo.tsx`. Marketing, login, and owner navigation use it through the shared logo components. The public favicon is `public/favicon.svg`, with PNG, ICO, and Apple/PWA fallbacks in `public/`; update all of them when changing the mark. The footer animation starts when its logo enters the viewport and respects reduced-motion preferences.
+
+The palette lives in `src/styles.css` (`--pageowl-*`, `--brand`, and semantic surface/text tokens). Day is the default for new appearances; the public header can switch between day and night, and an owner can set the theme, accent, and card tint in Settings. Saved choices persist. The marketing product preview intentionally keeps PageOwl's blue brand palette even when an owner selects another dashboard accent.
+
+Migration `0008_sad_roland_deschain.sql` changes the accent and theme database defaults and updates the former violet accent to blue. It preserves existing saved theme choices, including night mode; owners who deliberately chose the old violet swatch can select it again in Settings. Run local or remote migrations through the documented D1 commands before deploying this version; pushing code does not migrate the live database.
 
 ## Tech Stack
 
 | Layer | Choice |
 |-------|--------|
-| Framework | TanStack Start (React Router SSR) |
+| Framework | TanStack Start (TanStack Router SSR) |
 | Styling | Tailwind CSS v4 + shadcn |
 | DB / ORM | Drizzle ORM with Cloudflare D1 |
 | Auth | better-auth (OAuth) |
 | Editor | TipTap v3 + lowlight |
 | AI | OpenRouter (chat completions) |
-| Media | Cloudflare R2 (AWS SDK S3) |
+| Media | Cloudflare R2 (presigned uploads) |
 | Analytics | Umami |
 | Deploy | Cloudflare Workers (`wrangler`) |
 | Tooling | Biome, Vitest, Vite 8, React Compiler |
@@ -42,7 +50,7 @@ A single-user, self-hosted blog content management system built on **TanStack St
 1. **Install dependencies**
 
    ```bash
-   pnpm install
+   bun install
    ```
 
 2. **Configure environment**
@@ -69,8 +77,7 @@ A single-user, self-hosted blog content management system built on **TanStack St
 3. **Set up the database**
 
    ```bash
-   bun run db:generate   # create migrations from schema
-   bun run db:migrate    # apply to the local D1 database (Wrangler)
+   bun run db:migrate    # apply checked-in migrations to local D1 (Wrangler)
    ```
 
 4. **Run the dev server**
@@ -174,8 +181,8 @@ post-deploy smoke checklist.
 2. **Write** — go to *Posts → New*. Use the slash menu (`/`) for blocks, the bubble menu for inline formatting, and the media button to upload images/videos. Toggle **Draft / Published** to control visibility.
 3. **SEO** — open the SEO tab to set title, slug, and description with a live Google preview.
 4. **AI** — use *Generate* to draft a post from your saved writing style, or *Repurpose* to spin a post into social snippets.
-5. **Media** — the Media page lists uploaded assets cached locally for fast reload.
-6. **Settings** — configure accent color, default model, writing style, CORS origins for the public feed, and Umami.
+5. **Media** — the Media page lists ready uploads with optimized previews, search, and insertion into posts.
+6. **Settings** — configure appearance, default model, writing style, CORS origins for the public feed, and Umami.
 7. **Public feed** — published posts are served as JSON at `/api/posts` (CORS-restricted by your allowlist) for external consumption.
 
 ## Project Structure
@@ -183,20 +190,21 @@ post-deploy smoke checklist.
 ```
 src/
   db/                 Drizzle schema + client (full-schema merges app + auth)
-  routes/             TanStack Start routes (_public, _authenticated, api)
-  components/content-os/   The TipTap editor + supporting UI
+  routes/             TanStack Start routes (_public, _protected, api)
+  components/         Shared UI and owner navigation
+  features/           Domain logic and page components
   lib/                auth, session, r2, ai, env
-  styles/             Tailwind / global CSS
+  styles.css          Tailwind / global CSS and brand tokens
   db/drizzle/         Regenerated baseline migrations
 ```
 
 ## Known Gaps & TODO
 
-These are tracked and not yet implemented:
+These remain open or require manual setup:
 
-- **Deployment DB** — local development and the Worker runtime use Cloudflare D1 through the `DB` binding. Remote provisioning and the preview/production flow are documented in [docs/deploy.md](./docs/deploy.md) (M1.3); run `bun run deploy:check` before deploying.
-- **Comments** — no comments table or UI yet.
-- **Scheduling** — `PostStatus` includes `"scheduled"` but no scheduler exists.
+- **Deployment** — provision D1/R2 and secrets as described in [docs/deploy.md](./docs/deploy.md); run `bun run deploy:check` before deploying and apply pending migrations separately.
+- **Comments** — no comments table or UI; [the policy](./docs/decisions/0002-comments-policy.md) keeps them out of v1.
+- **Marketing follow-ups** — mobile navigation, color contrast for custom accents, and accurate self-host setup/CTA copy need another pass; see [implementation status](./docs/IMPLEMENTATION-STATUS.md).
 
 ## License
 

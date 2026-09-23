@@ -9,15 +9,15 @@ export function FinalCTASection() {
 		<section className="py-24">
 			<div className="mx-auto max-w-275 px-6">
 				<AnimateOnScroll>
-					<div className="relative isolate overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0a] px-6 py-16 text-center sm:px-16">
+					<div className="relative isolate overflow-hidden rounded-xl border border-border bg-card px-6 py-16 text-center sm:px-16">
 						{/* Accent glow */}
-						<div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_55%_70%_at_50%_0%,rgba(124,58,237,0.16),transparent_70%)]" />
-						<div className="absolute inset-x-0 top-0 -z-10 h-px bg-linear-to-r from-transparent via-violet-500/50 to-transparent" />
+						<div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_55%_70%_at_50%_0%,rgba(11,130,246,0.12),transparent_70%)]" />
+						<div className="absolute inset-x-0 top-0 -z-10 h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
 
-						<h2 className="text-balance font-semibold text-4xl text-zinc-100 tracking-[-0.04em] sm:text-5xl">
+						<h2 className="text-balance font-semibold text-4xl text-foreground tracking-[-0.04em] sm:text-5xl">
 							Ready to write?
 						</h2>
-						<p className="mx-auto mt-4 max-w-100 text-[15px] text-zinc-500 leading-relaxed">
+						<p className="mx-auto mt-4 max-w-100 text-[15px] text-muted-foreground leading-relaxed">
 							Deploy in minutes. Your writing stack, set up in seconds.
 						</p>
 
@@ -43,7 +43,7 @@ export function FinalCTASection() {
 							</a>
 						</div>
 
-						<p className="mt-7 text-xs text-zinc-600">
+						<p className="mt-7 text-muted-foreground text-xs">
 							MIT licensed · Self-hosted · No subscription
 						</p>
 					</div>

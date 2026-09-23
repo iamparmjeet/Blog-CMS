@@ -1,60 +1,76 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "#/lib/utils";
+import { PageOwlLogo } from "./page-owl-logo";
 
 interface LogoProps {
 	withTitle?: boolean;
 	size?: "sm" | "md" | "lg";
+	animated?: boolean;
+	loop?: boolean;
+	markClassName?: string;
 	className?: string;
 }
 
 const sizeStyles = {
 	sm: {
-		root: "gap-2",
-		icon: "size-8 rounded-lg",
-		svg: 16,
-		title: "text-xs",
+		root: "gap-2.5",
+		icon: "size-8",
+		wordmark: "text-base",
 	},
 	md: {
 		root: "gap-3",
-		icon: "size-10 rounded-[10px]",
-		svg: 20,
-		title: "text-sm",
+		icon: "size-9",
+		wordmark: "text-lg",
 	},
 	lg: {
-		root: "gap-3",
-		icon: "size-12 rounded-xl",
-		svg: 24,
-		title: "text-base",
+		root: "gap-2.5 sm:gap-3.5",
+		icon: "size-9 sm:size-11",
+		wordmark: "text-base sm:text-xl",
 	},
 } as const;
 
-export function Logo({ withTitle = true, size = "md", className }: LogoProps) {
+export function Logo({
+	withTitle = true,
+	size = "md",
+	animated = false,
+	loop = false,
+	markClassName,
+	className,
+}: LogoProps) {
 	const styles = sizeStyles[size];
 
 	return (
 		<Link
 			to="/"
-			aria-label={withTitle ? undefined : "ContentOS home"}
+			aria-label={withTitle ? undefined : "PageOwl home"}
 			className={cn("flex w-fit items-center", styles.root, className)}
 		>
-			<div
-				className={cn("flex shrink-0 items-center justify-center", styles.icon)}
-			>
-				<img
-					alt=""
+			{withTitle ? (
+				<>
+					<PageOwlLogo
+						animated={animated}
+						aria-hidden="true"
+						className={cn("shrink-0", styles.icon, markClassName)}
+						loop={loop}
+						showWordmark={false}
+					/>
+					<span
+						className={cn(
+							"font-bold text-foreground tracking-[-0.055em]",
+							styles.wordmark,
+						)}
+					>
+						Page<span className="text-brand">Owl</span>
+					</span>
+				</>
+			) : (
+				<PageOwlLogo
+					animated={animated}
 					aria-hidden="true"
-					className="size-full"
-					height={styles.svg}
-					src="/favicon.svg"
-					width={styles.svg}
+					className={cn("shrink-0", styles.icon, markClassName)}
+					loop={loop}
+					showWordmark={false}
 				/>
-			</div>
-
-			{withTitle && (
-				<span className={cn("font-semibold tracking-tight", styles.title)}>
-					content
-					<span className="text-muted-foreground">.OS</span>
-				</span>
 			)}
 		</Link>
 	);

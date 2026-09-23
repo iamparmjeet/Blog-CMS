@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "ContentOS",
+				title: "PageOwl",
 			},
 		],
 		links: [
@@ -36,8 +36,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 			{
 				rel: "icon",
+				type: "image/x-icon",
+				href: "/favicon.ico?v=pageowl-2",
+			},
+			{
+				rel: "icon",
+				type: "image/png",
+				sizes: "32x32",
+				href: "/favicon-32.png?v=pageowl-2",
+			},
+			{
+				rel: "icon",
 				type: "image/svg+xml",
-				href: "/favicon.svg",
+				href: "/favicon.svg?v=pageowl-2",
+			},
+			{
+				rel: "apple-touch-icon",
+				sizes: "192x192",
+				href: "/logo192.png?v=pageowl-2",
 			},
 			{
 				rel: "manifest",

@@ -1,18 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
-    <linearGradient id="surface" x1="8" y1="5" x2="56" y2="61" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#8B5CF6"/>
-      <stop offset=".52" stop-color="#6D3FE8"/>
-      <stop offset="1" stop-color="#4338CA"/>
+    <linearGradient id="left" x1="20" y1="20" x2="80" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0867F2"/>
+      <stop offset="1" stop-color="#1746C8"/>
     </linearGradient>
-    <linearGradient id="page" x1="20" y1="15" x2="43" y2="47" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFF"/>
-      <stop offset="1" stop-color="#EDE9FE"/>
+    <linearGradient id="center" x1="45" y1="18" x2="95" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12B8F4"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="right" x1="70" y1="20" x2="125" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#62E6F7"/>
+      <stop offset="1" stop-color="#60A5FA"/>
+    </linearGradient>
+    <linearGradient id="owl" x1="38" y1="42" x2="91" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071D55"/>
+      <stop offset="1" stop-color="#123EA7"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="18" fill="url(#surface)"/>
-  <path d="M20 17.75c0-2.07 1.68-3.75 3.75-3.75H44c2.21 0 4 1.79 4 4v22.25A3.75 3.75 0 0 1 44.25 44H24a4 4 0 0 1-4-4V17.75Z" fill="#C4B5FD" opacity=".38"/>
-  <path d="M16 22.75c0-2.07 1.68-3.75 3.75-3.75H40c2.21 0 4 1.79 4 4v22.25A3.75 3.75 0 0 1 40.25 49H20a4 4 0 0 1-4-4V22.75Z" fill="url(#page)"/>
-  <path d="M25 28h11.5M25 34h10M25 40h7" fill="none" stroke="#5B35CC" stroke-linecap="round" stroke-width="2.75"/>
-  <path d="M40 19v25.75A4.25 4.25 0 0 1 35.75 49H20" fill="none" stroke="#FFF" stroke-linecap="round" stroke-width="2" opacity=".38"/>
+  <rect width="128" height="128" rx="26" fill="#071D55"/>
+  <g transform="translate(-9.6 -9.6) scale(1.15)">
+    <rect x="17" y="22" width="52" height="84" rx="10" fill="url(#left)" transform="rotate(-5 52 64)"/>
+    <rect x="39" y="15" width="52" height="96" rx="10" fill="url(#center)" opacity=".9"/>
+    <rect x="61" y="22" width="52" height="84" rx="10" fill="url(#right)" opacity=".82" transform="rotate(5 78 64)"/>
+    <path d="M32 47C43 42 52 43 64 51c12-8 21-9 32-4-5 6-8 11-9 19-2 14-11 24-23 28-12-4-21-14-23-28-1-8-4-13-9-19Z" fill="#fff"/>
+    <path d="m64 55 6 16-6 9-6-9 6-16Z" fill="url(#owl)"/>
+    <circle cx="51" cy="66" r="13" fill="#fff"/><circle cx="52" cy="67" r="6.5" fill="url(#owl)"/><circle cx="54" cy="64" r="2" fill="#fff"/>
+    <circle cx="77" cy="66" r="13" fill="#fff"/><circle cx="76" cy="67" r="6.5" fill="url(#owl)"/><circle cx="78" cy="64" r="2" fill="#fff"/>
+    <path d="M39 52c8-4 16-3 23 3M89 52c-8-4-16-3-23 3" fill="none" stroke="url(#owl)" stroke-width="5" stroke-linecap="round"/>
+  </g>
 </svg>

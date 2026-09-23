@@ -162,6 +162,8 @@ This roadmap turns the current README commitments into independently verifiable 
 
 - [x] **Instance backup and restore.** Owner-only versioned JSON export plus Merge/Replace import with slug and media remapping, confirmation, and deterministic E2E. Large backups stream each media object before a metadata-only commit; see `docs/backup.md`.
 
+- [x] **PageOwl identity refresh.** Replace the public/owner brand marks and icon assets, use the blue token palette across both themes, default new appearances to day, and preserve existing saved theme choices when changing the database default. This is a UI-brand change; legacy ContentOS backup/runtime identifiers remain compatible.
+
 ## Final Testing / Go-Live
 
 The backup restore slice is merged and its new schema and Worker code have been verified together on the canonical live instance. The separate PR-preview build failure has been diagnosed and deferred:
@@ -173,6 +175,7 @@ The backup restore slice is merged and its new schema and Worker code have been 
 
 ## Deferred Enhancements
 
+- Complete the marketing follow-up: working mobile navigation, contrast-safe custom accent buttons and muted text, accurate self-host commands and owner-only CTA copy, and a more legible mobile product preview.
 - Configure isolated Cloudflare Workers PR previews with a `previews` block, staging D1/R2 bindings, and Preview-specific secrets before making the branch-build check a release gate. Retrying the unchanged build does not fix its missing configuration.
 - Command palette and keyboard shortcuts.
 - Streaming JSON parsing for very large backup files on memory-constrained browsers, and automated cleanup of staging objects after abandoned uploads.

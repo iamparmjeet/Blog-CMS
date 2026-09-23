@@ -20,7 +20,7 @@ export function NotFoundPage() {
 						to="/"
 						className="mt-6 inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-[#d4d4d4] text-[13px] transition-colors hover:text-text-primary"
 						style={{
-							background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+							background: "linear-gradient(135deg, #0867f2 0%, #1746c8 100%)",
 							boxShadow: "0 0 0 1px rgba(124,58,237,0.3)",
 						}}
 					>

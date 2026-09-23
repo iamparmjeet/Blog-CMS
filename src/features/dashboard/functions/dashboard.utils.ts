@@ -3,7 +3,7 @@ import { parsePostStatus } from "#/features/posts/functions/posts.utils";
 import type { WritingActivityHeatmap } from "../writing-activity/writing.types";
 import type { DashboardStats, DashboardSummary } from "./dashboard.types";
 
-export const DEFAULT_ACCENT_COLOR = "#7c3aed";
+export const DEFAULT_ACCENT_COLOR = "#0867f2";
 
 const AccentColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 

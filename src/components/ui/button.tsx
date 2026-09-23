@@ -20,8 +20,7 @@ const buttonVariants = cva(
 				brand:
 					"bg-brand text-brand-foreground hover:bg-brand/85 focus-visible:border-brand/40 focus-visible:ring-brand/30",
 				link: "text-primary underline-offset-4 hover:underline",
-				purple:
-					"bg-linear-to-br from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500",
+				purple: "bg-brand text-brand-foreground hover:bg-brand/85",
 			},
 			size: {
 				default:

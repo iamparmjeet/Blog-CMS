@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_protected/posts/$postId")({
 	head: () => ({
 		meta: [
 			{
-				title: "Edit post · ContentOS",
+				title: "Edit post · PageOwl",
 			},
 		],
 	}),

@@ -60,23 +60,23 @@ export function RepurposePanel({ className }: { className?: string }) {
 	return (
 		<aside
 			className={cn(
-				"flex h-full flex-col border-white/5 border-l bg-zinc-950",
+				"flex h-full flex-col border-border border-l bg-sidebar",
 				className,
 			)}
 		>
 			{/* Button*/}
-			<div className="flex items-center gap-2 border-white/5 border-b px-4 py-3">
-				<IconWand className="h-4 w-4 text-violet-400" />
-				<span className="font-semibold text-xs text-zinc-300">Repurpose</span>
+			<div className="flex items-center gap-2 border-border border-b px-4 py-3">
+				<IconWand className="h-4 w-4 text-brand" />
+				<span className="font-semibold text-foreground text-xs">Repurpose</span>
 			</div>
 
 			{/* Tabs */}
-			<div className="flex gap-0.5 border-white/5 border-b p-2">
+			<div className="flex gap-0.5 border-border border-b p-2">
 				{tabs.map((tab) => (
 					<Button
 						key={tab}
 						size="sm"
-						variant={tab === activeTab ? "purple" : "outline"}
+						variant={tab === activeTab ? "brand" : "outline"}
 					>
 						{tab}
 					</Button>
@@ -84,7 +84,7 @@ export function RepurposePanel({ className }: { className?: string }) {
 			</div>
 
 			<div className="px-3 py-3">
-				<Button variant="secondary" className="h-9 w-full text-xs" size="sm">
+				<Button variant="brand" className="h-9 w-full text-xs" size="sm">
 					<IconWand className="mr-1.5 h-3.5 w-3.5" />
 					Generate
 				</Button>
@@ -92,24 +92,24 @@ export function RepurposePanel({ className }: { className?: string }) {
 
 			{/* Content */}
 			<div className="flex-1 overflow-auto px-3 pb-3">
-				<div className="rounded-lg border border-white/5 bg-black px-4 py-3.5">
+				<div className="rounded-lg border border-border bg-background px-4 py-3.5">
 					{lines.map((line, i) => (
 						<p
 							key={line.id}
 							className={`text-[11px] leading-6 ${
 								line.text.startsWith("#") || line.text.startsWith("→")
-									? "text-violet-400/80"
+									? "text-brand"
 									: i === 0
-										? "font-semibold text-zinc-300"
+										? "font-semibold text-foreground"
 										: line.text
-											? "text-zinc-500"
+											? "text-muted-foreground"
 											: "h-2"
 							}`}
 						>
 							{line.text || "\u00A0"}
 						</p>
 					))}
-					<span className="ml-0.5 inline-block h-4 w-[1.5px] animate-pulse bg-violet-500 align-text-bottom motion-reduce:animate-none" />
+					<span className="ml-0.5 inline-block h-4 w-[1.5px] animate-pulse bg-brand align-text-bottom motion-reduce:animate-none" />
 				</div>
 			</div>
 		</aside>

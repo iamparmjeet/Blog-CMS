@@ -99,6 +99,7 @@ export function applyAppearance(appearance: AppliedAppearance): void {
 	}
 
 	root.style.setProperty("--brand", appearance.accentColor);
+	root.style.setProperty("--pageowl-accent", appearance.accentColor);
 
 	const tint =
 		appearance.surfaceTint && isHexColor(appearance.surfaceTint)
@@ -138,4 +139,4 @@ export function setAppearance(appearance: AppliedAppearance): void {
  * Inline head script that applies cached appearance before first paint.
  * Kept as a string so __root.tsx can inject it without a module round-trip.
  */
-export const APPEARANCE_BOOTSTRAP_SCRIPT = `(function(){try{var raw=localStorage.getItem(${JSON.stringify(APPEARANCE_STORAGE_KEY)});var input=raw?JSON.parse(raw):null;var modes=["system","day","night"];var mode=input&&modes.indexOf(input.themeMode)>=0?input.themeMode:"night";var dark=mode==="night"?true:mode==="day"?false:window.matchMedia("(prefers-color-scheme: dark)").matches;var root=document.documentElement;if(dark){root.classList.add("dark")}else{root.classList.remove("dark")}var hex=/^#[0-9a-fA-F]{6}$/;if(input&&typeof input.accentColor==="string"&&hex.test(input.accentColor)){root.style.setProperty("--brand",input.accentColor)}if(input&&typeof input.surfaceTint==="string"&&hex.test(input.surfaceTint)){root.style.setProperty("--surface-tint",input.surfaceTint)}}catch(e){}})();`;
+export const APPEARANCE_BOOTSTRAP_SCRIPT = `(function(){try{var raw=localStorage.getItem(${JSON.stringify(APPEARANCE_STORAGE_KEY)});var input=raw?JSON.parse(raw):null;var modes=["system","day","night"];var mode=input&&modes.indexOf(input.themeMode)>=0?input.themeMode:"day";var dark=mode==="night"?true:mode==="day"?false:window.matchMedia("(prefers-color-scheme: dark)").matches;var root=document.documentElement;if(dark){root.classList.add("dark")}else{root.classList.remove("dark")}var hex=/^#[0-9a-fA-F]{6}$/;if(input&&typeof input.accentColor==="string"&&hex.test(input.accentColor)){root.style.setProperty("--brand",input.accentColor);root.style.setProperty("--pageowl-accent",input.accentColor)}if(input&&typeof input.surfaceTint==="string"&&hex.test(input.surfaceTint)){root.style.setProperty("--surface-tint",input.surfaceTint)}}catch(e){}})();`;

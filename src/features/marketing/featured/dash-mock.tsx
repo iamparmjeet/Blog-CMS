@@ -17,7 +17,7 @@ export function DashMock() {
 				repeat: Infinity,
 				ease: "easeInOut",
 			}}
-			className="relative mx-auto w-full select-none overflow-hidden rounded-xl border border-white/10 bg-zinc-950 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_20px_80px_rgba(0,0,0,0.6)]"
+			className="pageowl-demo relative mx-auto w-full select-none overflow-hidden rounded-xl border border-border bg-card shadow-[0_18px_60px_rgba(7,29,85,0.12)]"
 		>
 			<BrowserHeader />
 			<div className="grid h-100 grid-cols-1 sm:grid-cols-[1fr_260px] lg:h-155 lg:grid-cols-[200px_1fr_280px]">

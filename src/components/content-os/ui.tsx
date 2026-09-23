@@ -155,7 +155,7 @@ export function UserAvatar({
 	return (
 		<AvatarRoot className={cn("size-7", className)}>
 			<AvatarImage alt="" src={image ?? undefined} />
-			<AvatarFallback className="bg-linear-to-br from-brand to-indigo-600 font-semibold text-[11px] text-white">
+			<AvatarFallback className="bg-linear-to-br from-brand to-[#1746c8] font-semibold text-[11px] text-white">
 				{initials}
 			</AvatarFallback>
 		</AvatarRoot>

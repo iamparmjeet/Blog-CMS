@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { PageOwlLogo } from "#/components/shared/page-owl-logo";
 import type { PostStatus } from "#/features/posts/functions/posts.types";
 import { savePostSchedule } from "#/features/posts/functions/save-post-schedule.function";
 import {
@@ -81,25 +82,19 @@ export function Sidebar({ className, onClose, post, user }: SidebarProps) {
 
 export function AppBrand() {
 	return (
-		<Link className="flex items-center gap-2.5" to="/dashboard">
-			<span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-				<svg
-					aria-hidden="true"
-					fill="none"
-					height="12"
-					viewBox="0 0 12 12"
-					width="12"
-				>
-					<path
-						d="M2 3h5M2 6h8M2 9h6"
-						stroke="#fff"
-						strokeLinecap="round"
-						strokeWidth="1.5"
-					/>
-				</svg>
-			</span>
-			<span className="font-semibold text-sm text-text-primary tracking-[-0.02em]">
-				content<span className="font-normal text-text-soft">.os</span>
+		<Link
+			aria-label="PageOwl dashboard"
+			className="flex items-center"
+			to="/dashboard"
+		>
+			<PageOwlLogo
+				animated={false}
+				aria-hidden="true"
+				className="size-8 shrink-0"
+				showWordmark={false}
+			/>
+			<span className="ml-2 font-bold text-sm text-text-primary tracking-[-0.04em]">
+				Page<span className="text-brand">Owl</span>
 			</span>
 		</Link>
 	);

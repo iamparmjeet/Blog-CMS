@@ -66,6 +66,6 @@ describe("SurfaceTintPicker", () => {
 		);
 
 		fireEvent.click(getByRole("button", { name: "Tinted" }));
-		expect(onChange).toHaveBeenCalledWith("#7c3aed");
+		expect(onChange).toHaveBeenCalledWith("#0867f2");
 	});
 });

@@ -1,5 +1,6 @@
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Logo } from "#/components/shared/logo";
 import { Button } from "#/components/ui/button";
 import { authClient } from "#/lib/auth/auth-client";
 import { checkUserExists } from "#/lib/auth/check-user";
@@ -68,7 +69,7 @@ function OwnerReturnComponent({
 				</div>
 
 				<div className="mt-5 text-center text-[11px] text-text-ghost">
-					content.os v0.1 — self-hosted
+					PageOwl · self-hosted
 				</div>
 			</div>
 		</div>
@@ -100,7 +101,7 @@ function FirstClaimComponent() {
 				</div>
 
 				<div className="mt-5 text-center text-[11px] text-text-ghost">
-					content.os v0.1 — built in public
+					PageOwl · built in public
 				</div>
 			</div>
 		</div>
@@ -110,28 +111,8 @@ function FirstClaimComponent() {
 function BrandHeader() {
 	return (
 		<div className="mb-10 flex flex-col items-center gap-3">
-			<div
-				className="flex h-10 w-10 items-center justify-center rounded-[10px]"
-				style={{
-					background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-					boxShadow:
-						"0 0 0 1px rgba(124,58,237,0.3), 0 8px 24px rgba(124,58,237,0.2)",
-				}}
-			>
-				<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-					<title>Brand</title>
-					<path
-						d="M4 6h8M4 10h12M4 14h9"
-						stroke="#fff"
-						strokeWidth="1.75"
-						strokeLinecap="round"
-					/>
-				</svg>
-			</div>
+			<Logo animated size="lg" />
 			<div className="text-center">
-				<div className="font-semibold text-[17px] text-text-primary tracking-[-0.02em]">
-					content<span className="font-normal text-text-muted">.os</span>
-				</div>
 				<div className="mt-1 text-[13px] text-text-muted">
 					Your writing stack. Nothing else.
 				</div>
