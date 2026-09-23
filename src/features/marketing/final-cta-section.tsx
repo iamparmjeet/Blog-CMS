@@ -29,7 +29,7 @@ export function FinalCTASection() {
 								<IconArrowRight className="size-4" />
 							</a>
 							<a
-								href="https://github.com/iamparmjeet/blog-cms"
+								href="https://github.com/iamparmjeet/PageOwl"
 								target="_blank"
 								rel="noreferrer"
 								className={cn(

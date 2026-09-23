@@ -10,7 +10,7 @@ import { AnimateOnScroll } from "#/components/motion/animate-on-scroll";
 import { buttonVariants } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
 
-const REPO_URL = "https://github.com/iamparmjeet/blog-cms";
+const REPO_URL = "https://github.com/iamparmjeet/PageOwl";
 
 const meta = [
 	{ icon: IconLicense, label: "MIT licensed" },
@@ -21,9 +21,9 @@ const meta = [
 const installSteps = [
 	{
 		prompt: "$",
-		command: "git clone https://github.com/iamparmjeet/blog-cms.git",
+		command: `git clone ${REPO_URL}.git`,
 	},
-	{ prompt: "$", command: "cd blog-cms && bun install" },
+	{ prompt: "$", command: "cd PageOwl && bun install" },
 	{ prompt: "$", command: "bun run db:migrate:remote" },
 	{ prompt: "$", command: "bun run deploy" },
 ];

@@ -1,6 +1,6 @@
 # PageOwl (formerly ContentOS)
 
-A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare Workers. PageOwl pairs a TipTap editor with optional OpenRouter-assisted drafting and social repurposing, R2-backed media, a CORS-gated public feed, and owner-only analytics. The repository, Worker, backup format, and some internal identifiers still use the ContentOS name.
+A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare Workers. PageOwl pairs a TipTap editor with optional OpenRouter-assisted drafting and social repurposing, R2-backed media, a CORS-gated public feed, and owner-only analytics. The GitHub repository is [PageOwl](https://github.com/iamparmjeet/PageOwl); the Worker, backup format, and some internal identifiers still use legacy names.
 
 ## Features
 

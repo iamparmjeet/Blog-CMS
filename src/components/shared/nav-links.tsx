@@ -15,7 +15,7 @@ const LINKS: NavLink[] = [
 	{ href: "#how", label: "How it Works" },
 	{ href: "/demo", label: "Live demo" },
 	{
-		href: "https://github.com/iamparmjeet/blog-cms",
+		href: "https://github.com/iamparmjeet/PageOwl",
 		label: "GitHub",
 		icon: IconBrandGithub,
 		external: true,
