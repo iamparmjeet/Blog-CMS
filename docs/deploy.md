@@ -1,7 +1,9 @@
 # Deployment
 
-ContentOS deploys to Cloudflare Workers. Preview and production use the same
-`wrangler.jsonc` bindings; secrets stay out of the config file.
+ContentOS deploys to Cloudflare Workers. The repo's manual `deploy:preview`
+and `deploy` scripts use the same live `wrangler.jsonc` bindings; secrets stay
+out of the config file. Cloudflare Workers Builds PR previews are separate and
+not configured yet.
 
 ## Prerequisites
 
@@ -117,15 +119,16 @@ bunx wrangler d1 info blog-cms
 bunx wrangler d1 migrations list blog-cms --remote
 ```
 
-## Preview deployment
+## Manual deployment (live Worker)
 
-Preview is a Workers deploy of the current branch build (no separate
-`preview` env is configured in `wrangler.jsonc`, so preview and production
-share the same deploy path). The custom domain serves canonical traffic;
-the `workers.dev` URL keeps working for non-auth smoke checks:
+`bun run deploy:preview` deploys the current branch to the **same live Worker**
+as `bun run deploy`. No separate `preview` env is configured in
+`wrangler.jsonc`. The custom domain serves canonical traffic; the
+`workers.dev` URL keeps working for non-auth smoke checks:
 
-Before deploying PR #33's backup restore code, apply migration `0007` to
-remote D1 and verify it is no longer pending:
+Migration `0007` was applied to remote D1 before the backup restore Worker was
+deployed on 2026-09-23. Before future schema-dependent deployments, apply
+pending remote migrations and verify the list is empty:
 
 ```bash
 bun run db:migrate:remote
@@ -150,9 +153,23 @@ curl -sS -o /dev/null -w '%{http_code}\n' "$PREVIEW_URL/"
 curl -sS -o /dev/null -w '%{http_code}\n' -L "$PREVIEW_URL/dashboard"
 ```
 
-The acceptance criterion is that a preview deployment supports an authenticated
+The acceptance criterion is that the manual deployment supports an authenticated
 smoke test without native SQLite dependencies — the Worker uses the `DB` D1
 binding only.
+
+## PR-branch previews (deferred)
+
+Cloudflare Workers Builds uses a different command for PR branches:
+`npx wrangler preview`. The build and dependency installation pass, but this
+command fails at deployment because `wrangler.jsonc` has no `previews` block.
+Retried builds will fail the same way until preview settings are configured.
+These branch previews are not a go-live gate; `main` builds and the manual live
+deployment passed. See `docs/e2e/go-live-20260923.md` for the confirmed error.
+
+To enable usable branch previews later, configure a `previews` block with
+separate D1/R2 resources and Preview-specific secrets. An empty block alone
+would allow the command to proceed without giving the app its required runtime
+bindings. Do not point PR previews at the owner instance's D1 or R2 resources.
 
 ## Production deployment
 
@@ -168,7 +185,7 @@ points at the intended account first.
 1. `bunx wrangler whoami` — correct account.
 2. `bun run deploy:check` — bindings + placeholder id clear.
 3. Verify remote D1 migrations are current (migration `0007` was applied before this deployment).
-4. Open the deployment URL; sign in once to claim the instance.
+4. Open the deployment URL; sign in as the owner (or claim a new instance on its first sign-in).
 5. Hit `/api/posts` (CORS-gated) from an allowlisted origin if feed access matters.
 
 ## Troubleshooting

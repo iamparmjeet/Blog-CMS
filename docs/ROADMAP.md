@@ -164,7 +164,7 @@ This roadmap turns the current README commitments into independently verifiable 
 
 ## Final Testing / Go-Live
 
-The backup restore slice is merged and its new schema and Worker code have been verified together on the canonical live instance. The remaining build-check investigation is separate from the live smoke test:
+The backup restore slice is merged and its new schema and Worker code have been verified together on the canonical live instance. The separate PR-preview build failure has been diagnosed and deferred:
 
 - [x] Apply `0007_optimal_switch.sql` to remote D1 with `bun run db:migrate:remote`; verify `bunx wrangler d1 migrations list blog-cms --remote` reports no pending migrations and `backup_restores` exists. Completed before deployment on 2026-09-23.
 - [x] Redeploy `main` with `bun run deploy:preview` after checking the target account and bindings. Preview and production use the same Worker (`docs/deploy.md`). Deployed version `866a4766-89d5-451d-b658-ea24b28c3a6d` on 2026-09-23.
