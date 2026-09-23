@@ -56,7 +56,7 @@ The T0 baseline repair and M0 through M5 are complete, including the M4.1 publis
 
 ## Current Handoff
 
-`origin/main` is at `749cad8` (PR #33 backup restore squash-merge); local `main` tracks it, with the go-live documentation changes pending delivery. M0–M6.1 are all checked. Recent slices:
+PR #33 backup restore was squash-merged as `749cad8`. M0–M6.1 are all checked. Recent slices:
 
 - T5.1 AI generation (`feat/t5.1-ai-generation`, PR #20): streamed OpenRouter drafting from the writing profile with explicit insert; nothing auto-publishes.
 - T5.2 social repurposing (`feat/t5.2-repurpose`, PR #21): read-only per-format variants with explicit copy; source posts never mutated.
