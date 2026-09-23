@@ -6,6 +6,7 @@ import {
 	insertPostDraft,
 	type PostSearchOptions,
 	selectDeletedPostRowsByOwner,
+	selectOwnerSlugsExcluding,
 	selectPostEditorRowByOwner,
 	selectPostRowsByOwner,
 } from "./posts.query";
@@ -75,4 +76,16 @@ export async function readPostEditorByOwner({
 		.get();
 
 	return toPostEditorData(row, resolveTimeZone(preference?.timeZone));
+}
+
+interface ReadOwnerSlugsExcludingInput {
+	userId: string;
+	postId: number;
+}
+
+export async function readOwnerSlugsExcluding({
+	userId,
+	postId,
+}: ReadOwnerSlugsExcludingInput): Promise<string[]> {
+	return selectOwnerSlugsExcluding(getDb(), userId, postId);
 }

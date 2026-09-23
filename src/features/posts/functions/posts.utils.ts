@@ -60,6 +60,33 @@ export function uniqueSlug(base: string, taken: ReadonlySet<string>): string {
 	return `${base}-${suffix}`;
 }
 
+export function slugForTitle(
+	title: string,
+	takenSlugs: ReadonlySet<string>,
+): string {
+	return uniqueSlug(slugify(title), takenSlugs);
+}
+
+export interface SlugFollowInput {
+	title: string;
+	slug: string;
+	status: PostStatus;
+	takenSlugs: ReadonlySet<string>;
+}
+
+export function slugFollowsTitle({
+	title,
+	slug,
+	status,
+	takenSlugs,
+}: SlugFollowInput): boolean {
+	if (status === "published") {
+		return false;
+	}
+
+	return slug === slugForTitle(title, takenSlugs);
+}
+
 export function toPostListItem(row: PostRow): PostListItem {
 	return {
 		id: row.id,
@@ -84,6 +111,7 @@ export function toPostEditorData(
 		description: row.description,
 		body: parseStoredPostBody(row.body),
 		scheduledAt: row.scheduledAt ? row.scheduledAt.toISOString() : null,
+		publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
 		timeZone,
 		wordCount: Math.max(0, row.wordCount),
 		updatedAt: serializePostDate(row.updatedAt),

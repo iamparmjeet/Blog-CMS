@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_protected/posts/$postId")({
 });
 
 function PostEditorRoute() {
-	const post = Route.useLoaderData();
+	const { post, takenSlugs } = Route.useLoaderData();
 
-	return <PostEditorPage post={post} />;
+	return <PostEditorPage post={post} takenSlugs={takenSlugs} />;
 }

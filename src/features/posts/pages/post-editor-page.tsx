@@ -23,6 +23,7 @@ import {
 	useDeferredValue,
 	useEffect,
 	useEffectEvent,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -53,6 +54,7 @@ import {
 	type PostMetadata,
 } from "../functions/post-metadata";
 import type { PostEditorData } from "../functions/posts.types";
+import { slugFollowsTitle, slugForTitle } from "../functions/posts.utils";
 import { savePostBody } from "../functions/save-post-body.function";
 import { savePostMetadata } from "../functions/save-post-metadata.function";
 
@@ -77,9 +79,10 @@ const REPURPOSE_PROMPTS: Record<RepurposePlatform, string> = {
 
 interface PostEditorPageProps {
 	post: PostEditorData;
+	takenSlugs: string[];
 }
 
-export function PostEditorPage({ post }: PostEditorPageProps) {
+export function PostEditorPage({ post, takenSlugs }: PostEditorPageProps) {
 	const storageKey = `contentos:post:${post.id}:body`;
 	const bodySaveTimeoutRef = useRef<number | null>(null);
 	const metadataSaveTimeoutRef = useRef<number | null>(null);
@@ -95,6 +98,16 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 		seoTitle: post.seoTitle,
 		description: post.description,
 	});
+	const takenSlugsSet = useMemo(() => new Set(takenSlugs), [takenSlugs]);
+	const followsTitleRef = useRef(
+		post.publishedAt === null &&
+			slugFollowsTitle({
+				title: post.title,
+				slug: post.slug,
+				status: post.status,
+				takenSlugs: takenSlugsSet,
+			}),
+	);
 	const [bodySaveStatus, setBodySaveStatus] = useState<SaveStatus>("saved");
 	const [metadataSaveStatus, setMetadataSaveStatus] =
 		useState<SaveStatus>("saved");
@@ -395,6 +408,8 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 		}
 	}
 
+	const slugLocked = post.publishedAt !== null || isPublished;
+
 	function updateMetadata<Key extends keyof PostMetadata>(
 		key: Key,
 		value: PostMetadata[Key],
@@ -414,6 +429,25 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 
 		setMetadataSaveStatus("local");
 		queueMetadataSave();
+	}
+
+	function updateTitle(value: string) {
+		updateMetadata("title", value);
+
+		if (followsTitleRef.current && !slugLocked) {
+			updateMetadata("slug", slugForTitle(value, takenSlugsSet));
+		}
+	}
+
+	function updateMetadataField<Key extends keyof PostMetadata>(
+		key: Key,
+		value: PostMetadata[Key],
+	) {
+		if (key === "slug") {
+			followsTitleRef.current = false;
+		}
+
+		updateMetadata(key, value);
 	}
 
 	return (
@@ -538,9 +572,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 										shouldSelectInitialTitleRef.current = false;
 									}
 								}}
-								onChange={(event) =>
-									updateMetadata("title", event.target.value)
-								}
+								onChange={(event) => updateTitle(event.target.value)}
 								placeholder="Untitled"
 								value={metadata.title}
 							/>
@@ -556,7 +588,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 									aria-label="Post slug"
 									className="h-auto max-w-md border-0 bg-transparent px-0 py-0 font-mono text-[13px] focus-visible:border-0 focus-visible:ring-0 md:text-[13px] dark:bg-transparent"
 									onChange={(event) =>
-										updateMetadata("slug", event.target.value)
+										updateMetadataField("slug", event.target.value)
 									}
 									value={metadata.slug}
 								/>
@@ -587,7 +619,7 @@ export function PostEditorPage({ post }: PostEditorPageProps) {
 						<MetadataPanel
 							error={metadataError}
 							metadata={metadata}
-							onChange={updateMetadata}
+							onChange={updateMetadataField}
 						/>
 					) : null}
 				</div>

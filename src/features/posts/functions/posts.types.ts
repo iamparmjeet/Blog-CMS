@@ -26,6 +26,7 @@ export interface PostEditorData {
 	description: string;
 	body: PostBodyDocument;
 	scheduledAt: string | null;
+	publishedAt: string | null;
 	timeZone: string;
 	wordCount: number;
 	updatedAt: string;
@@ -40,6 +41,7 @@ export interface PostEditorRow {
 	description: string;
 	body: string | null;
 	scheduledAt: Date | null;
+	publishedAt: Date | null;
 	wordCount: number;
 	updatedAt: Date;
 }

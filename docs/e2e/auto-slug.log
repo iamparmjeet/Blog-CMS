@@ -1,0 +1,14 @@
+PASS: creation slugifies the title
+PASS: creation suffixes a duplicate title
+PASS: taken slugs exclude the open post
+PASS: taken slugs include soft-deleted posts
+PASS: taken slugs exclude other owners
+PASS: first editor derives its own slug
+PASS: second editor derives the suffixed slug
+PASS: untouched draft follows the title
+PASS: custom slug stops following
+PASS: published posts never follow
+PASS: scheduled posts still follow
+PASS: blank titles fall back to untitled
+
+E2E complete. All green.

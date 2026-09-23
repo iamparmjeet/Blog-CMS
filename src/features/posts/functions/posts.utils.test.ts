@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
+import type { PostStatus } from "./posts.types";
 import {
 	normalizePostTitle,
+	slugFollowsTitle,
+	slugForTitle,
 	slugify,
 	toPostListItem,
 	UNTITLED_POST_TITLE,
@@ -45,6 +48,73 @@ describe("uniqueSlug", () => {
 
 	it("appends the next free numeric suffix", () => {
 		expect(uniqueSlug("draft", new Set(["draft", "draft-2"]))).toBe("draft-3");
+	});
+});
+
+describe("slugForTitle", () => {
+	it("derives a slug from the title", () => {
+		expect(slugForTitle("Why I Ditched Notion", new Set())).toBe(
+			"why-i-ditched-notion",
+		);
+	});
+
+	it("falls back to untitled for an empty title", () => {
+		expect(slugForTitle("", new Set())).toBe("untitled");
+	});
+
+	it("suffixes when the derived slug is taken", () => {
+		expect(slugForTitle("Same Title", new Set(["same-title"]))).toBe(
+			"same-title-2",
+		);
+	});
+
+	it("caps the derived slug length", () => {
+		expect(slugForTitle("a".repeat(200), new Set())).toHaveLength(80);
+	});
+});
+
+describe("slugFollowsTitle", () => {
+	function input(overrides: {
+		title?: string;
+		slug?: string;
+		status?: PostStatus;
+		takenSlugs?: ReadonlySet<string>;
+	}) {
+		return {
+			title: "My Post",
+			slug: "my-post",
+			status: "draft" as PostStatus,
+			takenSlugs: new Set<string>(),
+			...overrides,
+		};
+	}
+
+	it("follows while the slug matches the title", () => {
+		expect(slugFollowsTitle(input({}))).toBe(true);
+	});
+
+	it("follows an auto-suffixed slug", () => {
+		expect(
+			slugFollowsTitle(
+				input({ slug: "my-post-2", takenSlugs: new Set(["my-post"]) }),
+			),
+		).toBe(true);
+	});
+
+	it("stops following once the slug was customized", () => {
+		expect(slugFollowsTitle(input({ slug: "custom-url" }))).toBe(false);
+	});
+
+	it("never follows for published posts", () => {
+		expect(slugFollowsTitle(input({ status: "published" }))).toBe(false);
+		expect(
+			slugFollowsTitle(input({ slug: "custom-url", status: "published" })),
+		).toBe(false);
+	});
+
+	it("follows for scheduled and archived posts", () => {
+		expect(slugFollowsTitle(input({ status: "scheduled" }))).toBe(true);
+		expect(slugFollowsTitle(input({ status: "archived" }))).toBe(true);
 	});
 });
 

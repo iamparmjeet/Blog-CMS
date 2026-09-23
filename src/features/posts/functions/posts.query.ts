@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, ne } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "#/db";
 import { posts } from "#/db/schema";
@@ -150,6 +150,19 @@ export async function selectDeletedPostRowsByOwner(
 		}));
 }
 
+export async function selectOwnerSlugsExcluding(
+	db: Db,
+	userId: string,
+	excludePostId: number,
+): Promise<string[]> {
+	const rows = await db
+		.select({ slug: posts.slug })
+		.from(posts)
+		.where(and(eq(posts.userId, userId), ne(posts.id, excludePostId)));
+
+	return rows.map((row) => row.slug);
+}
+
 export async function selectPostEditorRowByOwner(
 	db: Db,
 	userId: string,
@@ -165,6 +178,7 @@ export async function selectPostEditorRowByOwner(
 			description: posts.description,
 			body: posts.body,
 			scheduledAt: posts.scheduledAt,
+			publishedAt: posts.publishedAt,
 			wordCount: posts.wordCount,
 			updatedAt: posts.updatedAt,
 		})

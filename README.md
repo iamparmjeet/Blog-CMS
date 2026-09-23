@@ -5,7 +5,7 @@ A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare 
 ## Features
 
 - **Rich editor** — TipTap v3 with formatting, media insertion from the library, SEO metadata, autosave, and a public-preview overlay.
-- **Post management** — create, edit, soft-delete / restore / purge, bulk operations, draft ↔ published toggle.
+- **Post management** — create, edit with title-following draft slugs, soft-delete / restore / purge, bulk operations, draft ↔ published toggle.
 - **AI writing** — streamed post generation from your saved writing style, and repurposing into Twitter / LinkedIn / Instagram / Reels copy.
 - **Media library** — direct presigned R2 uploads, optimized image/video previews, search, reuse in posts, and reference-safe deletion.
 - **Settings** — day/night/system appearance, accent and card tint, model and writing profile, CORS allowlist, publishing toggles, and Umami share URL. Storage bindings are read from the environment.
