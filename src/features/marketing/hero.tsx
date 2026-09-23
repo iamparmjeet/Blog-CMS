@@ -1,4 +1,4 @@
-import { IconArrowRight, IconBrandGithub } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import { PageOwlLogo } from "#/components/shared/page-owl-logo";
 import { Badge } from "#/components/ui/badge";
@@ -104,26 +104,23 @@ export function Hero() {
 						className="mt-8 flex flex-col gap-3 sm:flex-row"
 					>
 						<a
-							href="#open-source"
+							href="/demo"
 							className={cn(
 								buttonVariants({ variant: "purple", size: "lg" }),
 								"group gap-2",
 							)}
 						>
-							Self-host it free
+							Try the live demo
 							<IconArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
 						</a>
 						<a
-							href="https://github.com/iamparmjeet/blog-cms"
-							target="_blank"
-							rel="noreferrer"
+							href="#open-source"
 							className={cn(
 								buttonVariants({ variant: "outline", size: "lg" }),
 								"gap-2",
 							)}
 						>
-							<IconBrandGithub className="size-4" />
-							View on GitHub
+							Self-host it free
 						</a>
 					</motion.div>
 					{/* Browser Window */}

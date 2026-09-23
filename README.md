@@ -14,6 +14,7 @@ A single-owner, self-hosted blog CMS built on **TanStack Start** and Cloudflare 
 - **Public JSON API** — CORS-gated published-post feed at `/api/posts` and `/api/posts/$slug`.
 - **Auth** — OAuth (GitHub + Google) only. The first person to sign in claims ownership; that owner may return, but a different user cannot join.
 - **Command palette** + keyboard shortcuts in the authenticated shell.
+- **Live demo** — a no-signup sandbox at `/demo` with sample data, an interactive editor, and simulated repurposing; nothing is saved.
 
 ## Branding and appearance
 

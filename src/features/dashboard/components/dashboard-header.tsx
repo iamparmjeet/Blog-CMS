@@ -3,6 +3,7 @@ import { getGreeting } from "../functions/dashboard.utils";
 
 interface DashboardHeaderProps {
 	firstName: string;
+	onCreateDraft?: () => void;
 	timeZone: string;
 }
 
@@ -15,7 +16,11 @@ function createDateFormatter(timeZone: string): Intl.DateTimeFormat {
 	});
 }
 
-export function DashboardHeader({ firstName, timeZone }: DashboardHeaderProps) {
+export function DashboardHeader({
+	firstName,
+	onCreateDraft,
+	timeZone,
+}: DashboardHeaderProps) {
 	const now = new Date();
 	const dateFormatter = createDateFormatter(timeZone);
 
@@ -33,7 +38,7 @@ export function DashboardHeader({ firstName, timeZone }: DashboardHeaderProps) {
 				</p>
 			</div>
 
-			<NewDraftButton />
+			<NewDraftButton onCreate={onCreateDraft} />
 		</header>
 	);
 }

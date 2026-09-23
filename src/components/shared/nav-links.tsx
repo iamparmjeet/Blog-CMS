@@ -13,6 +13,7 @@ const LINKS: NavLink[] = [
 	{ href: "#features", label: "Features" },
 	{ href: "#repurpose", label: "Repurpose" },
 	{ href: "#how", label: "How it Works" },
+	{ href: "/demo", label: "Live demo" },
 	{
 		href: "https://github.com/iamparmjeet/blog-cms",
 		label: "GitHub",

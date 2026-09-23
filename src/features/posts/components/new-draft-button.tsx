@@ -4,12 +4,17 @@ import { useState, useTransition } from "react";
 import { Button } from "#/components/ui/button";
 import { createDraft } from "../functions/create-draft.function";
 
-export function NewDraftButton() {
+export function NewDraftButton({ onCreate }: { onCreate?: () => void }) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 
 	function handleCreate() {
+		if (onCreate) {
+			onCreate();
+			return;
+		}
+
 		setError(null);
 
 		startTransition(async () => {

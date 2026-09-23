@@ -5,6 +5,7 @@ interface StatCardProps {
 	accentColor: string;
 	detail: string;
 	label: string;
+	onSelect?: () => void;
 	search?: { tab: "all" | "published" | "drafts" | "deleted" };
 	value: string;
 }
@@ -13,6 +14,7 @@ export function StatCard({
 	accentColor,
 	detail,
 	label,
+	onSelect,
 	search,
 	value,
 }: StatCardProps) {
@@ -39,7 +41,15 @@ export function StatCard({
 				className="absolute inset-x-0 top-0 h-px opacity-70"
 				style={{ background: accentColor }}
 			/>
-			{search ? (
+			{onSelect ? (
+				<button
+					className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					onClick={onSelect}
+					type="button"
+				>
+					{body}
+				</button>
+			) : search ? (
 				<Link
 					className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 					search={search}

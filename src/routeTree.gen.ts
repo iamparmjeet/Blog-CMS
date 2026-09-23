@@ -20,6 +20,7 @@ import { Route as ProtectedMediaRouteImport } from './routes/_protected/media'
 import { Route as ProtectedPostsRouteImport } from './routes/_protected/posts'
 import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicDemoRouteImport } from './routes/_public/demo'
 import { Route as ProtectedPostsIndexRouteImport } from './routes/_protected/posts/index'
 import { Route as ProtectedPostsPostIdRouteImport } from './routes/_protected/posts/$postId'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai/generate'
@@ -83,6 +84,11 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicDemoRoute = PublicDemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => PublicRoute,
+} as any)
 const ProtectedPostsIndexRoute = ProtectedPostsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/media': typeof ProtectedMediaRoute
   '/posts': typeof ProtectedPostsRouteWithChildren
   '/settings': typeof ProtectedSettingsRoute
+  '/demo': typeof PublicDemoRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof ProtectedDashboardRoute
   '/media': typeof ProtectedMediaRoute
   '/settings': typeof ProtectedSettingsRoute
+  '/demo': typeof PublicDemoRoute
   '/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/_protected/media': typeof ProtectedMediaRoute
   '/_protected/posts': typeof ProtectedPostsRouteWithChildren
   '/_protected/settings': typeof ProtectedSettingsRoute
+  '/_public/demo': typeof PublicDemoRoute
   '/_public/': typeof PublicIndexRoute
   '/_protected/posts/$postId': typeof ProtectedPostsPostIdRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/posts'
     | '/settings'
+    | '/demo'
     | '/posts/$postId'
     | '/api/ai/generate'
     | '/api/ai/repurpose'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/media'
     | '/settings'
+    | '/demo'
     | '/posts/$postId'
     | '/api/ai/generate'
     | '/api/ai/repurpose'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/_protected/media'
     | '/_protected/posts'
     | '/_protected/settings'
+    | '/_public/demo'
     | '/_public/'
     | '/_protected/posts/$postId'
     | '/api/ai/generate'
@@ -354,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/demo': {
+      id: '/_public/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof PublicDemoRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_protected/posts/': {
@@ -474,10 +493,12 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
 )
 
 interface PublicRouteChildren {
+  PublicDemoRoute: typeof PublicDemoRoute
   PublicIndexRoute: typeof PublicIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicDemoRoute: PublicDemoRoute,
   PublicIndexRoute: PublicIndexRoute,
 }
 

@@ -1,5 +1,5 @@
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Logo } from "#/components/shared/logo";
 import { Button } from "#/components/ui/button";
 import { authClient } from "#/lib/auth/auth-client";
@@ -71,6 +71,8 @@ function OwnerReturnComponent({
 				<div className="mt-5 text-center text-[11px] text-text-ghost">
 					PageOwl · self-hosted
 				</div>
+
+				<DemoLink />
 			</div>
 		</div>
 	);
@@ -103,7 +105,23 @@ function FirstClaimComponent() {
 				<div className="mt-5 text-center text-[11px] text-text-ghost">
 					PageOwl · built in public
 				</div>
+
+				<DemoLink />
 			</div>
+		</div>
+	);
+}
+
+function DemoLink() {
+	return (
+		<div className="mt-4 text-center text-[11px]">
+			<span className="text-text-ghost">Just looking? </span>
+			<Link
+				className="text-text-dim underline-offset-4 transition-colors hover:text-text-body hover:underline"
+				to="/demo"
+			>
+				Explore the live demo
+			</Link>
 		</div>
 	);
 }

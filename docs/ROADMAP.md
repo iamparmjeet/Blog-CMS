@@ -164,6 +164,8 @@ This roadmap turns the current README commitments into independently verifiable 
 
 - [x] **PageOwl identity refresh.** Replace the public/owner brand marks and icon assets, use the blue token palette across both themes, default new appearances to day, and preserve existing saved theme choices when changing the database default. This is a UI-brand change; legacy ContentOS backup/runtime identifiers remain compatible.
 
+- [x] **Live demo sandbox.** A public `/demo` renders the real dashboard, posts list, and TipTap editor with deterministic sample data and simulated repurposing, all client-side; the header nav, hero, and login page link to it.
+
 - [x] **Title-following draft slugs.** New drafts derive their URL from the title while it is untouched, collisions get numeric suffixes across every owner slug (including trashed rows), a manual slug edit stops the follow, and the slug freezes once the post has been published. Covered by test-first units and a deterministic E2E.
 
 - [x] **Marketing follow-up pass.** The public mobile menu opens with a 40px target and closes on Escape, after a nav link is tapped, and when the viewport grows past the desktop breakpoint; brand buttons derive a readable white/ink foreground for every saved accent; day-mode muted text and the hero gradient meet contrast; the setup snippet uses real clone/migrate/deploy commands with a deploy-guide link; the hero and final CTAs self-host instead of implying open signup; and the mobile product preview shows the repurpose panel.
