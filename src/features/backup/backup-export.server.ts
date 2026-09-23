@@ -13,6 +13,7 @@ export type BackupObjectReader = (
 
 export interface CollectedBackupData {
 	posts: Array<{
+		id: number;
 		title: string;
 		slug: string;
 		seoTitle: string;
@@ -39,6 +40,7 @@ export async function collectBackupData(
 	const [postRows, settingsRow, mediaRows, activityRows] = await Promise.all([
 		db
 			.select({
+				id: posts.id,
 				title: posts.title,
 				slug: posts.slug,
 				seoTitle: posts.seoTitle,
@@ -59,6 +61,8 @@ export async function collectBackupData(
 		db.select().from(settings).where(eq(settings.userId, userId)).get(),
 		db
 			.select({
+				id: media.id,
+				postId: media.postId,
 				name: media.name,
 				type: media.type,
 				size: media.size,
@@ -152,6 +156,7 @@ export async function handleExportRequest({
 		status: 200,
 		headers: {
 			"content-type": "application/json",
+			"cache-control": "private, no-store",
 			"content-disposition": `attachment; filename="contentos-backup-${dateStamp}.json"`,
 		},
 	});

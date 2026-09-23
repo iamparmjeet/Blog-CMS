@@ -26,6 +26,8 @@ import { Route as ApiAiGenerateRouteImport } from './routes/api/ai/generate'
 import { Route as ApiAiRepurposeRouteImport } from './routes/api/ai/repurpose'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiBackupExportRouteImport } from './routes/api/backup/export'
+import { Route as ApiBackupImportRouteImport } from './routes/api/backup/import'
+import { Route as ApiBackupSessionRouteImport } from './routes/api/backup/session'
 import { Route as ApiPostsIndexRouteImport } from './routes/api/posts/index'
 import { Route as ApiPostsSlugRouteImport } from './routes/api/posts/$slug'
 
@@ -111,6 +113,16 @@ const ApiBackupExportRoute = ApiBackupExportRouteImport.update({
   path: '/api/backup/export',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBackupImportRoute = ApiBackupImportRouteImport.update({
+  id: '/api/backup/import',
+  path: '/api/backup/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBackupSessionRoute = ApiBackupSessionRouteImport.update({
+  id: '/api/backup/session',
+  path: '/api/backup/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPostsIndexRoute = ApiPostsIndexRouteImport.update({
   id: '/api/posts/',
   path: '/api/posts/',
@@ -136,6 +148,8 @@ export interface FileRoutesByFullPath {
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/backup/export': typeof ApiBackupExportRoute
+  '/api/backup/import': typeof ApiBackupImportRoute
+  '/api/backup/session': typeof ApiBackupSessionRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts/': typeof ProtectedPostsIndexRoute
   '/api/posts/': typeof ApiPostsIndexRoute
@@ -153,6 +167,8 @@ export interface FileRoutesByTo {
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/backup/export': typeof ApiBackupExportRoute
+  '/api/backup/import': typeof ApiBackupImportRoute
+  '/api/backup/session': typeof ApiBackupSessionRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/posts': typeof ProtectedPostsIndexRoute
   '/api/posts': typeof ApiPostsIndexRoute
@@ -175,6 +191,8 @@ export interface FileRoutesById {
   '/api/ai/repurpose': typeof ApiAiRepurposeRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/backup/export': typeof ApiBackupExportRoute
+  '/api/backup/import': typeof ApiBackupImportRoute
+  '/api/backup/session': typeof ApiBackupSessionRoute
   '/api/posts/$slug': typeof ApiPostsSlugRoute
   '/_protected/posts/': typeof ProtectedPostsIndexRoute
   '/api/posts/': typeof ApiPostsIndexRoute
@@ -195,6 +213,8 @@ export interface FileRouteTypes {
     | '/api/ai/repurpose'
     | '/api/auth/$'
     | '/api/backup/export'
+    | '/api/backup/import'
+    | '/api/backup/session'
     | '/api/posts/$slug'
     | '/posts/'
     | '/api/posts/'
@@ -212,6 +232,8 @@ export interface FileRouteTypes {
     | '/api/ai/repurpose'
     | '/api/auth/$'
     | '/api/backup/export'
+    | '/api/backup/import'
+    | '/api/backup/session'
     | '/api/posts/$slug'
     | '/posts'
     | '/api/posts'
@@ -233,6 +255,8 @@ export interface FileRouteTypes {
     | '/api/ai/repurpose'
     | '/api/auth/$'
     | '/api/backup/export'
+    | '/api/backup/import'
+    | '/api/backup/session'
     | '/api/posts/$slug'
     | '/_protected/posts/'
     | '/api/posts/'
@@ -247,6 +271,8 @@ export interface RootRouteChildren {
   ApiAiRepurposeRoute: typeof ApiAiRepurposeRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiBackupExportRoute: typeof ApiBackupExportRoute
+  ApiBackupImportRoute: typeof ApiBackupImportRoute
+  ApiBackupSessionRoute: typeof ApiBackupSessionRoute
   ApiPostsSlugRoute: typeof ApiPostsSlugRoute
   ApiPostsIndexRoute: typeof ApiPostsIndexRoute
 }
@@ -372,6 +398,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBackupExportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/backup/import': {
+      id: '/api/backup/import'
+      path: '/api/backup/import'
+      fullPath: '/api/backup/import'
+      preLoaderRoute: typeof ApiBackupImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/backup/session': {
+      id: '/api/backup/session'
+      path: '/api/backup/session'
+      fullPath: '/api/backup/session'
+      preLoaderRoute: typeof ApiBackupSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/posts/': {
       id: '/api/posts/'
       path: '/api/posts'
@@ -453,6 +493,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiRepurposeRoute: ApiAiRepurposeRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiBackupExportRoute: ApiBackupExportRoute,
+  ApiBackupImportRoute: ApiBackupImportRoute,
+  ApiBackupSessionRoute: ApiBackupSessionRoute,
   ApiPostsSlugRoute: ApiPostsSlugRoute,
   ApiPostsIndexRoute: ApiPostsIndexRoute,
 }

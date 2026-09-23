@@ -160,9 +160,11 @@ This roadmap turns the current README commitments into independently verifiable 
 
 - [x] **Full-text post search.** Owner-scoped title/slug/description/body matching from the posts toolbar (server-filtered, markup-free), covered by query tests and a deterministic E2E.
 
+- [x] **Instance backup and restore.** Owner-only versioned JSON export plus Merge/Replace import with slug and media remapping, confirmation, and deterministic E2E. Large backups stream each media object before a metadata-only commit; see `docs/backup.md`.
+
 ## Deferred Enhancements
 
 - Command palette and keyboard shortcuts.
-- Import/export and instance backup/restore. (Export shipped: versioned JSON download with R2 file bytes; import pending.)
+- Streaming JSON parsing for very large backup files on memory-constrained browsers, and automated cleanup of staging objects after abandoned uploads.
 - Observability, error reporting, and security hardening beyond baseline authorization and rate limiting.
 - Accessibility and responsive-design audit after the functional workflows stabilize. (The landing page had an initial pass on 2026-09-19; the full audit is still pending.)
