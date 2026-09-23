@@ -124,6 +124,16 @@ Preview is a Workers deploy of the current branch build (no separate
 share the same deploy path). The custom domain serves canonical traffic;
 the `workers.dev` URL keeps working for non-auth smoke checks:
 
+Before deploying PR #33's backup restore code, apply migration `0007` to
+remote D1 and verify it is no longer pending:
+
+```bash
+bun run db:migrate:remote
+bunx wrangler d1 migrations list blog-cms --remote
+```
+
+The full go-live checklist is in `docs/ROADMAP.md` → Final Testing / Go-Live.
+
 ```bash
 bun run deploy:preview
 ```
@@ -157,7 +167,7 @@ points at the intended account first.
 
 1. `bunx wrangler whoami` — correct account.
 2. `bun run deploy:check` — bindings + placeholder id clear.
-3. `bun run db:migrate:remote` — schema current.
+3. Verify remote D1 migrations are current (migration `0007` was applied before this deployment).
 4. Open the deployment URL; sign in once to claim the instance.
 5. Hit `/api/posts` (CORS-gated) from an allowlisted origin if feed access matters.
 

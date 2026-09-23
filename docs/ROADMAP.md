@@ -162,6 +162,15 @@ This roadmap turns the current README commitments into independently verifiable 
 
 - [x] **Instance backup and restore.** Owner-only versioned JSON export plus Merge/Replace import with slug and media remapping, confirmation, and deterministic E2E. Large backups stream each media object before a metadata-only commit; see `docs/backup.md`.
 
+## Final Testing / Go-Live
+
+The backup restore slice is merged, but its new schema and Worker code have not yet been verified together on the canonical live instance. Complete these in order:
+
+- [ ] Apply `0007_optimal_switch.sql` to remote D1 with `bun run db:migrate:remote`; verify `bunx wrangler d1 migrations list blog-cms --remote` reports no pending migrations and `backup_restores` exists. Do this **before** deploying the Worker.
+- [ ] Redeploy `main` with `bun run deploy:preview` after checking the target account and bindings. Preview and production use the same Worker (`docs/deploy.md`).
+- [ ] On `https://contentos.parmjeetmishra.com`, verify owner sign-in, visible AI Generate/Repurpose streams, saved model selection, a live scheduled-post promotion, backup download, and a small **Merge** restore. Do not use Replace on the live owner instance solely as a smoke test.
+- [ ] Investigate the failing Cloudflare Workers Builds PR-branch check (the repo's GitHub CI passed on PR #33; the separate dashboard build is still red). Record the confirmed build failure and fix its configuration before treating it as a release gate.
+
 ## Deferred Enhancements
 
 - Command palette and keyboard shortcuts.
