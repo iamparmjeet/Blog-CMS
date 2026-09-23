@@ -356,14 +356,24 @@ export function SettingsPage({ appearance, user }: SettingsPageProps) {
 			>
 				<div className="shrink-0 border-border border-b px-5 sm:px-8">
 					<TabsList
-						className="h-auto w-full justify-start gap-4 rounded-none border-0 bg-transparent p-0"
+						className="h-auto w-full justify-start gap-4 rounded-none border-0 bg-transparent p-0 max-sm:flex-wrap max-sm:gap-x-4 max-sm:gap-y-1"
 						variant="line"
 					>
-						<TabsTrigger value="appearance">Appearance</TabsTrigger>
-						<TabsTrigger value="account">Account</TabsTrigger>
-						<TabsTrigger value="site">Site</TabsTrigger>
-						<TabsTrigger value="publishing">Publishing</TabsTrigger>
-						<TabsTrigger value="storage">Storage</TabsTrigger>
+						<TabsTrigger className="max-sm:flex-none" value="appearance">
+							Appearance
+						</TabsTrigger>
+						<TabsTrigger className="max-sm:flex-none" value="account">
+							Account
+						</TabsTrigger>
+						<TabsTrigger className="max-sm:flex-none" value="site">
+							Site
+						</TabsTrigger>
+						<TabsTrigger className="max-sm:flex-none" value="publishing">
+							Publishing
+						</TabsTrigger>
+						<TabsTrigger className="max-sm:flex-none" value="storage">
+							Storage
+						</TabsTrigger>
 					</TabsList>
 				</div>
 

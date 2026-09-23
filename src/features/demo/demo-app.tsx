@@ -317,7 +317,7 @@ export function DemoApp() {
 					</aside>
 
 					<div className="flex min-w-0 flex-1 flex-col">
-						<div className="flex items-center gap-1 overflow-x-auto border-border border-b bg-sidebar-bg px-2 py-2 lg:hidden">
+						<div className="flex flex-wrap items-center gap-1 border-border border-b bg-sidebar-bg px-2 py-2 lg:hidden">
 							{NAV_ITEMS.map(({ icon: Icon, id, label }) => (
 								<button
 									className={cn(

@@ -83,7 +83,7 @@ A no-signup sandbox at `/demo` renders the real owner surfaces with sample data,
 - Everything stays in React state: no server functions, no database, no auth. The frame is labelled “Demo data only. Nothing is saved.”
 - Entry points: the public header nav (“Live demo”), the hero primary CTA (“Try the live demo”), and the login page (“Explore the live demo”).
 
-Verification: `bun run test` (321/321), `bun run check-types`, `bun run check` (221 files), and `bun run build` pass. Browser checks confirmed dashboard stats/heatmap, stat-card and recent-post navigation, draft creation, title-following slug, live word count, status switching, the SEO preview, simulated repurposing with copy, search filtering, the sample analytics view, all five settings tabs with frame-scoped theme/accent application, and no horizontal overflow at 390px.
+Verification: `bun run test` (321/321), `bun run check-types`, `bun run check` (221 files), and `bun run build` pass. Browser checks confirmed dashboard stats/heatmap, stat-card and recent-post navigation, draft creation, title-following slug, live word count, status switching, the SEO preview, simulated repurposing with copy, search filtering, the sample analytics view, and all five settings tabs with frame-scoped theme/accent application. A responsive sweep at 320/390/640/768/1024/1280 across all five views found no document overflow; the settings tab strip wraps on narrow screens (also applied to the owner settings page), the demo view switcher wraps at 320px, and the only remaining wide content is intentional ellipsis truncation.
 
 ## Immediate Repair Scope
 
