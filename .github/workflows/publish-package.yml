@@ -1,0 +1,29 @@
+name: Publish scaffold package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - name: Match release tag to package
+        run: test "$GITHUB_REF_NAME" = "v$(bun -p "require('./packages/create-pageowl/package.json').version")"
+      - name: Verify scaffold
+        run: bun run scripts/create-pageowl-e2e.ts
+      - name: Publish to GitHub Packages
+        working-directory: packages/create-pageowl
+        env:
+          NPM_CONFIG_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun publish --tolerate-republish

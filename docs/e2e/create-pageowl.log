@@ -1,0 +1,4 @@
+create-pageowl v1.0.0 E2E
+PASS: tagged clone preserves app files and clears the live D1 ID and Git history
+PASS: existing target is rejected without changing its files
+PASS: missing release tag fails without leaving a project directory

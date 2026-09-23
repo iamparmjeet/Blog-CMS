@@ -1,0 +1,22 @@
+{
+	"name": "@iamparmjeet/create-pageowl",
+	"version": "1.0.0",
+	"description": "Create a self-hosted PageOwl project from a versioned release",
+	"license": "MIT",
+	"type": "module",
+	"bin": {
+		"create-pageowl": "./bin/create-pageowl.js"
+	},
+	"files": ["bin", "README.md"],
+	"engines": {
+		"node": ">=20"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/iamparmjeet/PageOwl.git",
+		"directory": "packages/create-pageowl"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	}
+}

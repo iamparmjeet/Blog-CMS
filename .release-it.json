@@ -2,13 +2,13 @@
 	"git": {
 		"commitMessage": "chore(release): v${version}",
 		"tagName": "v${version}",
-		"tagAnnotation": "ContentOS v${version}",
+		"tagAnnotation": "PageOwl v${version}",
 		"requireCleanWorkingDir": true,
 		"requireUpstream": true
 	},
 	"github": {
 		"release": true,
-		"releaseName": "ContentOS v${version}",
+		"releaseName": "PageOwl v${version}",
 		"preRelease": false
 	},
 	"npm": {
@@ -42,7 +42,7 @@
 				]
 			},
 			"infile": "CHANGELOG.md",
-			"header": "# ContentOS Changelog\n\n"
+			"header": "# PageOwl Changelog\n\n"
 		}
 	}
 }
